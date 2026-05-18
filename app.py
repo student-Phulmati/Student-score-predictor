@@ -196,22 +196,21 @@ DARK_CSS = """
 h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
 
 .stApp {
-    background: radial-gradient(ellipse at 20% 0%, #03045e 0%, #0a0a1a 40%, #000814 100%);
+   background: radial-gradient(ellipse at 20% 0%, #03045e 0%, #0a0a1a 40%, #000814 100%);
     min-height: 100vh;
 }
 .main .block-container {
-    background: rgba(3,4,94,0.18);
+    background: #1E1E1E;
     border-radius: 24px;
     padding: 2rem 2.5rem;
-    border: 1px solid rgba(0,180,216,0.2);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 0 60px rgba(0,119,182,0.12), inset 0 1px 0 rgba(0,180,216,0.1);
+    border: 1px solid #2F2F2F;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, rgba(3,4,94,0.95) 0%, rgba(0,8,20,0.98) 100%);
+    background: #181818;
     border-right: 1px solid rgba(0,180,216,0.2);
 }
-.stApp, .stApp * { color: #caf0f8 !important; }
+.stApp, .stApp * { color: #EAEAEA !important; }
 h1,h2,h3 { color: #90e0ef !important; }
 
 /* Inputs */
@@ -240,7 +239,7 @@ li[role="option"]:hover { background: #0077b6 !important; }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
+    background: linear-gradient(135deg, #4F8CFF 0%, #2563EB 100%) !important;
     color: white !important;
     border: none !important;
     border-radius: 50px !important;
@@ -256,7 +255,7 @@ li[role="option"]:hover { background: #0077b6 !important; }
 .stButton > button:hover {
     transform: translateY(-3px) scale(1.02) !important;
     box-shadow: 0 8px 30px rgba(0,180,216,0.5) !important;
-    background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%) !important;
+   background: linear-gradient(135deg, #6EA8FF 0%, #4F8CFF 100%) !important;
     color: #03045e !important;
 }
 .stButton > button:active { transform: translateY(-1px) scale(0.99) !important; }
