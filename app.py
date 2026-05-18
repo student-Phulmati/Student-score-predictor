@@ -969,15 +969,134 @@ def show_main_app():
                 st.info(f"→ {r}")
         elif st.session_state.last_score:
             st.success("✅ Excellent habits! Maintain your current routine.")
-    # ── Recommendations ──
-   if st.session_state.last_recs is not None:
-   recs = st.session_state.last_recs
-    if recs:
-        st.markdown('<div class="section-header">💡 Recommendations</div>', unsafe_allow_html=True)
-        for r in recs:
-            st.info(f"→ {r}")
-    elif st.session_state.last_score:
-        st.success("✅ Excellent habits! Maintain your current routine.")
+    # =====================================
+# GRAPHS SECTION
+# =====================================
+
+st.markdown('<div class="section-header">📊 Performance Analytics</div>', unsafe_allow_html=True)
+
+# =====================================
+# 1. SCORE HISTORY LINE GRAPH
+# =====================================
+
+if len(user_history) >= 1:
+
+    st.markdown("### 📈 Score History Trend")
+
+    attempts = [f"Attempt {i}" for i in range(1, len(user_history)+1)]
+
+    history_df = pd.DataFrame({
+        "Predicted Score": user_history
+    }, index=attempts)
+
+    st.line_chart(history_df, use_container_width=True, height=300)
+
+    st.caption("Track your prediction progress over time")
+
+
+# =====================================
+# 2. HOURS STUDIED vs SCORE
+# =====================================
+
+st.markdown("### 📚 Hours Studied vs Predicted Score")
+
+hours_range = list(range(1, 11))
+score_by_hours = []
+
+for h in hours_range:
+
+    temp_data = {
+        "Hours_Studied": h,
+        "Attendance": attendance,
+        "Previous_Scores": previous,
+        "Sleep_Hours": sleep,
+        "Motivation_Level": motivation,
+        "Teacher_Quality": teacher,
+        "School_Type": school,
+        "Internet_Access": internet,
+        "Family_Income": income,
+        "Parental_Involvement": parent,
+        "Parental_Education_Level": education,
+        "Peer_Influence": peer,
+        "Learning_Resources": resources,
+        "Extracurricular_Activities": activities
+    }
+
+    temp_df = pd.DataFrame([temp_data])
+
+    temp_df = pd.get_dummies(temp_df)
+
+    temp_df = temp_df.reindex(columns=columns, fill_value=0)
+
+    pred = model.predict(temp_df)
+
+    score_by_hours.append(int(pred[0]))
+
+hours_df = pd.DataFrame({
+    "Study Hours": hours_range,
+    "Predicted Score": score_by_hours
+})
+
+st.line_chart(
+    hours_df.set_index("Study Hours"),
+    use_container_width=True,
+    height=300
+)
+
+st.caption("More study hours generally improve predicted performance")
+
+
+# =====================================
+# 3. ATTENDANCE vs SCORE
+# =====================================
+
+st.markdown("### 🏫 Attendance vs Predicted Score")
+
+attendance_range = list(range(50, 101, 5))
+
+score_by_attendance = []
+
+for att in attendance_range:
+
+    temp_data = {
+        "Hours_Studied": hours,
+        "Attendance": att,
+        "Previous_Scores": previous,
+        "Sleep_Hours": sleep,
+        "Motivation_Level": motivation,
+        "Teacher_Quality": teacher,
+        "School_Type": school,
+        "Internet_Access": internet,
+        "Family_Income": income,
+        "Parental_Involvement": parent,
+        "Parental_Education_Level": education,
+        "Peer_Influence": peer,
+        "Learning_Resources": resources,
+        "Extracurricular_Activities": activities
+    }
+
+    temp_df = pd.DataFrame([temp_data])
+
+    temp_df = pd.get_dummies(temp_df)
+
+    temp_df = temp_df.reindex(columns=columns, fill_value=0)
+
+    pred = model.predict(temp_df)
+
+    score_by_attendance.append(int(pred[0]))
+
+attendance_df = pd.DataFrame({
+    "Attendance %": attendance_range,
+    "Predicted Score": score_by_attendance
+})
+
+st.line_chart(
+    attendance_df.set_index("Attendance %"),
+    use_container_width=True,
+    height=300
+)
+
+st.caption("Better attendance can improve academic performance")
     st.markdown("---")
     st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
 
