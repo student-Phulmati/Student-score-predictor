@@ -969,6 +969,7 @@ def show_main_app():
                 st.info(f"→ {r}")
         elif st.session_state.last_score:
             st.success("✅ Excellent habits! Maintain your current routine.")
+user_history = all_history.get(st.session_state.username, [])
     # =====================================
 # GRAPHS SECTION
 # =====================================
