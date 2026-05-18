@@ -196,21 +196,22 @@ DARK_CSS = """
 h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
 
 .stApp {
-   background: radial-gradient(ellipse at 20% 0%, #03045e 0%, #0a0a1a 40%, #000814 100%);
+    background: radial-gradient(ellipse at 20% 0%, #03045e 0%, #0a0a1a 40%, #000814 100%);
     min-height: 100vh;
 }
 .main .block-container {
-    background: #1E1E1E;
+    background: rgba(3,4,94,0.18);
     border-radius: 24px;
     padding: 2rem 2.5rem;
-    border: 1px solid #2F2F2F;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    border: 1px solid rgba(0,180,216,0.2);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 60px rgba(0,119,182,0.12), inset 0 1px 0 rgba(0,180,216,0.1);
 }
 [data-testid="stSidebar"] {
-    background: #181818;
+    background: linear-gradient(180deg, rgba(3,4,94,0.95) 0%, rgba(0,8,20,0.98) 100%);
     border-right: 1px solid rgba(0,180,216,0.2);
 }
-.stApp, .stApp * { color: #EAEAEA !important; }
+.stApp, .stApp * { color: #caf0f8 !important; }
 h1,h2,h3 { color: #90e0ef !important; }
 
 /* Inputs */
@@ -239,7 +240,7 @@ li[role="option"]:hover { background: #0077b6 !important; }
 
 /* Buttons */
 .stButton > button {
-    background: linear-gradient(135deg, #4F8CFF 0%, #2563EB 100%) !important;
+    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
     color: white !important;
     border: none !important;
     border-radius: 50px !important;
@@ -255,7 +256,7 @@ li[role="option"]:hover { background: #0077b6 !important; }
 .stButton > button:hover {
     transform: translateY(-3px) scale(1.02) !important;
     box-shadow: 0 8px 30px rgba(0,180,216,0.5) !important;
-   background: linear-gradient(135deg, #6EA8FF 0%, #4F8CFF 100%) !important;
+    background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%) !important;
     color: #03045e !important;
 }
 .stButton > button:active { transform: translateY(-1px) scale(0.99) !important; }
@@ -949,7 +950,24 @@ def show_main_app():
         st.progress(pass_pct / 100)
         st.caption(f"✅ Success Rate: {pass_pct:.0f}% ({passing}/{len(user_history)} attempts passed)")
 
-      
+        # ── Score History Graph (with Plotly-style via Streamlit) ──
+        st.markdown('<div class="section-header">📈 Score History</div>', unsafe_allow_html=True)
+
+        attempts = [f"#{i}" for i in range(1, len(user_history)+1)]
+        chart_df = pd.DataFrame({
+            "Your Score": user_history,
+            "Pass Line (60)": [60] * len(user_history),
+            "Good Line (70)": [70] * len(user_history),
+            "Excellent (85)": [85] * len(user_history),
+        }, index=attempts)
+
+        st.line_chart(chart_df, use_container_width=True, height=300)
+        st.caption("📌 Blue = Your score | Benchmarks: Pass=60, Good=70, Excellent=85")
+
+        st.markdown('<div class="section-header">📊 Score Comparison (Bar)</div>', unsafe_allow_html=True)
+        bar_df = pd.DataFrame({"Score": user_history}, index=attempts)
+        st.bar_chart(bar_df, use_container_width=True, height=220)
+
         # Score trend text
         if len(user_history) >= 2:
             trend = user_history[-1] - user_history[-2]
@@ -969,138 +987,9 @@ def show_main_app():
                 st.info(f"→ {r}")
         elif st.session_state.last_score:
             st.success("✅ Excellent habits! Maintain your current routine.")
-def show_main_app():
-user_history = all_history.get(st.session_state.username, [])
-    # =====================================
-# GRAPHS SECTION
-# =====================================
 
-st.markdown('<div class="section-header">📊 Performance Analytics</div>', unsafe_allow_html=True)
-
-# =====================================
-# 1. SCORE HISTORY LINE GRAPH
-# =====================================
-
-if len(user_history) >= 1:
-
-    st.markdown("### 📈 Score History Trend")
-
-    attempts = [f"Attempt {i}" for i in range(1, len(user_history)+1)]
-
-    history_df = pd.DataFrame({
-        "Predicted Score": user_history
-    }, index=attempts)
-
-    st.line_chart(history_df, use_container_width=True, height=300)
-
-    st.caption("Track your prediction progress over time")
-
-
-# =====================================
-# 2. HOURS STUDIED vs SCORE
-# =====================================
-
-st.markdown("### 📚 Hours Studied vs Predicted Score")
-
-hours_range = list(range(1, 11))
-score_by_hours = []
-
-for h in hours_range:
-
-    temp_data = {
-        "Hours_Studied": h,
-        "Attendance": attendance,
-        "Previous_Scores": previous,
-        "Sleep_Hours": sleep,
-        "Motivation_Level": motivation,
-        "Teacher_Quality": teacher,
-        "School_Type": school,
-        "Internet_Access": internet,
-        "Family_Income": income,
-        "Parental_Involvement": parent,
-        "Parental_Education_Level": education,
-        "Peer_Influence": peer,
-        "Learning_Resources": resources,
-        "Extracurricular_Activities": activities
-    }
-
-    temp_df = pd.DataFrame([temp_data])
-
-    temp_df = pd.get_dummies(temp_df)
-
-    temp_df = temp_df.reindex(columns=columns, fill_value=0)
-
-    pred = model.predict(temp_df)
-
-    score_by_hours.append(int(pred[0]))
-
-hours_df = pd.DataFrame({
-    "Study Hours": hours_range,
-    "Predicted Score": score_by_hours
-})
-
-st.line_chart(
-    hours_df.set_index("Study Hours"),
-    use_container_width=True,
-    height=300
-)
-
-st.caption("More study hours generally improve predicted performance")
-
-
-# =====================================
-# 3. ATTENDANCE vs SCORE
-# =====================================
-
-st.markdown("### 🏫 Attendance vs Predicted Score")
-
-attendance_range = list(range(50, 101, 5))
-
-score_by_attendance = []
-
-for att in attendance_range:
-
-    temp_data = {
-        "Hours_Studied": hours,
-        "Attendance": att,
-        "Previous_Scores": previous,
-        "Sleep_Hours": sleep,
-        "Motivation_Level": motivation,
-        "Teacher_Quality": teacher,
-        "School_Type": school,
-        "Internet_Access": internet,
-        "Family_Income": income,
-        "Parental_Involvement": parent,
-        "Parental_Education_Level": education,
-        "Peer_Influence": peer,
-        "Learning_Resources": resources,
-        "Extracurricular_Activities": activities
-    }
-
-    temp_df = pd.DataFrame([temp_data])
-
-    temp_df = pd.get_dummies(temp_df)
-
-    temp_df = temp_df.reindex(columns=columns, fill_value=0)
-
-    pred = model.predict(temp_df)
-
-    score_by_attendance.append(int(pred[0]))
-
-attendance_df = pd.DataFrame({
-    "Attendance %": attendance_range,
-    "Predicted Score": score_by_attendance
-})
-
-st.line_chart(
-    attendance_df.set_index("Attendance %"),
-    use_container_width=True,
-    height=300
-)
-
-st.caption("Better attendance can improve academic performance")
-st.markdown("---")
-st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
+    st.markdown("---")
+    st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
 
 # =====================================
 # MAIN
