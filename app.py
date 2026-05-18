@@ -949,24 +949,7 @@ def show_main_app():
         st.progress(pass_pct / 100)
         st.caption(f"✅ Success Rate: {pass_pct:.0f}% ({passing}/{len(user_history)} attempts passed)")
 
-        # ── Score History Graph (with Plotly-style via Streamlit) ──
-        st.markdown('<div class="section-header">📈 Score History</div>', unsafe_allow_html=True)
-
-        attempts = [f"#{i}" for i in range(1, len(user_history)+1)]
-        chart_df = pd.DataFrame({
-            "Your Score": user_history,
-            "Pass Line (60)": [60] * len(user_history),
-            "Good Line (70)": [70] * len(user_history),
-            "Excellent (85)": [85] * len(user_history),
-        }, index=attempts)
-
-        st.line_chart(chart_df, use_container_width=True, height=300)
-        st.caption("📌 Blue = Your score | Benchmarks: Pass=60, Good=70, Excellent=85")
-
-        st.markdown('<div class="section-header">📊 Score Comparison (Bar)</div>', unsafe_allow_html=True)
-        bar_df = pd.DataFrame({"Score": user_history}, index=attempts)
-        st.bar_chart(bar_df, use_container_width=True, height=220)
-
+      
         # Score trend text
         if len(user_history) >= 2:
             trend = user_history[-1] - user_history[-2]
@@ -986,7 +969,15 @@ def show_main_app():
                 st.info(f"→ {r}")
         elif st.session_state.last_score:
             st.success("✅ Excellent habits! Maintain your current routine.")
-
+    # ── Recommendations ──
+   if st.session_state.last_recs is not None:
+    recs = st.session_state.last_recs
+    if recs:
+        st.markdown('<div class="section-header">💡 Recommendations</div>', unsafe_allow_html=True)
+        for r in recs:
+            st.info(f"→ {r}")
+    elif st.session_state.last_score:
+        st.success("✅ Excellent habits! Maintain your current routine.")
     st.markdown("---")
     st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
 
