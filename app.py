@@ -971,7 +971,7 @@ def show_main_app():
             st.success("✅ Excellent habits! Maintain your current routine.")
     # ── Recommendations ──
    if st.session_state.last_recs is not None:
-    recs = st.session_state.last_recs
+   recs = st.session_state.last_recs
     if recs:
         st.markdown('<div class="section-header">💡 Recommendations</div>', unsafe_allow_html=True)
         for r in recs:
