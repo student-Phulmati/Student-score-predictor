@@ -1097,8 +1097,8 @@ st.line_chart(
 )
 
 st.caption("Better attendance can improve academic performance")
-    st.markdown("---")
-    st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
+st.markdown("---")
+st.caption("🎓 Student Score Predictor · AI Powered Academic Tool · Built with ❤️")
 
 # =====================================
 # MAIN
