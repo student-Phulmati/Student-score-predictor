@@ -7,3 +7,4 @@ matplotlib
 fpdf2
 reportlab
 plotly
+requests
