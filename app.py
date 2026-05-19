@@ -623,16 +623,51 @@ def apply_theme():
         cursor:pointer !important;
         border-radius:999px !important;
         border:none !important;
-        font-weight:800 !important;
+        font-weight:900 !important;
+        letter-spacing:0.2px !important;
         background:linear-gradient(135deg,#0077b6,#00b4d8) !important;
         color:white !important;
-        transition:0.25s ease !important;
+        transition:all 0.28s cubic-bezier(.2,.8,.2,1) !important;
         box-shadow:0 8px 24px rgba(0,119,182,0.25);
+        min-height:2.75rem !important;
     }}
 
     .stButton > button:hover, [data-testid="stDownloadButton"] button:hover {{
-        transform:translateY(-2px);
-        box-shadow:0 14px 35px rgba(0,180,216,0.40);
+        transform:translateY(-3px) scale(1.015);
+        background:linear-gradient(135deg,#00b4d8,#90e0ef) !important;
+        color:#03045e !important;
+        box-shadow:0 16px 42px rgba(0,180,216,0.48);
+    }}
+
+    .stButton > button:active, [data-testid="stDownloadButton"] button:active {{
+        transform:translateY(-1px) scale(0.99);
+    }}
+
+    .detail-grid {{
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+        gap:0.85rem;
+    }}
+
+    .detail-item {{
+        background:rgba(0,180,216,0.09);
+        border:1px solid rgba(0,180,216,0.28);
+        border-radius:18px;
+        padding:0.85rem 1rem;
+    }}
+
+    .detail-label {{
+        font-size:0.72rem;
+        opacity:0.76;
+        margin-bottom:0.22rem;
+        text-transform:uppercase;
+        letter-spacing:0.7px;
+    }}
+
+    .detail-value {{
+        font-size:1rem;
+        font-weight:800;
+        color:{'#ffffff' if dark else '#03045e'} !important;
     }}
 
     button, a, label {{
@@ -671,7 +706,7 @@ def init_state():
         "logged_in": False,
         "username": "",
         "theme": "dark",
-        "auth_page": "login",
+        "auth_page": "welcome",
         "page": "Dashboard",
         "last_result": None,
         "last_pdf": None,
@@ -880,6 +915,16 @@ def sidebar(user):
                 st.rerun()
 
         st.markdown("---")
+        st.markdown("### Account Details")
+        st.markdown(f"**Email:** {user.get('email','N/A')}")
+        if user.get("role") == "student":
+            st.markdown(f"**Grade:** {user.get('grade','N/A')}")
+            st.markdown(f"**School:** {user.get('school','N/A')}")
+        else:
+            st.markdown(f"**Child:** {user.get('child_name','N/A')}")
+            st.markdown(f"**Child Grade:** {user.get('child_grade','N/A')}")
+
+        st.markdown("---")
         pages = ["Dashboard", "Prediction", "Reports", "History", "Share"]
         for p in pages:
             if st.button(p, use_container_width=True, key=f"nav_{p}"):
@@ -896,6 +941,140 @@ def sidebar(user):
             st.session_state.auth_page = "welcome"
             st.rerun()
 
+
+# =========================================================
+# USER DETAIL CARD + USEFUL GRAPHS
+# =========================================================
+def user_detail_card(user):
+    role = user.get("role", "student")
+    details = [
+        ("Full Name", user.get("full_name", "N/A")),
+        ("Username", st.session_state.username),
+        ("Email", user.get("email", "N/A")),
+        ("Role", role.capitalize()),
+    ]
+
+    if role == "student":
+        details.extend([
+            ("Age", user.get("age", "N/A")),
+            ("Grade", user.get("grade", "N/A")),
+            ("School / College", user.get("school", "N/A")),
+        ])
+    else:
+        details.extend([
+            ("Child Name", user.get("child_name", "N/A")),
+            ("Child Grade", user.get("child_grade", "N/A")),
+            ("Relation", user.get("relation", "N/A")),
+        ])
+
+    html = '<div class="app-card"><div class="section-title">Profile Details</div><div class="detail-grid">'
+    for label, value in details:
+        html += f"""
+        <div class="detail-item">
+            <div class="detail-label">{label}</div>
+            <div class="detail-value">{value}</div>
+        </div>
+        """
+    html += "</div></div>"
+    st.markdown(html, unsafe_allow_html=True)
+
+def input_trend_chart(records):
+    if not records:
+        return None
+
+    x = [f"R{i}" for i in range(1, len(records) + 1)]
+    hours = [r.get("inputs", {}).get("Hours_Studied", 0) for r in records]
+    attendance = [r.get("inputs", {}).get("Attendance", 0) for r in records]
+    previous = [r.get("inputs", {}).get("Previous_Scores", 0) for r in records]
+
+    dark = st.session_state.get("theme", "dark") == "dark"
+    txt = "#ffffff" if dark else "#03045e"
+    grid = "rgba(0,180,216,0.15)"
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(x=x, y=hours, name="Study Hours", marker_color="#00b4d8"))
+    fig.add_trace(go.Scatter(x=x, y=attendance, mode="lines+markers", name="Attendance %", line=dict(color="#90e0ef", width=3)))
+    fig.add_trace(go.Scatter(x=x, y=previous, mode="lines+markers", name="Previous Score", line=dict(color="#fbbf24", width=3)))
+
+    fig.update_layout(
+        title="Study Hours, Attendance and Previous Score Overview",
+        height=390,
+        barmode="group",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color=txt),
+        xaxis=dict(gridcolor=grid),
+        yaxis=dict(gridcolor=grid, rangemode="tozero"),
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+    )
+    return fig
+
+def score_distribution_chart(scores):
+    if not scores:
+        return None
+
+    labels = ["Needs Improvement", "Satisfactory", "Good", "Excellent"]
+    counts = [
+        len([s for s in scores if s < 55]),
+        len([s for s in scores if 55 <= s < 70]),
+        len([s for s in scores if 70 <= s < 85]),
+        len([s for s in scores if s >= 85]),
+    ]
+
+    dark = st.session_state.get("theme", "dark") == "dark"
+    txt = "#ffffff" if dark else "#03045e"
+
+    fig = go.Figure(data=[go.Pie(
+        labels=labels,
+        values=counts,
+        hole=0.55,
+        textinfo="label+percent",
+        marker=dict(colors=["#f87171", "#fbbf24", "#00b4d8", "#34d399"])
+    )])
+    fig.update_layout(
+        title="Performance Category Distribution",
+        height=360,
+        paper_bgcolor="rgba(0,0,0,0)",
+        font=dict(color=txt),
+        showlegend=True
+    )
+    return fig
+
+def latest_input_bar(result):
+    if not result:
+        return None
+
+    data = result.get("inputs", {})
+    labels = ["Study Hours", "Attendance", "Previous Score", "Sleep Hours"]
+    values = [
+        data.get("Hours_Studied", 0),
+        data.get("Attendance", 0),
+        data.get("Previous_Scores", 0),
+        data.get("Sleep_Hours", 0),
+    ]
+
+    dark = st.session_state.get("theme", "dark") == "dark"
+    txt = "#ffffff" if dark else "#03045e"
+
+    fig = go.Figure()
+    fig.add_trace(go.Bar(
+        x=labels,
+        y=values,
+        marker_color=["#00b4d8", "#90e0ef", "#fbbf24", "#34d399"],
+        text=values,
+        textposition="auto"
+    ))
+    fig.update_layout(
+        title="Latest Report Input Snapshot",
+        height=340,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color=txt),
+        yaxis=dict(rangemode="tozero", gridcolor="rgba(0,180,216,0.15)")
+    )
+    return fig
+
+
 # =========================================================
 # DASHBOARD
 # =========================================================
@@ -903,13 +1082,17 @@ def dashboard(user):
     st.markdown("<h1>Dashboard</h1>", unsafe_allow_html=True)
     history = get_user_history(st.session_state.username)
     scores = history.get("scores", [])
+    records = history.get("records", [])
+
+    user_detail_card(user)
 
     c1, c2, c3, c4 = st.columns(4)
+    avg_score = round(sum(scores) / len(scores), 1) if scores else "N/A"
     metrics = [
         ("Total Reports", len(scores)),
         ("Last Score", scores[-1] if scores else "N/A"),
+        ("Average Score", avg_score),
         ("Best Score", max(scores) if scores else "N/A"),
-        ("Role", user.get("role", "student").capitalize())
     ]
     for col, (label, value) in zip([c1, c2, c3, c4], metrics):
         with col:
@@ -922,12 +1105,27 @@ def dashboard(user):
 
     st.write("")
     st.markdown('<div class="app-card">', unsafe_allow_html=True)
-    st.markdown('<div class="section-title">Welcome</div>', unsafe_allow_html=True)
-    st.write("Use the left navigation to predict score, generate printable PDF report, and share the document through email or WhatsApp.")
+    st.markdown('<div class="section-title">Useful Data Insights</div>', unsafe_allow_html=True)
+    st.write("These graphs show score progress, study effort, attendance, previous marks and performance category in a clear way.")
     st.markdown("</div>", unsafe_allow_html=True)
 
     if scores:
         st.plotly_chart(score_chart(scores), use_container_width=True)
+
+        g1, g2 = st.columns(2)
+        with g1:
+            fig = input_trend_chart(records)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+        with g2:
+            fig = score_distribution_chart(scores)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
+
+        if st.session_state.last_result:
+            fig = latest_input_bar(st.session_state.last_result)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No prediction yet. Go to Prediction page and generate your first report.")
 
@@ -1027,6 +1225,10 @@ def reports_page(user):
     result = st.session_state.last_result
     show_result_block(result)
 
+    fig = latest_input_bar(result)
+    if fig:
+        st.plotly_chart(fig, use_container_width=True)
+
     st.markdown('<div class="app-card">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Printable Document</div>', unsafe_allow_html=True)
     st.download_button(
@@ -1114,6 +1316,16 @@ def history_page(user):
         return
 
     st.plotly_chart(score_chart(scores), use_container_width=True)
+
+    g1, g2 = st.columns(2)
+    with g1:
+        fig = input_trend_chart(records)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
+    with g2:
+        fig = score_distribution_chart(scores)
+        if fig:
+            st.plotly_chart(fig, use_container_width=True)
 
     table_rows = []
     for i, rec in enumerate(records, 1):
