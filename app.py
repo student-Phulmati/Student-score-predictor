@@ -10,6 +10,9 @@ import random
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+from urllib.parse import quote
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -146,6 +149,32 @@ def send_otp_email(receiver_email, otp_code, full_name="User"):
         return True, "OTP sent successfully!"
     except Exception as e:
         return False, f"Email error: {str(e)}"
+
+
+def send_pdf_report_email(receiver_email, subject, body_text, pdf_bytes, filename="student_score_report.pdf"):
+    """Send PDF report as email attachment using Gmail SMTP."""
+    try:
+        if EMAIL_SENDER == "your_email@gmail.com" or EMAIL_PASSWORD == "your_app_password_here":
+            return False, "Email sender is not configured. Add your Gmail and App Password in EMAIL_SENDER and EMAIL_PASSWORD."
+
+        msg = MIMEMultipart()
+        msg["Subject"] = subject
+        msg["From"] = EMAIL_SENDER
+        msg["To"] = receiver_email
+        msg.attach(MIMEText(body_text, "plain"))
+
+        part = MIMEBase("application", "pdf")
+        part.set_payload(pdf_bytes)
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
+        msg.attach(part)
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+            server.sendmail(EMAIL_SENDER, receiver_email, msg.as_string())
+        return True, "PDF report sent successfully!"
+    except Exception as e:
+        return False, f"Email sending error: {str(e)}"
 
 def store_otp(email, otp):
     store = load_otp_store()
@@ -381,7 +410,7 @@ li[role="option"]:hover { background: #0077b6 !important; }
 }
 
 .profile-card { text-align: center; padding: 0.8rem; }
-.profile-name { font-size: 1rem; font-weight: 700; color: #ffffff !important; font-family: 'Syne', sans-serif !important; }
+.profile-name { font-size: 1rem; font-weight: 800; color: #ffffff !important; background: rgba(0,0,0,0.25); padding: 0.25rem 0.6rem; border-radius: 10px; display: inline-block; font-family: 'Syne', sans-serif !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
 .profile-role {
     font-size: 0.62rem; padding: 0.2rem 0.7rem; border-radius: 50px;
     display: inline-block; background: rgba(0,180,216,0.12);
@@ -436,6 +465,11 @@ input::placeholder { color: rgba(200,238,248,0.45) !important; }
 .stNumberInput button:hover { background: #0077b6 !important; color: white !important; }
 .stCheckbox label { color: #ffffff !important; }
 [data-testid="stFileUploader"] { background: rgba(0,20,60,0.4) !important; border: 2px dashed rgba(0,180,216,0.3) !important; border-radius: 14px !important; }
+
+/* Better visibility + hand cursor */
+.stButton > button, [data-testid="stDownloadButton"] button, button, a, label, input[type="button"], input[type="submit"] { cursor: pointer !important; }
+code { color: inherit !important; background: rgba(0,180,216,0.12) !important; border-radius: 6px !important; padding: 0.1rem 0.35rem !important; }
+[data-testid="stSidebar"] code { color: #ffffff !important; background: rgba(0,180,216,0.25) !important; }
 </style>
 """
 
@@ -512,7 +546,7 @@ li[role="option"]:hover { background: #0077b6 !important; color: white !importan
 
 .section-header { font-family: 'Syne', sans-serif; color: #03045e !important; font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
 .profile-card { text-align: center; padding: 0.8rem; }
-.profile-name { font-size: 1rem; font-weight: 700; color: #03045e !important; font-family: 'Syne', sans-serif !important; }
+.profile-name { font-size: 1rem; font-weight: 800; color: #03045e !important; background: rgba(255,255,255,0.65); padding: 0.25rem 0.6rem; border-radius: 10px; display: inline-block; font-family: 'Syne', sans-serif !important; }
 .profile-role {
     font-size: 0.62rem; padding: 0.2rem 0.7rem; border-radius: 50px;
     display: inline-block; background: rgba(0,119,182,0.1);
@@ -552,6 +586,11 @@ li[role="option"]:hover { background: #0077b6 !important; color: white !importan
 .share-box { background: rgba(0,119,182,0.05); border: 1px solid rgba(0,119,182,0.2); border-radius: 16px; padding: 1rem; margin: 0.5rem 0; }
 hr { border-color: rgba(0,119,182,0.15) !important; margin: 1rem 0 !important; }
 [data-testid="stFileUploader"] { background: rgba(202,240,248,0.4) !important; border: 2px dashed rgba(0,119,182,0.3) !important; border-radius: 14px !important; }
+
+/* Better visibility + hand cursor */
+.stButton > button, [data-testid="stDownloadButton"] button, button, a, label, input[type="button"], input[type="submit"] { cursor: pointer !important; }
+code { color: inherit !important; background: rgba(0,180,216,0.12) !important; border-radius: 6px !important; padding: 0.1rem 0.35rem !important; }
+[data-testid="stSidebar"] code { color: #ffffff !important; background: rgba(0,180,216,0.25) !important; }
 </style>
 """
 
@@ -1141,25 +1180,58 @@ def show_main_app():
             st.download_button("📋 Score Summary (TXT)", data=share_text,
                 file_name=f"score_{uname}.txt", mime="text/plain", use_container_width=True)
 
-        wa_text = f"🎓 My Predicted Exam Score: {final_score}/100! via Student Score Predictor AI."
-        wa_url  = f"https://wa.me/?text={wa_text.replace(' ','%20')}"
-        email_url = f"mailto:?subject=My%20Predicted%20Score&body={share_text.replace(chr(10),'%0A')}"
+        # WhatsApp Web cannot auto-attach a PDF from a normal Streamlit website.
+        # So this app gives the PDF download button + opens WhatsApp with ready message.
+        # For Email, PDF can be sent as a real attachment using SMTP.
+        st.markdown("---")
+        st.markdown("**📱 WhatsApp Document Sharing**")
+        st.caption("Step 1: Download PDF above. Step 2: Open WhatsApp and attach the downloaded PDF document.")
+        wa_text = (
+            f"🎓 Student Score Predictor Report\n"
+            f"Predicted Score: {final_score}/100\n"
+            f"Please find the PDF report attached."
+        )
+        wa_url  = f"https://wa.me/?text={quote(wa_text)}"
         st.markdown(f"""
-        <div style="display:flex;gap:0.8rem;margin-top:0.7rem;flex-wrap:wrap;">
-            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
-                <button style="background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;
-                    border-radius:50px;padding:0.4rem 1.1rem;font-size:0.8rem;font-weight:600;cursor:pointer;">
-                    📱 Share on WhatsApp
-                </button>
-            </a>
-            <a href="{email_url}" style="text-decoration:none;">
-                <button style="background:linear-gradient(135deg,#0077b6,#00b4d8);color:white;border:none;
-                    border-radius:50px;padding:0.4rem 1.1rem;font-size:0.8rem;font-weight:600;cursor:pointer;">
-                    📧 Share via Email
-                </button>
-            </a>
-        </div>
+        <a href="{wa_url}" target="_blank" style="text-decoration:none;">
+            <button style="background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;
+                border-radius:50px;padding:0.55rem 1.25rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
+                📱 Open WhatsApp & Attach PDF
+            </button>
+        </a>
         """, unsafe_allow_html=True)
+
+        st.markdown("---")
+        st.markdown("**📧 Send PDF Report by Email**")
+        default_email = user_data.get("email", "")
+        report_email = st.text_input("Receiver Email", value=default_email, key="report_receiver_email")
+        email_note = st.text_area(
+            "Email Message",
+            value=(
+                f"Hello,\n\nPlease find attached the Student Score Predictor PDF report.\n\n"
+                f"Predicted Score: {final_score}/100\n\nRegards"
+            ),
+            key="report_email_note"
+        )
+        if st.button("📧 Send PDF Report to Email", use_container_width=True, key="send_pdf_email_btn"):
+            if not report_email:
+                st.warning("Please enter receiver email.")
+            elif not st.session_state.last_pdf:
+                st.error("PDF report not found. Please predict score again.")
+            else:
+                fname = f"score_report_{uname}_{datetime.now().strftime('%Y%m%d')}.pdf"
+                ok, msg = send_pdf_report_email(
+                    report_email,
+                    "Student Score Predictor PDF Report",
+                    email_note,
+                    st.session_state.last_pdf,
+                    fname
+                )
+                if ok:
+                    st.success("✅ PDF report sent to email successfully.")
+                else:
+                    st.error(msg)
+
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ── Performance Overview ──
