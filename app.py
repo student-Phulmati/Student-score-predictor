@@ -13,6 +13,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 from urllib.parse import quote
+import requests
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
@@ -45,11 +46,19 @@ if not os.path.exists(PROFILE_PICS_DIR):
     os.makedirs(PROFILE_PICS_DIR)
 
 # =====================================
-# EMAIL CONFIG — Change these!
+# EMAIL + WHATSAPP CONFIG — Change these!
 # =====================================
-EMAIL_SENDER = "your_email@gmail.com"       # ← Your Gmail address
-EMAIL_PASSWORD = "your_app_password_here"   # ← Gmail App Password (not your login password)
-# To get App Password: Google Account → Security → 2-Step Verification → App passwords
+# ✅ Gmail SMTP settings
+# IMPORTANT: EMAIL_PASSWORD must be a Gmail App Password, not your normal Gmail password.
+# Google Account → Security → 2-Step Verification → App passwords → create app password.
+EMAIL_SENDER = "your_email@gmail.com"
+EMAIL_PASSWORD = "your_16_digit_gmail_app_password"
+
+# ✅ WhatsApp Cloud API settings for DIRECT PDF document sending
+# Without these, browser WhatsApp can only open chat with text; it cannot auto-attach PDF.
+# Get these from Meta Developer → WhatsApp → API Setup.
+WHATSAPP_TOKEN = "your_whatsapp_cloud_api_token"
+WHATSAPP_PHONE_NUMBER_ID = "your_phone_number_id"
 
 # =====================================
 # DATA HELPERS
@@ -143,6 +152,10 @@ def send_otp_email(receiver_email, otp_code, full_name="User"):
         """
         msg.attach(MIMEText(html_body, "html"))
 
+        if (not EMAIL_SENDER or "your_email" in EMAIL_SENDER or
+            not EMAIL_PASSWORD or "your_16_digit" in EMAIL_PASSWORD or "your_app_password" in EMAIL_PASSWORD):
+            return False, "Email sender is not configured. Add your Gmail and 16-digit Gmail App Password in EMAIL_SENDER and EMAIL_PASSWORD."
+
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, receiver_email, msg.as_string())
@@ -154,8 +167,9 @@ def send_otp_email(receiver_email, otp_code, full_name="User"):
 def send_pdf_report_email(receiver_email, subject, body_text, pdf_bytes, filename="student_score_report.pdf"):
     """Send PDF report as email attachment using Gmail SMTP."""
     try:
-        if EMAIL_SENDER == "your_email@gmail.com" or EMAIL_PASSWORD == "your_app_password_here":
-            return False, "Email sender is not configured. Add your Gmail and App Password in EMAIL_SENDER and EMAIL_PASSWORD."
+        if (not EMAIL_SENDER or "your_email" in EMAIL_SENDER or
+            not EMAIL_PASSWORD or "your_16_digit" in EMAIL_PASSWORD or "your_app_password" in EMAIL_PASSWORD):
+            return False, "Email sender is not configured. Add your Gmail and 16-digit Gmail App Password in EMAIL_SENDER and EMAIL_PASSWORD."
 
         msg = MIMEMultipart()
         msg["Subject"] = subject
@@ -175,6 +189,55 @@ def send_pdf_report_email(receiver_email, subject, body_text, pdf_bytes, filenam
         return True, "PDF report sent successfully!"
     except Exception as e:
         return False, f"Email sending error: {str(e)}"
+
+
+
+def send_whatsapp_pdf_report(receiver_phone, caption, pdf_bytes, filename="student_score_report.pdf"):
+    """
+    Send PDF directly as a WhatsApp document using WhatsApp Cloud API.
+    receiver_phone must include country code, for India example: 919876543210
+    """
+    try:
+        if (not WHATSAPP_TOKEN or "your_whatsapp" in WHATSAPP_TOKEN or
+            not WHATSAPP_PHONE_NUMBER_ID or "your_phone_number" in WHATSAPP_PHONE_NUMBER_ID):
+            return False, "WhatsApp Cloud API is not configured. Add WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID."
+
+        clean_phone = receiver_phone.strip().replace("+", "").replace(" ", "").replace("-", "")
+        if len(clean_phone) < 10:
+            return False, "Enter WhatsApp number with country code. Example: 919876543210"
+
+        upload_url = f"https://graph.facebook.com/v20.0/{WHATSAPP_PHONE_NUMBER_ID}/media"
+        headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+        files = {"file": (filename, pdf_bytes, "application/pdf")}
+        data = {"messaging_product": "whatsapp", "type": "application/pdf"}
+        upload_response = requests.post(upload_url, headers=headers, files=files, data=data, timeout=30)
+
+        if upload_response.status_code not in [200, 201]:
+            return False, f"WhatsApp PDF upload failed: {upload_response.text}"
+
+        media_id = upload_response.json().get("id")
+        if not media_id:
+            return False, "WhatsApp media ID was not received."
+
+        send_url = f"https://graph.facebook.com/v20.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": clean_phone,
+            "type": "document",
+            "document": {
+                "id": media_id,
+                "filename": filename,
+                "caption": caption
+            }
+        }
+        send_response = requests.post(send_url, headers={**headers, "Content-Type": "application/json"}, json=payload, timeout=30)
+
+        if send_response.status_code not in [200, 201]:
+            return False, f"WhatsApp document send failed: {send_response.text}"
+
+        return True, "PDF document sent on WhatsApp successfully!"
+    except Exception as e:
+        return False, f"WhatsApp sending error: {str(e)}"
 
 def store_otp(email, otp):
     store = load_otp_store()
@@ -315,6 +378,7 @@ h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
 .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: #90e0ef !important; }
 .stApp .stMarkdown p { color: #ffffff !important; }
 [data-testid="stSidebar"] * { color: #ffffff !important; }
+[data-testid="stSidebar"] code { color: #00e5ff !important; background: rgba(0,180,216,0.18) !important; }
 [data-testid="stSidebar"] h1,[data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3 { color: #90e0ef !important; }
 .stCaption, [data-testid="stCaptionContainer"] { color: #c0e8f8 !important; }
@@ -344,6 +408,7 @@ li[role="option"] { color: #ffffff !important; }
 li[role="option"]:hover { background: #0077b6 !important; }
 
 /* Buttons */
+button, .stButton > button, [data-testid="stDownloadButton"] button, a { cursor: pointer !important; }
 .stButton > button {
     background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
     color: #ffffff !important;
@@ -492,6 +557,7 @@ h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
     border-right: 1px solid rgba(0,180,216,0.25);
 }
 .stApp, .stApp * { color: #03045e !important; }
+[data-testid="stSidebar"] code { color: #0077b6 !important; background: rgba(0,119,182,0.10) !important; }
 h1,h2,h3 { color: #03045e !important; }
 
 .stNumberInput input, .stTextInput input, .stDateInput input {
@@ -508,6 +574,7 @@ div[data-baseweb="popover"] div { background: #f0faff !important; border: 1px so
 li[role="option"] { color: #03045e !important; }
 li[role="option"]:hover { background: #0077b6 !important; color: white !important; }
 
+button, .stButton > button, [data-testid="stDownloadButton"] button, a { cursor: pointer !important; }
 .stButton > button {
     background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
     color: white !important; border: none !important;
@@ -1180,26 +1247,46 @@ def show_main_app():
             st.download_button("📋 Score Summary (TXT)", data=share_text,
                 file_name=f"score_{uname}.txt", mime="text/plain", use_container_width=True)
 
-        # WhatsApp Web cannot auto-attach a PDF from a normal Streamlit website.
-        # So this app gives the PDF download button + opens WhatsApp with ready message.
-        # For Email, PDF can be sent as a real attachment using SMTP.
+        # Direct WhatsApp PDF sending works only with WhatsApp Cloud API configuration.
+        # Normal wa.me/browser links cannot auto-attach local PDF files due to browser security limits.
         st.markdown("---")
-        st.markdown("**📱 WhatsApp Document Sharing**")
-        st.caption("Step 1: Download PDF above. Step 2: Open WhatsApp and attach the downloaded PDF document.")
+        st.markdown("**📱 Send PDF Document on WhatsApp**")
         wa_text = (
             f"🎓 Student Score Predictor Report\n"
             f"Predicted Score: {final_score}/100\n"
             f"Please find the PDF report attached."
         )
-        wa_url  = f"https://wa.me/?text={quote(wa_text)}"
-        st.markdown(f"""
-        <a href="{wa_url}" target="_blank" style="text-decoration:none;">
-            <button style="background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;
-                border-radius:50px;padding:0.55rem 1.25rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
-                📱 Open WhatsApp & Attach PDF
-            </button>
-        </a>
-        """, unsafe_allow_html=True)
+        wa_phone = st.text_input(
+            "Receiver WhatsApp Number with Country Code",
+            placeholder="Example: 919876543210",
+            key="wa_receiver_phone"
+        )
+
+        cw1, cw2 = st.columns(2)
+        with cw1:
+            if st.button("📱 Send PDF Directly on WhatsApp", use_container_width=True, key="send_wa_pdf_btn"):
+                if not wa_phone:
+                    st.warning("Please enter receiver WhatsApp number with country code.")
+                elif not st.session_state.last_pdf:
+                    st.error("PDF report not found. Please predict score again.")
+                else:
+                    fname = f"score_report_{uname}_{datetime.now().strftime('%Y%m%d')}.pdf"
+                    ok, msg = send_whatsapp_pdf_report(wa_phone, wa_text, st.session_state.last_pdf, fname)
+                    if ok:
+                        st.success("✅ PDF document sent on WhatsApp successfully.")
+                    else:
+                        st.error(msg)
+        with cw2:
+            wa_url = f"https://wa.me/{wa_phone.strip().replace('+','').replace(' ','').replace('-','')}?text={quote(wa_text)}" if wa_phone else f"https://wa.me/?text={quote(wa_text)}"
+            st.markdown(f"""
+            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
+                <button style="width:100%;background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;
+                    border-radius:50px;padding:0.55rem 1.25rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
+                    📎 Open WhatsApp Manually
+                </button>
+            </a>
+            """, unsafe_allow_html=True)
+        st.caption("Direct PDF sending needs WhatsApp Cloud API. If API is not configured, download the PDF and use Open WhatsApp Manually to attach it.")
 
         st.markdown("---")
         st.markdown("**📧 Send PDF Report by Email**")
