@@ -1,32 +1,33 @@
 import streamlit as st
-import joblib
 import pandas as pd
 import numpy as np
-import hashlib
+import joblib
 import json
 import os
+import io
 import base64
+import hashlib
 import random
 import smtplib
+import requests
+from datetime import datetime, timedelta
+from urllib.parse import quote
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from urllib.parse import quote
-import requests
-from datetime import datetime
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
-import io
-import plotly.graph_objects as go
-import plotly.express as px
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-# =====================================
+import plotly.graph_objects as go
+
+# =========================================================
 # PAGE CONFIG
-# =====================================
+# =========================================================
 st.set_page_config(
     page_title="Student Score Predictor",
     page_icon="🎓",
@@ -34,148 +35,157 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# =====================================
-# FILE PATHS
-# =====================================
+# =========================================================
+# FILES
+# =========================================================
 USER_DB_FILE = "users.json"
 HISTORY_FILE = "prediction_history.json"
-PROFILE_PICS_DIR = "profile_pics"
 OTP_FILE = "otp_store.json"
+PROFILE_DIR = "profile_pics"
 
-if not os.path.exists(PROFILE_PICS_DIR):
-    os.makedirs(PROFILE_PICS_DIR)
+os.makedirs(PROFILE_DIR, exist_ok=True)
 
-# =====================================
-# EMAIL + WHATSAPP CONFIG — Change these!
-# =====================================
-# ✅ Gmail SMTP settings
-# IMPORTANT: EMAIL_PASSWORD must be a Gmail App Password, not your normal Gmail password.
-# Google Account → Security → 2-Step Verification → App passwords → create app password.
+# =========================================================
+# EMAIL CONFIG
+# =========================================================
+# Gmail App Password use karo, normal Gmail password nahi.
+# Google Account > Security > 2-Step Verification > App passwords
 EMAIL_SENDER = "your_email@gmail.com"
 EMAIL_PASSWORD = "your_16_digit_gmail_app_password"
 
-# ✅ WhatsApp Cloud API settings for DIRECT PDF document sending
-# Without these, browser WhatsApp can only open chat with text; it cannot auto-attach PDF.
-# Get these from Meta Developer → WhatsApp → API Setup.
+# =========================================================
+# WHATSAPP CLOUD API CONFIG
+# =========================================================
+# Direct PDF document WhatsApp par bhejne ke liye Meta WhatsApp Cloud API zaroori hai.
+# Browser WhatsApp wa.me link local PDF auto attach nahi kar sakta.
 WHATSAPP_TOKEN = "your_whatsapp_cloud_api_token"
 WHATSAPP_PHONE_NUMBER_ID = "your_phone_number_id"
 
-# =====================================
-# DATA HELPERS
-# =====================================
-def load_users():
-    if os.path.exists(USER_DB_FILE):
-        with open(USER_DB_FILE, 'r') as f:
-            return json.load(f)
-    return {}
+# =========================================================
+# BACKGROUND IMAGE
+# =========================================================
+# Apni image lagani ho to internet image URL ya local file ka base64 use kar sakti ho.
+WELCOME_BG_URL = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1600&q=80"
 
-def save_users(users):
-    with open(USER_DB_FILE, 'w') as f:
-        json.dump(users, f, indent=2)
+# =========================================================
+# HELPERS
+# =========================================================
+def load_json(path, default):
+    try:
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return default
 
-def load_history():
-    if os.path.exists(HISTORY_FILE):
-        with open(HISTORY_FILE, 'r') as f:
-            return json.load(f)
-    return {}
-
-def save_history(history):
-    with open(HISTORY_FILE, 'w') as f:
-        json.dump(history, f, indent=2)
-
-def load_otp_store():
-    if os.path.exists(OTP_FILE):
-        with open(OTP_FILE, 'r') as f:
-            return json.load(f)
-    return {}
-
-def save_otp_store(data):
-    with open(OTP_FILE, 'w') as f:
+def save_json(path, data):
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
-def calculate_age(birth_date):
-    today = datetime.now()
-    age = today.year - birth_date.year
-    if today.month < birth_date.month or (today.month == birth_date.month and today.day < birth_date.day):
-        age -= 1
-    return age
-
-def save_profile_pic(username, image_bytes):
-    path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
-    with open(path, 'wb') as f:
-        f.write(image_bytes)
-
-def get_profile_pic_base64(username):
-    path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
-    if os.path.exists(path):
-        with open(path, 'rb') as f:
-            return base64.b64encode(f.read()).decode()
-    return None
-
-# =====================================
-# OTP FUNCTIONS
-# =====================================
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-def send_otp_email(receiver_email, otp_code, full_name="User"):
-    """Send OTP via Gmail SMTP. Configure EMAIL_SENDER and EMAIL_PASSWORD above."""
+def clean_phone(phone):
+    return phone.strip().replace("+", "").replace(" ", "").replace("-", "")
+
+def calculate_age(dob):
+    today = datetime.now().date()
+    age = today.year - dob.year
+    if (today.month, today.day) < (dob.month, dob.day):
+        age -= 1
+    return age
+
+def save_profile_picture(username, file_bytes):
+    path = os.path.join(PROFILE_DIR, f"{username}.jpg")
+    with open(path, "wb") as f:
+        f.write(file_bytes)
+
+def get_profile_picture(username):
+    path = os.path.join(PROFILE_DIR, f"{username}.jpg")
+    if not os.path.exists(path):
+        return None
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+def store_otp(email, otp):
+    data = load_json(OTP_FILE, {})
+    data[email] = {
+        "otp": otp,
+        "created_at": datetime.now().isoformat()
+    }
+    save_json(OTP_FILE, data)
+
+def verify_otp(email, otp):
+    data = load_json(OTP_FILE, {})
+    if email not in data:
+        return False, "OTP not found. Please send OTP again."
+    record = data[email]
+    created = datetime.fromisoformat(record["created_at"])
+    if datetime.now() - created > timedelta(minutes=10):
+        return False, "OTP expired. Please send a new OTP."
+    if str(record["otp"]) != str(otp).strip():
+        return False, "Invalid OTP. Please check again."
+    return True, "OTP verified successfully."
+
+# =========================================================
+# EMAIL FUNCTIONS
+# =========================================================
+def is_email_configured():
+    return (
+        EMAIL_SENDER
+        and EMAIL_PASSWORD
+        and "your_email" not in EMAIL_SENDER
+        and "your_16_digit" not in EMAIL_PASSWORD
+        and "your_app_password" not in EMAIL_PASSWORD
+    )
+
+def send_otp_email(receiver_email, otp, name="User"):
+    if not is_email_configured():
+        return False, "Email not configured. For testing, OTP is shown in app."
+
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = "🎓 Your OTP — Student Score Predictor"
+        msg["Subject"] = "Your OTP - Student Score Predictor"
         msg["From"] = EMAIL_SENDER
         msg["To"] = receiver_email
 
-        html_body = f"""
-        <html><body style="font-family:Arial,sans-serif;background:#000814;color:#caf0f8;padding:30px;">
-        <div style="max-width:420px;margin:0 auto;background:linear-gradient(135deg,#03045e,#0077b6);
-            border-radius:16px;padding:30px;border:1px solid #00b4d8;">
-            <h2 style="color:#90e0ef;text-align:center;">🎓 Student Score Predictor</h2>
-            <p style="color:#caf0f8;">Hello <strong>{full_name}</strong>,</p>
-            <p style="color:#caf0f8;">Your OTP verification code is:</p>
-            <div style="text-align:center;margin:20px 0;">
-                <span style="font-size:2.5rem;font-weight:900;color:#00b4d8;
-                    letter-spacing:12px;background:rgba(0,180,216,0.1);
-                    padding:12px 24px;border-radius:12px;border:2px solid #00b4d8;">
-                    {otp_code}
-                </span>
+        html = f"""
+        <div style="font-family:Arial;background:#000814;color:#ffffff;padding:30px;">
+            <div style="max-width:500px;margin:auto;background:#03045e;padding:25px;border-radius:18px;border:1px solid #00b4d8;">
+                <h2 style="color:#90e0ef;text-align:center;">Student Score Predictor</h2>
+                <p>Hello <b>{name}</b>,</p>
+                <p>Your verification OTP is:</p>
+                <div style="font-size:32px;letter-spacing:10px;font-weight:bold;text-align:center;color:#00b4d8;padding:15px;">
+                    {otp}
+                </div>
+                <p style="font-size:13px;color:#caf0f8;">This OTP is valid for 10 minutes.</p>
             </div>
-            <p style="color:#90e0ef;font-size:0.85rem;">This OTP is valid for <strong>10 minutes</strong>.</p>
-            <p style="color:#90e0ef;font-size:0.75rem;text-align:center;opacity:0.6;">
-                If you didn't request this, please ignore this email.
-            </p>
         </div>
-        </body></html>
         """
-        msg.attach(MIMEText(html_body, "html"))
-
-        if (not EMAIL_SENDER or "your_email" in EMAIL_SENDER or
-            not EMAIL_PASSWORD or "your_16_digit" in EMAIL_PASSWORD or "your_app_password" in EMAIL_PASSWORD):
-            return False, "Email sender is not configured. Add your Gmail and 16-digit Gmail App Password in EMAIL_SENDER and EMAIL_PASSWORD."
+        msg.attach(MIMEText(html, "html"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, receiver_email, msg.as_string())
-        return True, "OTP sent successfully!"
+
+        return True, "OTP sent to your email."
     except Exception as e:
-        return False, f"Email error: {str(e)}"
+        return False, f"Email error: {e}"
 
+def send_pdf_email(receiver_email, subject, body, pdf_bytes, filename):
+    if not is_email_configured():
+        return False, "Email sender is not configured. Add Gmail and App Password in app.py."
 
-def send_pdf_report_email(receiver_email, subject, body_text, pdf_bytes, filename="student_score_report.pdf"):
-    """Send PDF report as email attachment using Gmail SMTP."""
     try:
-        if (not EMAIL_SENDER or "your_email" in EMAIL_SENDER or
-            not EMAIL_PASSWORD or "your_16_digit" in EMAIL_PASSWORD or "your_app_password" in EMAIL_PASSWORD):
-            return False, "Email sender is not configured. Add your Gmail and 16-digit Gmail App Password in EMAIL_SENDER and EMAIL_PASSWORD."
-
         msg = MIMEMultipart()
         msg["Subject"] = subject
         msg["From"] = EMAIL_SENDER
         msg["To"] = receiver_email
-        msg.attach(MIMEText(body_text, "plain"))
+        msg.attach(MIMEText(body, "plain"))
 
         part = MIMEBase("application", "pdf")
         part.set_payload(pdf_bytes)
@@ -186,43 +196,48 @@ def send_pdf_report_email(receiver_email, subject, body_text, pdf_bytes, filenam
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(EMAIL_SENDER, EMAIL_PASSWORD)
             server.sendmail(EMAIL_SENDER, receiver_email, msg.as_string())
-        return True, "PDF report sent successfully!"
+
+        return True, "PDF report sent by email successfully."
     except Exception as e:
-        return False, f"Email sending error: {str(e)}"
+        return False, f"Email sending error: {e}"
 
+# =========================================================
+# WHATSAPP FUNCTIONS
+# =========================================================
+def is_whatsapp_configured():
+    return (
+        WHATSAPP_TOKEN
+        and WHATSAPP_PHONE_NUMBER_ID
+        and "your_whatsapp" not in WHATSAPP_TOKEN
+        and "your_phone_number" not in WHATSAPP_PHONE_NUMBER_ID
+    )
 
+def send_pdf_whatsapp(receiver_phone, caption, pdf_bytes, filename):
+    if not is_whatsapp_configured():
+        return False, "WhatsApp Cloud API is not configured. Download PDF and use manual WhatsApp button."
 
-def send_whatsapp_pdf_report(receiver_phone, caption, pdf_bytes, filename="student_score_report.pdf"):
-    """
-    Send PDF directly as a WhatsApp document using WhatsApp Cloud API.
-    receiver_phone must include country code, for India example: 919876543210
-    """
     try:
-        if (not WHATSAPP_TOKEN or "your_whatsapp" in WHATSAPP_TOKEN or
-            not WHATSAPP_PHONE_NUMBER_ID or "your_phone_number" in WHATSAPP_PHONE_NUMBER_ID):
-            return False, "WhatsApp Cloud API is not configured. Add WHATSAPP_TOKEN and WHATSAPP_PHONE_NUMBER_ID."
-
-        clean_phone = receiver_phone.strip().replace("+", "").replace(" ", "").replace("-", "")
-        if len(clean_phone) < 10:
-            return False, "Enter WhatsApp number with country code. Example: 919876543210"
+        phone = clean_phone(receiver_phone)
+        if len(phone) < 10:
+            return False, "Enter phone number with country code. Example: 919876543210"
 
         upload_url = f"https://graph.facebook.com/v20.0/{WHATSAPP_PHONE_NUMBER_ID}/media"
         headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
         files = {"file": (filename, pdf_bytes, "application/pdf")}
         data = {"messaging_product": "whatsapp", "type": "application/pdf"}
-        upload_response = requests.post(upload_url, headers=headers, files=files, data=data, timeout=30)
 
-        if upload_response.status_code not in [200, 201]:
-            return False, f"WhatsApp PDF upload failed: {upload_response.text}"
+        upload_res = requests.post(upload_url, headers=headers, files=files, data=data, timeout=30)
+        if upload_res.status_code not in [200, 201]:
+            return False, f"WhatsApp upload failed: {upload_res.text}"
 
-        media_id = upload_response.json().get("id")
+        media_id = upload_res.json().get("id")
         if not media_id:
-            return False, "WhatsApp media ID was not received."
+            return False, "WhatsApp media id not received."
 
         send_url = f"https://graph.facebook.com/v20.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
         payload = {
             "messaging_product": "whatsapp",
-            "to": clean_phone,
+            "to": phone,
             "type": "document",
             "document": {
                 "id": media_id,
@@ -230,1185 +245,1007 @@ def send_whatsapp_pdf_report(receiver_phone, caption, pdf_bytes, filename="stude
                 "caption": caption
             }
         }
-        send_response = requests.post(send_url, headers={**headers, "Content-Type": "application/json"}, json=payload, timeout=30)
 
-        if send_response.status_code not in [200, 201]:
-            return False, f"WhatsApp document send failed: {send_response.text}"
+        send_res = requests.post(
+            send_url,
+            headers={**headers, "Content-Type": "application/json"},
+            json=payload,
+            timeout=30
+        )
 
-        return True, "PDF document sent on WhatsApp successfully!"
+        if send_res.status_code not in [200, 201]:
+            return False, f"WhatsApp document send failed: {send_res.text}"
+
+        return True, "PDF document sent on WhatsApp successfully."
     except Exception as e:
-        return False, f"WhatsApp sending error: {str(e)}"
+        return False, f"WhatsApp error: {e}"
 
-def store_otp(email, otp):
-    store = load_otp_store()
-    store[email] = {
-        "otp": otp,
-        "timestamp": str(datetime.now()),
-        "verified": False
-    }
-    save_otp_store(store)
+# =========================================================
+# MODEL LOADING
+# =========================================================
+@st.cache_resource
+def load_model_files():
+    try:
+        model = joblib.load("student_model.pkl")
+        columns = joblib.load("model_columns.pkl")
+        return model, columns, None
+    except Exception as e:
+        return None, None, str(e)
 
-def verify_otp(email, entered_otp):
-    store = load_otp_store()
-    if email not in store:
-        return False, "No OTP found. Please request again."
-    record = store[email]
-    stored_time = datetime.fromisoformat(record["timestamp"])
-    elapsed = (datetime.now() - stored_time).total_seconds()
-    if elapsed > 600:
-        return False, "OTP expired. Please request a new one."
-    if record["otp"] == entered_otp:
-        store[email]["verified"] = True
-        save_otp_store(store)
-        return True, "✅ OTP Verified!"
-    return False, "❌ Invalid OTP. Try again."
+def fallback_prediction(data):
+    score = 0
+    score += data["Hours_Studied"] * 5.2
+    score += data["Attendance"] * 0.22
+    score += data["Previous_Scores"] * 0.35
+    score += data["Sleep_Hours"] * 1.2
+    if data["Motivation_Level"] == "High":
+        score += 7
+    elif data["Motivation_Level"] == "Medium":
+        score += 3
+    if data["Internet_Access"] == "Yes":
+        score += 3
+    if data["Learning_Resources"] == "High":
+        score += 4
+    if data["Teacher_Quality"] == "Good":
+        score += 4
+    if data["Peer_Influence"] == "Positive":
+        score += 3
+    return int(max(35, min(100, round(score))))
 
-# =====================================
+# =========================================================
 # PDF REPORT
-# =====================================
-def generate_pdf_report(username, final_score, user_data, hours, attendance, previous, sleep, recommendations):
+# =========================================================
+def make_pdf_report(username, user_data, result):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.5*inch, bottomMargin=0.5*inch)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=0.55 * inch,
+        leftMargin=0.55 * inch,
+        topMargin=0.45 * inch,
+        bottomMargin=0.45 * inch
+    )
+
     styles = getSampleStyleSheet()
-    title_style = ParagraphStyle('T', parent=styles['Heading1'], fontSize=22,
-        textColor=colors.HexColor('#0077b6'), alignment=1, spaceAfter=20)
-    heading_style = ParagraphStyle('H', parent=styles['Heading2'], fontSize=14,
-        textColor=colors.HexColor('#023e8a'), spaceAfter=10)
-    normal_style = ParagraphStyle('N', parent=styles['Normal'], fontSize=10, spaceAfter=5)
+    title = ParagraphStyle(
+        "TitleCustom",
+        parent=styles["Title"],
+        fontSize=22,
+        textColor=colors.HexColor("#023e8a"),
+        alignment=1,
+        spaceAfter=16
+    )
+    heading = ParagraphStyle(
+        "HeadingCustom",
+        parent=styles["Heading2"],
+        fontSize=13,
+        textColor=colors.HexColor("#0077b6"),
+        spaceBefore=10,
+        spaceAfter=8
+    )
+    normal = ParagraphStyle(
+        "NormalCustom",
+        parent=styles["Normal"],
+        fontSize=10,
+        leading=14
+    )
 
     story = []
-    story.append(Paragraph("🎓 Student Score Predictor — Official Report", title_style))
-    story.append(Spacer(1, 0.15*inch))
-    story.append(Paragraph("Student Information", heading_style))
-    story.append(Paragraph(f"Name: {user_data.get('full_name', username)}", normal_style))
-    story.append(Paragraph(f"Username: {username}", normal_style))
-    story.append(Paragraph(f"Report Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", normal_style))
-    story.append(Spacer(1, 0.15*inch))
-    story.append(Paragraph("Prediction Results", heading_style))
-    score_data = [["Metric", "Value"], ["Predicted Exam Score", f"{final_score}/100"]]
-    score_table = Table(score_data, colWidths=[2.5*inch, 2.5*inch])
-    score_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (1,0), colors.HexColor('#0077b6')),
-        ('TEXTCOLOR', (0,0), (1,0), colors.whitesmoke),
-        ('ALIGN', (0,0), (1,-1), 'CENTER'),
-        ('FONTNAME', (0,0), (1,0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0,0), (1,0), 12),
-        ('BACKGROUND', (0,1), (1,1), colors.HexColor('#caf0f8')),
-        ('GRID', (0,0), (1,1), 1, colors.HexColor('#90e0ef'))
-    ]))
-    story.append(score_table)
-    story.append(Spacer(1, 0.15*inch))
-    story.append(Paragraph("Input Details", heading_style))
-    input_data = [["Parameter","Value"],
-        ["Study Hours", f"{hours} hours"], ["Attendance", f"{attendance}%"],
-        ["Previous Score", f"{previous}/100"], ["Sleep Hours", f"{sleep} hours"]]
-    input_table = Table(input_data, colWidths=[2.5*inch, 2.5*inch])
-    input_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (1,0), colors.HexColor('#0077b6')),
-        ('TEXTCOLOR', (0,0), (1,0), colors.whitesmoke),
-        ('ALIGN', (0,0), (1,-1), 'CENTER'),
-        ('FONTNAME', (0,0), (1,0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0,0), (1,0), 12),
-        ('BACKGROUND', (0,1), (1,-1), colors.HexColor('#caf0f8')),
-        ('GRID', (0,0), (1,-1), 1, colors.HexColor('#90e0ef'))
-    ]))
-    story.append(input_table)
-    story.append(Spacer(1, 0.15*inch))
-    if recommendations:
-        story.append(Paragraph("Recommendations", heading_style))
-        for rec in recommendations:
-            story.append(Paragraph(f"• {rec}", normal_style))
-    story.append(Spacer(1, 0.2*inch))
-    story.append(Paragraph("Generated by Student Score Predictor — AI Powered Academic Tool",
-        ParagraphStyle('F', parent=styles['Normal'], fontSize=8, textColor=colors.grey, alignment=1)))
+    story.append(Paragraph("Student Score Predictor - Professional Report", title))
+    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d %B %Y, %I:%M %p')}", normal))
+    story.append(Spacer(1, 10))
+
+    story.append(Paragraph("Student / User Information", heading))
+    info_data = [
+        ["Name", user_data.get("full_name", username)],
+        ["Username", username],
+        ["Role", user_data.get("role", "student").capitalize()],
+        ["Email", user_data.get("email", "N/A")]
+    ]
+    if user_data.get("role") == "parent":
+        info_data.extend([
+            ["Child Name", user_data.get("child_name", "N/A")],
+            ["Child Grade", user_data.get("child_grade", "N/A")]
+        ])
+    else:
+        info_data.extend([
+            ["Grade", user_data.get("grade", "N/A")],
+            ["School / College", user_data.get("school", "N/A")]
+        ])
+
+    story.append(make_table(info_data, [2.2 * inch, 4.5 * inch]))
+
+    story.append(Paragraph("Prediction Result", heading))
+    score = result["score"]
+    status = "Excellent" if score >= 85 else "Good" if score >= 70 else "Satisfactory" if score >= 55 else "Needs Improvement"
+    result_data = [
+        ["Predicted Exam Score", f"{score}/100"],
+        ["Performance Status", status]
+    ]
+    story.append(make_table(result_data, [2.4 * inch, 4.3 * inch], header=False))
+
+    story.append(Paragraph("Input Summary", heading))
+    input_data = [["Parameter", "Value"]]
+    for k, v in result["inputs"].items():
+        input_data.append([k.replace("_", " "), str(v)])
+    story.append(make_table(input_data, [3.0 * inch, 3.7 * inch], header=True))
+
+    story.append(Paragraph("Recommendations", heading))
+    recs = result.get("recommendations", [])
+    if recs:
+        for rec in recs:
+            story.append(Paragraph(f"• {rec}", normal))
+    else:
+        story.append(Paragraph("Your current inputs look strong. Maintain consistency and keep tracking progress.", normal))
+
+    story.append(Spacer(1, 16))
+    story.append(Paragraph(
+        "Note: This report is generated for academic guidance. Final performance depends on preparation quality, exam difficulty, and consistency.",
+        ParagraphStyle("Footer", parent=normal, fontSize=8, textColor=colors.grey, alignment=1)
+    ))
+
     doc.build(story)
     buffer.seek(0)
-    return buffer
+    return buffer.read()
 
-# =====================================
-# SESSION STATE
-# =====================================
-defaults = {
-    'logged_in': False, 'username': '', 'user_role': '',
-    'auth_mode': 'home',  # 'home', 'login', 'signup', 'otp_verify'
-    'signup_role': 'student', 'theme': 'dark',
-    'show_profile_edit': False, 'last_pdf': None, 'last_score': None,
-    'last_recs': [], 'last_inputs': {},
-    'pending_signup_data': {},   # store signup form data before OTP
-    'otp_email': '',             # email waiting for OTP verify
-    'otp_verified': False,
-    'study_hours_history': [],   # parallel list for graph
-    'attendance_history': [],    # parallel list for graph
-}
-for k, v in defaults.items():
-    if k not in st.session_state:
-        st.session_state[k] = v
+def make_table(data, widths, header=False):
+    table = Table(data, colWidths=widths)
+    style = [
+        ("GRID", (0, 0), (-1, -1), 0.7, colors.HexColor("#90e0ef")),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#f1fbff")),
+        ("TEXTCOLOR", (0, 0), (-1, -1), colors.HexColor("#03045e")),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+    ]
+    if header:
+        style.extend([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#0077b6")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ])
+    table.setStyle(TableStyle(style))
+    return table
 
-all_history = load_history()
-
-# =====================================
+# =========================================================
 # THEME CSS
-# =====================================
-DARK_CSS = """
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-* { font-family: 'DM Sans', sans-serif; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
-
-.stApp {
-    background: radial-gradient(ellipse at 20% 0%, #03045e 0%, #0a0a1a 40%, #000814 100%);
-    min-height: 100vh;
-}
-.main .block-container {
-    background: rgba(3,4,94,0.18);
-    border-radius: 24px;
-    padding: 2rem 2.5rem;
-    border: 1px solid rgba(0,180,216,0.2);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 0 60px rgba(0,119,182,0.12), inset 0 1px 0 rgba(0,180,216,0.1);
-}
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, rgba(3,4,94,0.95) 0%, rgba(0,8,20,0.98) 100%);
-    border-right: 1px solid rgba(0,180,216,0.2);
-}
-
-/* ===== FORCE WHITE TEXT IN DARK MODE ===== */
-.stApp { color: #ffffff !important; }
-.stApp p, .stApp span, .stApp div, .stApp label { color: #ffffff !important; }
-.stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5 { color: #90e0ef !important; }
-.stApp .stMarkdown p { color: #ffffff !important; }
-[data-testid="stSidebar"] * { color: #ffffff !important; }
-[data-testid="stSidebar"] code { color: #00e5ff !important; background: rgba(0,180,216,0.18) !important; }
-[data-testid="stSidebar"] h1,[data-testid="stSidebar"] h2,
-[data-testid="stSidebar"] h3 { color: #90e0ef !important; }
-.stCaption, [data-testid="stCaptionContainer"] { color: #c0e8f8 !important; }
-.stAlert p, .stAlert div { color: #ffffff !important; }
-
-/* Inputs */
-.stNumberInput input, .stTextInput input, .stDateInput input, .stTextAreaInput textarea {
-    background: rgba(0,20,60,0.7) !important;
-    border: 1px solid rgba(0,180,216,0.4) !important;
-    border-radius: 12px !important;
-    color: #ffffff !important;
-    transition: border-color 0.3s, box-shadow 0.3s !important;
-}
-.stNumberInput input:focus, .stTextInput input:focus {
-    border-color: #00b4d8 !important;
-    box-shadow: 0 0 0 3px rgba(0,180,216,0.2) !important;
-}
-div[data-baseweb="select"] > div {
-    background: rgba(0,20,60,0.7) !important;
-    border: 1px solid rgba(0,180,216,0.4) !important;
-    border-radius: 12px !important;
-    color: #ffffff !important;
-}
-div[data-baseweb="select"] span { color: #ffffff !important; }
-div[data-baseweb="popover"] div { background: #020a20 !important; border: 1px solid #0077b6 !important; }
-li[role="option"] { color: #ffffff !important; }
-li[role="option"]:hover { background: #0077b6 !important; }
-
-/* Buttons */
-button, .stButton > button, [data-testid="stDownloadButton"] button, a { cursor: pointer !important; }
-.stButton > button {
-    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
-    color: #ffffff !important;
-    border: none !important;
-    border-radius: 50px !important;
-    padding: 0.5rem 1.4rem !important;
-    font-weight: 700 !important;
-    font-family: 'Syne', sans-serif !important;
-    letter-spacing: 0.5px !important;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1) !important;
-    box-shadow: 0 4px 15px rgba(0,119,182,0.3) !important;
-}
-.stButton > button:hover {
-    transform: translateY(-3px) scale(1.02) !important;
-    box-shadow: 0 8px 30px rgba(0,180,216,0.5) !important;
-    background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%) !important;
-    color: #03045e !important;
-}
-.stButton > button:active { transform: translateY(-1px) scale(0.99) !important; }
-
-[data-testid="stDownloadButton"] button {
-    background: rgba(0,180,216,0.12) !important;
-    border: 1.5px solid #00b4d8 !important;
-    color: #ffffff !important;
-    border-radius: 50px !important;
-    padding: 0.35rem 1rem !important;
-    font-size: 0.82rem !important;
-    transition: all 0.3s !important;
-}
-[data-testid="stDownloadButton"] button:hover {
-    background: rgba(0,180,216,0.28) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* Cards */
-.result-card {
-    background: linear-gradient(135deg, rgba(3,4,94,0.9) 0%, rgba(0,20,60,0.95) 100%);
-    border: 2px solid #00b4d8;
-    border-radius: 20px;
-    padding: 1.5rem;
-    text-align: center;
-    margin: 1rem 0;
-    box-shadow: 0 0 40px rgba(0,180,216,0.2);
-}
-.result-score { color: #00b4d8 !important; font-weight: 800 !important; font-size: 3rem !important; font-family: 'Syne', sans-serif !important; }
-.result-label { color: #ffffff !important; font-size: 0.65rem !important; letter-spacing: 3px !important; text-transform: uppercase; }
-
-.stat-card {
-    background: rgba(0,20,60,0.55);
-    border: 1px solid rgba(0,180,216,0.25);
-    border-radius: 14px; padding: 0.8rem; text-align: center;
-    transition: all 0.3s !important;
-}
-.stat-card:hover { border-color: #00b4d8 !important; transform: translateY(-2px); }
-.stat-value { font-size: 1.6rem; font-weight: 800; color: #00b4d8 !important; font-family: 'Syne', sans-serif !important; }
-.stat-value-red { font-size: 1.6rem; font-weight: 800; color: #f87171 !important; font-family: 'Syne', sans-serif !important; }
-.stat-label { font-size: 0.58rem; color: #ffffff !important; letter-spacing: 1px; text-transform: uppercase; margin-top: 0.2rem; }
-
-.section-header {
-    font-family: 'Syne', sans-serif;
-    color: #90e0ef !important;
-    font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px;
-    margin: 1.2rem 0 0.6rem;
-}
-
-.profile-card { text-align: center; padding: 0.8rem; }
-.profile-name { font-size: 1rem; font-weight: 800; color: #ffffff !important; background: rgba(0,0,0,0.25); padding: 0.25rem 0.6rem; border-radius: 10px; display: inline-block; font-family: 'Syne', sans-serif !important; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
-.profile-role {
-    font-size: 0.62rem; padding: 0.2rem 0.7rem; border-radius: 50px;
-    display: inline-block; background: rgba(0,180,216,0.12);
-    border: 1px solid rgba(0,180,216,0.4); color: #ffffff !important;
-    letter-spacing: 1px; text-transform: uppercase;
-}
-.avatar-circle {
-    width: 72px; height: 72px; border-radius: 50%;
-    border: 2.5px solid #00b4d8;
-    box-shadow: 0 0 20px rgba(0,180,216,0.35);
-    margin: 0 auto 0.5rem;
-    overflow: hidden; display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0077b6, #00b4d8);
-    font-size: 1.8rem;
-}
-.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-
-.home-hero {
-    text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, rgba(3,4,94,0.6), rgba(0,20,60,0.8));
-    border-radius: 24px; border: 1px solid rgba(0,180,216,0.25);
-    margin-bottom: 2rem;
-}
-.home-hero h1 { font-size: 2.8rem !important; color: #ffffff !important; }
-.home-hero p { color: #c8eef8 !important; font-size: 1.05rem; }
-
-.feature-card {
-    background: rgba(0,20,60,0.5);
-    border: 1px solid rgba(0,180,216,0.2);
-    border-radius: 16px; padding: 1.2rem; text-align: center;
-    transition: all 0.3s;
-}
-.feature-card:hover { border-color: #00b4d8; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,180,216,0.15); }
-.feature-card h3 { color: #90e0ef !important; font-size: 1rem !important; }
-.feature-card p { color: #ffffff !important; font-size: 0.82rem; }
-.feature-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-
-.otp-box {
-    background: rgba(0,20,60,0.6);
-    border: 1.5px solid rgba(0,180,216,0.35);
-    border-radius: 16px; padding: 1.5rem;
-    margin: 0.5rem 0;
-}
-.share-box {
-    background: rgba(0,180,216,0.07);
-    border: 1px solid rgba(0,180,216,0.25);
-    border-radius: 16px; padding: 1rem; margin: 0.5rem 0;
-}
-hr { border-color: rgba(0,180,216,0.18) !important; margin: 1rem 0 !important; }
-input::placeholder { color: rgba(200,238,248,0.45) !important; }
-.stNumberInput button { background: rgba(0,40,100,0.5) !important; border: 1px solid rgba(0,180,216,0.3) !important; color: #ffffff !important; }
-.stNumberInput button:hover { background: #0077b6 !important; color: white !important; }
-.stCheckbox label { color: #ffffff !important; }
-[data-testid="stFileUploader"] { background: rgba(0,20,60,0.4) !important; border: 2px dashed rgba(0,180,216,0.3) !important; border-radius: 14px !important; }
-
-/* Better visibility + hand cursor */
-.stButton > button, [data-testid="stDownloadButton"] button, button, a, label, input[type="button"], input[type="submit"] { cursor: pointer !important; }
-code { color: inherit !important; background: rgba(0,180,216,0.12) !important; border-radius: 6px !important; padding: 0.1rem 0.35rem !important; }
-[data-testid="stSidebar"] code { color: #ffffff !important; background: rgba(0,180,216,0.25) !important; }
-</style>
-"""
-
-LIGHT_CSS = """
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-* { font-family: 'DM Sans', sans-serif; }
-h1,h2,h3 { font-family: 'Syne', sans-serif !important; }
-
-.stApp { background: linear-gradient(145deg, #caf0f8 0%, #90e0ef 30%, #caf0f8 70%, #e0f7fa 100%); }
-.main .block-container {
-    background: rgba(255,255,255,0.88);
-    border-radius: 24px; padding: 2rem 2.5rem;
-    border: 1px solid rgba(0,119,182,0.2);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 30px rgba(0,119,182,0.1);
-}
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, rgba(255,255,255,0.97) 0%, rgba(202,240,248,0.95) 100%);
-    border-right: 1px solid rgba(0,180,216,0.25);
-}
-.stApp, .stApp * { color: #03045e !important; }
-[data-testid="stSidebar"] code { color: #0077b6 !important; background: rgba(0,119,182,0.10) !important; }
-h1,h2,h3 { color: #03045e !important; }
-
-.stNumberInput input, .stTextInput input, .stDateInput input {
-    background: rgba(202,240,248,0.5) !important;
-    border: 1.5px solid rgba(0,119,182,0.3) !important;
-    border-radius: 12px !important; color: #03045e !important;
-}
-div[data-baseweb="select"] > div {
-    background: rgba(202,240,248,0.5) !important;
-    border: 1.5px solid rgba(0,119,182,0.3) !important;
-    border-radius: 12px !important; color: #03045e !important;
-}
-div[data-baseweb="popover"] div { background: #f0faff !important; border: 1px solid #90e0ef !important; }
-li[role="option"] { color: #03045e !important; }
-li[role="option"]:hover { background: #0077b6 !important; color: white !important; }
-
-button, .stButton > button, [data-testid="stDownloadButton"] button, a { cursor: pointer !important; }
-.stButton > button {
-    background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%) !important;
-    color: white !important; border: none !important;
-    border-radius: 50px !important; padding: 0.5rem 1.4rem !important;
-    font-weight: 700 !important; font-family: 'Syne', sans-serif !important;
-    transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1) !important;
-    box-shadow: 0 4px 15px rgba(0,119,182,0.25) !important;
-}
-.stButton > button:hover {
-    transform: translateY(-3px) scale(1.03) !important;
-    box-shadow: 0 10px 30px rgba(0,119,182,0.4) !important;
-    background: linear-gradient(135deg, #03045e 0%, #0077b6 100%) !important;
-}
-[data-testid="stDownloadButton"] button {
-    background: rgba(0,119,182,0.08) !important;
-    border: 1.5px solid #0077b6 !important; color: #0077b6 !important;
-    border-radius: 50px !important; padding: 0.35rem 1rem !important; transition: all 0.3s !important;
-}
-
-.result-card {
-    background: linear-gradient(135deg, #03045e 0%, #0077b6 100%);
-    border: 2px solid #00b4d8; border-radius: 20px; padding: 1.5rem; text-align: center; margin: 1rem 0;
-    box-shadow: 0 8px 30px rgba(0,119,182,0.3);
-}
-.result-score { color: #caf0f8 !important; font-weight: 800 !important; font-size: 3rem !important; font-family: 'Syne', sans-serif !important; }
-.result-label { color: #90e0ef !important; font-size: 0.65rem !important; letter-spacing: 3px !important; text-transform: uppercase; }
-
-.stat-card {
-    background: linear-gradient(135deg, rgba(202,240,248,0.6), rgba(144,224,239,0.3));
-    border: 1px solid rgba(0,119,182,0.2); border-radius: 14px; padding: 0.8rem; text-align: center; transition: all 0.3s !important;
-}
-.stat-card:hover { border-color: #0077b6 !important; transform: translateY(-3px); }
-.stat-value { font-size: 1.6rem; font-weight: 800; color: #0077b6 !important; font-family: 'Syne', sans-serif !important; }
-.stat-value-red { font-size: 1.6rem; font-weight: 800; color: #dc2626 !important; font-family: 'Syne', sans-serif !important; }
-.stat-label { font-size: 0.58rem; color: #03045e !important; letter-spacing: 1px; text-transform: uppercase; }
-
-.section-header { font-family: 'Syne', sans-serif; color: #03045e !important; font-size: 1.1rem; font-weight: 700; margin: 1.2rem 0 0.6rem; }
-.profile-card { text-align: center; padding: 0.8rem; }
-.profile-name { font-size: 1rem; font-weight: 800; color: #03045e !important; background: rgba(255,255,255,0.65); padding: 0.25rem 0.6rem; border-radius: 10px; display: inline-block; font-family: 'Syne', sans-serif !important; }
-.profile-role {
-    font-size: 0.62rem; padding: 0.2rem 0.7rem; border-radius: 50px;
-    display: inline-block; background: rgba(0,119,182,0.1);
-    border: 1px solid rgba(0,119,182,0.4); color: #0077b6 !important;
-    letter-spacing: 1px; text-transform: uppercase;
-}
-.avatar-circle {
-    width: 72px; height: 72px; border-radius: 50%;
-    border: 2.5px solid #0077b6; box-shadow: 0 4px 15px rgba(0,119,182,0.25);
-    margin: 0 auto 0.5rem; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #0077b6, #00b4d8); font-size: 1.8rem;
-}
-.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-
-.home-hero {
-    text-align: center; padding: 3rem 1rem;
-    background: linear-gradient(135deg, rgba(3,4,94,0.85), rgba(0,119,182,0.9));
-    border-radius: 24px; margin-bottom: 2rem; color: white !important;
-}
-.home-hero h1 { font-size: 2.8rem !important; color: #ffffff !important; }
-.home-hero p { color: #caf0f8 !important; font-size: 1.05rem; }
-
-.feature-card {
-    background: rgba(255,255,255,0.75); border: 1px solid rgba(0,119,182,0.2);
-    border-radius: 16px; padding: 1.2rem; text-align: center; transition: all 0.3s;
-}
-.feature-card:hover { border-color: #0077b6; transform: translateY(-4px); box-shadow: 0 8px 25px rgba(0,119,182,0.15); }
-.feature-card h3 { color: #03045e !important; font-size: 1rem !important; }
-.feature-card p { color: #03045e !important; font-size: 0.82rem; }
-.feature-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-
-.otp-box {
-    background: rgba(202,240,248,0.5); border: 1.5px solid rgba(0,119,182,0.3);
-    border-radius: 16px; padding: 1.5rem; margin: 0.5rem 0;
-}
-.share-box { background: rgba(0,119,182,0.05); border: 1px solid rgba(0,119,182,0.2); border-radius: 16px; padding: 1rem; margin: 0.5rem 0; }
-hr { border-color: rgba(0,119,182,0.15) !important; margin: 1rem 0 !important; }
-[data-testid="stFileUploader"] { background: rgba(202,240,248,0.4) !important; border: 2px dashed rgba(0,119,182,0.3) !important; border-radius: 14px !important; }
-
-/* Better visibility + hand cursor */
-.stButton > button, [data-testid="stDownloadButton"] button, button, a, label, input[type="button"], input[type="submit"] { cursor: pointer !important; }
-code { color: inherit !important; background: rgba(0,180,216,0.12) !important; border-radius: 6px !important; padding: 0.1rem 0.35rem !important; }
-[data-testid="stSidebar"] code { color: #ffffff !important; background: rgba(0,180,216,0.25) !important; }
-</style>
-"""
-
+# =========================================================
 def apply_theme():
-    st.markdown(DARK_CSS if st.session_state.theme == "dark" else LIGHT_CSS, unsafe_allow_html=True)
+    mode = st.session_state.get("theme", "dark")
+    dark = mode == "dark"
 
-def theme_toggle():
-    icon = "☀️ Light" if st.session_state.theme == "dark" else "🌙 Dark"
-    if st.button(icon, key="theme_toggle_btn"):
+    bg = "radial-gradient(circle at top left,#03045e 0%,#000814 45%,#00040a 100%)" if dark else "linear-gradient(135deg,#caf0f8 0%,#ffffff 50%,#e0fbff 100%)"
+    card = "rgba(3,4,94,0.54)" if dark else "rgba(255,255,255,0.86)"
+    text = "#ffffff" if dark else "#03045e"
+    muted = "#caf0f8" if dark else "#075985"
+    sidebar = "linear-gradient(180deg,#03045e,#000814)" if dark else "linear-gradient(180deg,#ffffff,#caf0f8)"
+    border = "rgba(0,180,216,0.32)"
+
+    st.markdown(f"""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+
+    * {{ font-family:'DM Sans',sans-serif; }}
+    h1,h2,h3,h4 {{ font-family:'Syne',sans-serif !important; }}
+
+    .stApp {{
+        background:{bg};
+        color:{text};
+    }}
+
+    .main .block-container {{
+        padding-top:1.3rem;
+        padding-bottom:2rem;
+    }}
+
+    [data-testid="stSidebar"] {{
+        background:{sidebar};
+        border-right:1px solid {border};
+    }}
+
+    .stApp, .stApp p, .stApp label, .stApp span, .stApp div {{
+        color:{text} !important;
+    }}
+
+    [data-testid="stSidebar"] * {{
+        color:{text} !important;
+    }}
+
+    .app-card {{
+        background:{card};
+        border:1px solid {border};
+        border-radius:24px;
+        padding:1.3rem;
+        box-shadow:0 14px 45px rgba(0,0,0,0.16);
+        backdrop-filter:blur(14px);
+        margin-bottom:1rem;
+    }}
+
+    .hero {{
+        min-height:73vh;
+        border-radius:30px;
+        display:flex;
+        align-items:center;
+        padding:3rem;
+        overflow:hidden;
+        position:relative;
+        background:
+            linear-gradient(90deg,rgba(0,8,20,0.92),rgba(3,4,94,0.72),rgba(0,119,182,0.20)),
+            url('{WELCOME_BG_URL}');
+        background-size:cover;
+        background-position:center;
+        border:1px solid rgba(0,180,216,0.35);
+        box-shadow:0 18px 70px rgba(0,0,0,0.28);
+    }}
+
+    .hero h1 {{
+        font-size:3.2rem !important;
+        line-height:1.02;
+        color:#ffffff !important;
+        margin-bottom:0.6rem;
+    }}
+
+    .hero p {{
+        color:#caf0f8 !important;
+        font-size:1.05rem;
+        max-width:640px;
+    }}
+
+    .mini-feature {{
+        background:rgba(255,255,255,0.10);
+        border:1px solid rgba(144,224,239,0.35);
+        border-radius:18px;
+        padding:1rem;
+        height:100%;
+    }}
+
+    .mini-feature b {{
+        color:#90e0ef !important;
+    }}
+
+    .metric-card {{
+        background:{card};
+        border:1px solid {border};
+        border-radius:20px;
+        padding:1rem;
+        text-align:center;
+    }}
+
+    .metric-value {{
+        font-family:'Syne',sans-serif;
+        font-size:2rem;
+        font-weight:800;
+        color:#00b4d8 !important;
+    }}
+
+    .metric-label {{
+        color:{muted} !important;
+        font-size:0.78rem;
+    }}
+
+    .result-box {{
+        background:linear-gradient(135deg,#03045e,#0077b6);
+        border:2px solid #00b4d8;
+        border-radius:26px;
+        padding:2rem;
+        text-align:center;
+        box-shadow:0 14px 50px rgba(0,180,216,0.22);
+    }}
+
+    .result-score {{
+        color:#caf0f8 !important;
+        font-size:4rem;
+        font-weight:900;
+        font-family:'Syne',sans-serif;
+    }}
+
+    .section-title {{
+        font-family:'Syne',sans-serif;
+        font-weight:800;
+        color:#90e0ef !important;
+        font-size:1.25rem;
+        margin:0.5rem 0 1rem;
+    }}
+
+    .nav-pill {{
+        background:rgba(0,180,216,0.10);
+        border:1px solid rgba(0,180,216,0.28);
+        border-radius:16px;
+        padding:0.75rem;
+        margin-bottom:0.6rem;
+    }}
+
+    .profile-name {{
+        font-family:'Syne',sans-serif;
+        font-weight:800;
+        color:{text} !important;
+        font-size:1.05rem;
+    }}
+
+    .profile-role {{
+        display:inline-block;
+        padding:0.2rem 0.7rem;
+        border-radius:999px;
+        background:rgba(0,180,216,0.16);
+        border:1px solid rgba(0,180,216,0.45);
+        font-size:0.72rem;
+    }}
+
+    .avatar {{
+        width:82px;
+        height:82px;
+        border-radius:50%;
+        background:linear-gradient(135deg,#0077b6,#00b4d8);
+        border:3px solid #00b4d8;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        overflow:hidden;
+        margin:auto;
+        font-size:2.1rem;
+    }}
+
+    .avatar img {{
+        width:100%;
+        height:100%;
+        object-fit:cover;
+    }}
+
+    .stTextInput input, .stNumberInput input, .stDateInput input, .stTextArea textarea {{
+        background:{'rgba(0,20,60,0.75)' if dark else 'rgba(255,255,255,0.92)'} !important;
+        color:{text} !important;
+        border:1px solid rgba(0,180,216,0.42) !important;
+        border-radius:14px !important;
+    }}
+
+    div[data-baseweb="select"] > div {{
+        background:{'rgba(0,20,60,0.75)' if dark else 'rgba(255,255,255,0.92)'} !important;
+        color:{text} !important;
+        border:1px solid rgba(0,180,216,0.42) !important;
+        border-radius:14px !important;
+    }}
+
+    div[data-baseweb="select"] span {{
+        color:{text} !important;
+    }}
+
+    div[data-baseweb="popover"] div {{
+        background:{'#001a35' if dark else '#ffffff'} !important;
+        color:{text} !important;
+    }}
+
+    li[role="option"] {{
+        color:{text} !important;
+    }}
+
+    .stButton > button, [data-testid="stDownloadButton"] button {{
+        cursor:pointer !important;
+        border-radius:999px !important;
+        border:none !important;
+        font-weight:800 !important;
+        background:linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color:white !important;
+        transition:0.25s ease !important;
+        box-shadow:0 8px 24px rgba(0,119,182,0.25);
+    }}
+
+    .stButton > button:hover, [data-testid="stDownloadButton"] button:hover {{
+        transform:translateY(-2px);
+        box-shadow:0 14px 35px rgba(0,180,216,0.40);
+    }}
+
+    button, a, label {{
+        cursor:pointer !important;
+    }}
+
+    [data-testid="stFileUploader"] {{
+        background:rgba(0,180,216,0.08) !important;
+        border:2px dashed rgba(0,180,216,0.35) !important;
+        border-radius:18px !important;
+        padding:0.8rem !important;
+    }}
+
+    .success-note {{
+        background:rgba(16,185,129,0.12);
+        border:1px solid rgba(16,185,129,0.35);
+        border-radius:16px;
+        padding:0.9rem;
+    }}
+
+    .warn-note {{
+        background:rgba(251,191,36,0.12);
+        border:1px solid rgba(251,191,36,0.35);
+        border-radius:16px;
+        padding:0.9rem;
+    }}
+
+    hr {{
+        border-color:rgba(0,180,216,0.20) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+def init_state():
+    defaults = {
+        "logged_in": False,
+        "username": "",
+        "theme": "dark",
+        "auth_page": "login",
+        "page": "Dashboard",
+        "last_result": None,
+        "last_pdf": None,
+        "show_profile_upload": False,
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+def theme_button():
+    label = "☀️ Light" if st.session_state.theme == "dark" else "🌙 Dark"
+    if st.button(label, use_container_width=True):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
 
-# =====================================
-# HOME PAGE
-# =====================================
-def show_home_page():
+# =========================================================
+# WELCOME PAGE
+# =========================================================
+def welcome_page():
     apply_theme()
-    col_hdr, col_thm = st.columns([9,1])
-    with col_thm:
-        theme_toggle()
+
+    top1, top2 = st.columns([8, 1])
+    with top2:
+        theme_button()
 
     st.markdown("""
-    <div class="home-hero">
-        <div style="font-size:4rem;margin-bottom:0.5rem;">🎓</div>
-        <h1>Student Score Predictor</h1>
-        <p>AI-Powered Academic Performance Analysis</p>
-        <p style="font-size:0.8rem;opacity:0.75;margin-top:0.5rem;">
-            Predict your exam score, track progress, and get personalised recommendations
-        </p>
+    <div class="hero">
+        <div>
+            <div style="font-size:3rem;margin-bottom:0.4rem;">🎓</div>
+            <h1>Student Score<br>Predictor</h1>
+            <p>Professional academic prediction web app with secure login, PDF reports, email sharing and WhatsApp document sharing.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Features Section
-    st.markdown('<div class="section-header">✨ Key Features</div>', unsafe_allow_html=True)
-    f1, f2, f3, f4 = st.columns(4)
+    st.write("")
+    c1, c2, c3, c4 = st.columns(4)
     features = [
-        ("🤖", "AI Prediction", "Machine learning model predicts your exam score based on study habits and academic data"),
-        ("📊", "Progress Tracking", "Visual charts track your score history, study hours impact, and attendance correlation"),
-        ("💡", "Smart Recommendations", "Get personalised tips to improve attendance, sleep, study hours and more"),
-        ("📄", "PDF Reports", "Download official prediction reports and share results via WhatsApp or Email"),
+        ("AI Prediction", "Score prediction from academic inputs."),
+        ("Multi Page App", "Dashboard, prediction, report and history."),
+        ("PDF Report", "Printable professional document."),
+        ("Share Report", "Send as email or WhatsApp document.")
     ]
-    for col, (icon, title, desc) in zip([f1,f2,f3,f4], features):
+    for col, (t, d) in zip([c1, c2, c3, c4], features):
         with col:
             st.markdown(f"""
-            <div class="feature-card">
-                <div class="feature-icon">{icon}</div>
-                <h3>{title}</h3>
-                <p>{desc}</p>
+            <div class="mini-feature">
+                <b>{t}</b><br>
+                <span style="font-size:0.84rem;color:#caf0f8 !important;">{d}</span>
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("---")
-
-    # About Section
-    st.markdown('<div class="section-header">📖 About the Project</div>', unsafe_allow_html=True)
-    c1, c2 = st.columns([3,2])
-    with c1:
-        st.markdown("""
-        **Student Score Predictor** is an AI-powered academic tool built for students and parents
-        to understand and improve academic performance.
-
-        **How It Works:**
-        - Enter your study hours, attendance %, previous scores, sleep hours and other factors
-        - Our trained Machine Learning model analyses these inputs
-        - Get an instant predicted exam score (0–100)
-        - View trends over time with interactive charts
-        - Download a professional PDF report
-
-        **Who Is It For?**
-        - 🎓 **Students** (Class 8–12 and College) who want to improve grades
-        - 👨‍👩‍👧 **Parents** who want to monitor their child's academic trends
-
-        **Technology Stack:**
-        Python · Streamlit · Scikit-Learn · Plotly · ReportLab
-        """)
-    with c2:
-        st.markdown("""
-        <div style="background:rgba(0,119,182,0.12);border:1px solid rgba(0,180,216,0.3);
-            border-radius:16px;padding:1.2rem;">
-            <h4 style="color:#00b4d8 !important;margin-bottom:0.8rem;">📈 What We Analyse</h4>
-            <ul style="list-style:none;padding:0;margin:0;">
-                <li>📖 Study Hours per Day</li>
-                <li>🏫 Attendance Percentage</li>
-                <li>📊 Previous Exam Scores</li>
-                <li>💤 Sleep Hours</li>
-                <li>🔥 Motivation Level</li>
-                <li>👩‍🏫 Teacher Quality</li>
-                <li>🌐 Internet Access</li>
-                <li>💰 Family Income Level</li>
-                <li>👥 Peer Influence</li>
-                <li>📚 Learning Resources</li>
-            </ul>
-        </div>
-        """, unsafe_allow_html=True)
-
-    st.markdown("---")
-    st.markdown('<div class="section-header">📊 Sample Performance Insights</div>', unsafe_allow_html=True)
-    # Demo graphs on home page
-    sample_scores = [58, 63, 67, 71, 74, 78, 82]
-    sample_hours  = [3, 4, 5, 5.5, 6, 7, 8]
-    sample_att    = [65, 68, 72, 75, 78, 82, 88]
-    attempts_demo = [f"#{i}" for i in range(1, 8)]
-
-    fig_demo = go.Figure()
-    fig_demo.add_trace(go.Scatter(x=attempts_demo, y=sample_scores, mode='lines+markers',
-        name='Score', line=dict(color='#00b4d8', width=3),
-        marker=dict(size=8, color='#00b4d8', line=dict(color='white', width=2))))
-    fig_demo.add_hline(y=60, line_dash="dash", line_color="#f87171", annotation_text="Pass", annotation_font_color="#f87171")
-    fig_demo.add_hline(y=85, line_dash="dash", line_color="#34d399", annotation_text="Excellent", annotation_font_color="#34d399")
-    is_dark = st.session_state.theme == "dark"
-    bg_col = "rgba(3,4,94,0.0)" if is_dark else "rgba(255,255,255,0.0)"
-    txt_col = "#ffffff" if is_dark else "#03045e"
-    grid_col = "rgba(0,180,216,0.15)" if is_dark else "rgba(0,119,182,0.15)"
-    fig_demo.update_layout(
-        title=dict(text="Sample Score Progress", font=dict(color=txt_col)),
-        paper_bgcolor=bg_col, plot_bgcolor=bg_col,
-        font=dict(color=txt_col), height=250, margin=dict(l=0,r=0,t=40,b=0),
-        showlegend=False,
-        xaxis=dict(gridcolor=grid_col, color=txt_col),
-        yaxis=dict(gridcolor=grid_col, color=txt_col, range=[40,100]),
-    )
-    st.plotly_chart(fig_demo, use_container_width=True)
-
-    st.markdown("---")
-    col_a, col_b, col_c = st.columns([1,2,1])
-    with col_b:
-        if st.button("🎓 Get Started — Sign Up / Login", use_container_width=True):
-            st.session_state.auth_mode = "login"
+    st.write("")
+    a, b, c = st.columns([1, 2, 1])
+    with b:
+        if st.button("Get Started", use_container_width=True):
+            st.session_state.auth_page = "login"
             st.rerun()
 
-    st.markdown('<p style="text-align:center;font-size:0.55rem;margin-top:1rem;opacity:0.5;">🔒 Secure · AI Powered · Student Score Predictor v2.0</p>', unsafe_allow_html=True)
-
-# =====================================
+# =========================================================
 # AUTH PAGE
-# =====================================
-def show_auth_page():
+# =========================================================
+def auth_page():
     apply_theme()
-    users = load_users()
 
-    col_back, col_thm = st.columns([9,1])
+    users = load_json(USER_DB_FILE, {})
+
+    col_back, col_theme = st.columns([8, 1])
     with col_back:
-        if st.button("← Home", key="back_home_btn"):
-            st.session_state.auth_mode = "home"
+        if st.button("← Back to Welcome"):
+            st.session_state.auth_page = "welcome"
             st.rerun()
-    with col_thm:
-        theme_toggle()
+    with col_theme:
+        theme_button()
 
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.markdown("""
-        <div style="text-align:center;margin-bottom:1.5rem;">
-            <div style="font-size:2.8rem;">🎓</div>
-            <h2 style="margin:0.2rem 0;letter-spacing:-0.5px;">Student Score Predictor</h2>
-            <p style="font-size:0.75rem;opacity:0.6;margin:0;">AI Powered Academic Tool</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.write("")
+    left, mid, right = st.columns([1, 1.25, 1])
+    with mid:
+        st.markdown('<div class="app-card">', unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center;'>🎓 Student Score Predictor</h2>", unsafe_allow_html=True)
 
-        # ── LOGIN ──
-        if st.session_state.auth_mode == "login":
-            st.markdown("**Sign In to Your Account**")
-            username = st.text_input("Username", placeholder="Enter username", key="login_user")
-            password = st.text_input("Password", type="password", placeholder="Enter password", key="login_pass")
-            if st.button("Sign In →", use_container_width=True, key="login_btn"):
-                if username and password:
-                    if username in users and users[username]["password"] == hash_password(password):
-                        st.session_state.logged_in = True
-                        st.session_state.username = username
-                        st.session_state.user_role = users[username]["role"]
-                        # load saved graph history
-                        h = all_history.get(username, {})
-                        if isinstance(h, dict):
-                            st.session_state.study_hours_history = h.get("study_hours", [])
-                            st.session_state.attendance_history = h.get("attendance", [])
-                        st.rerun()
-                    else:
-                        st.error("❌ Invalid username or password")
+        tab1, tab2 = st.tabs(["Login", "Sign Up"])
+
+        with tab1:
+            st.markdown('<div class="section-title">Sign In</div>', unsafe_allow_html=True)
+            username = st.text_input("Username", key="login_username")
+            password = st.text_input("Password", type="password", key="login_password")
+
+            if st.button("Login", use_container_width=True):
+                if username in users and users[username]["password"] == hash_password(password):
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.page = "Dashboard"
+                    st.rerun()
                 else:
-                    st.warning("Please fill all fields")
-            st.markdown("<hr>", unsafe_allow_html=True)
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🎓 Student Sign Up", use_container_width=True):
-                    st.session_state.auth_mode = "signup"
-                    st.session_state.signup_role = "student"
-                    st.rerun()
-            with c2:
-                if st.button("👨‍👩‍👧 Parent Sign Up", use_container_width=True):
-                    st.session_state.auth_mode = "signup"
-                    st.session_state.signup_role = "parent"
-                    st.rerun()
+                    st.error("Invalid username or password.")
 
-        # ── SIGNUP ──
-        elif st.session_state.auth_mode == "signup":
-            role = st.session_state.signup_role
-            st.markdown(f"**Create {role.capitalize()} Account**")
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("🎓 Student", use_container_width=True):
-                    st.session_state.signup_role = "student"; st.rerun()
-            with c2:
-                if st.button("👨‍👩‍👧 Parent", use_container_width=True):
-                    st.session_state.signup_role = "parent"; st.rerun()
-            st.markdown("---")
-            username  = st.text_input("Username", placeholder="Choose a username", key="su_user")
-            email     = st.text_input("Email Address", placeholder="your@email.com (for OTP)", key="su_email")
-            password  = st.text_input("Password", type="password", placeholder="Min 4 characters", key="su_pass")
-            confirm   = st.text_input("Confirm Password", type="password", placeholder="Repeat password", key="su_confirm")
-            full_name = st.text_input("Full Name", placeholder="Your full name", key="su_name")
+        with tab2:
+            st.markdown('<div class="section-title">Create Account</div>', unsafe_allow_html=True)
+            role = st.selectbox("Role", ["student", "parent"], format_func=lambda x: x.capitalize())
+            full_name = st.text_input("Full Name", key="signup_name")
+            username = st.text_input("Username", key="signup_username")
+            email = st.text_input("Email for OTP", key="signup_email")
+            password = st.text_input("Password", type="password", key="signup_password")
+            confirm = st.text_input("Confirm Password", type="password", key="signup_confirm")
+
             if role == "student":
-                dob   = st.date_input("Date of Birth", min_value=datetime(1990,1,1), max_value=datetime.now(), key="su_dob")
-                grade = st.selectbox("Grade", ["Class 8","Class 9","Class 10","Class 11","Class 12","College"], key="su_grade")
-                school= st.text_input("School / College Name", placeholder="Institution name", key="su_school")
+                dob = st.date_input("Date of Birth", min_value=datetime(1990, 1, 1), max_value=datetime.now())
+                grade = st.selectbox("Grade", ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"])
+                school = st.text_input("School / College")
             else:
-                child_name  = st.text_input("Child's Name", placeholder="Child's full name", key="su_child")
-                child_dob   = st.date_input("Child's DOB", min_value=datetime(1990,1,1), max_value=datetime.now(), key="su_cdob")
-                child_grade = st.selectbox("Child's Grade", ["Class 8","Class 9","Class 10","Class 11","Class 12","College"], key="su_cgrade")
-                relation    = st.selectbox("Relationship", ["Father","Mother","Guardian"], key="su_relation")
+                child_name = st.text_input("Child Name")
+                child_grade = st.selectbox("Child Grade", ["Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"])
+                relation = st.selectbox("Relationship", ["Father", "Mother", "Guardian"])
 
-            st.markdown('<div class="otp-box">', unsafe_allow_html=True)
-            st.markdown("**📧 Email OTP Verification**")
-            st.caption("An OTP will be sent to your email to verify your account.")
-            if st.button("📨 Send OTP to Email", use_container_width=True, key="send_otp_btn"):
-                if not email:
-                    st.warning("Please enter your email first.")
-                else:
-                    otp = generate_otp()
-                    store_otp(email, otp)
-                    success, msg = send_otp_email(email, otp, full_name or "User")
-                    if success:
-                        st.success(f"✅ OTP sent to {email}! Check your inbox.")
-                        st.session_state.otp_email = email
+            st.markdown("---")
+            st.markdown("**Email Verification**")
+            otp_col1, otp_col2 = st.columns([1, 1])
+            with otp_col1:
+                if st.button("Send OTP", use_container_width=True):
+                    if not email:
+                        st.warning("Enter email first.")
                     else:
-                        # For testing when email not configured — show OTP in warning
-                        st.warning(f"⚠️ Email not configured. For testing, your OTP is: **{otp}**")
-                        st.caption("Configure EMAIL_SENDER and EMAIL_PASSWORD in app.py to enable real email OTP.")
-                        st.session_state.otp_email = email
+                        otp = generate_otp()
+                        store_otp(email, otp)
+                        ok, msg = send_otp_email(email, otp, full_name or "User")
+                        if ok:
+                            st.success(msg)
+                        else:
+                            st.warning(msg)
+                            st.info(f"Testing OTP: {otp}")
 
-            entered_otp = st.text_input("Enter OTP", placeholder="6-digit code from your email", key="otp_input", max_chars=6)
-            st.markdown('</div>', unsafe_allow_html=True)
+            otp_input = st.text_input("Enter OTP", max_chars=6)
 
-            if st.button("✅ Verify OTP & Create Account", use_container_width=True, key="create_acc_btn"):
-                # Validations
-                if not username or not password or not full_name or not email:
+            with otp_col2:
+                create = st.button("Create Account", use_container_width=True)
+
+            if create:
+                if not full_name or not username or not email or not password:
                     st.warning("Please fill all required fields.")
-                elif password != confirm:
-                    st.error("Passwords don't match.")
-                elif len(password) < 4:
-                    st.warning("Password must be at least 4 characters.")
                 elif username in users:
-                    st.error("Username already taken. Choose another.")
-                elif not entered_otp:
-                    st.warning("Please enter the OTP sent to your email.")
+                    st.error("Username already exists.")
+                elif password != confirm:
+                    st.error("Passwords do not match.")
+                elif len(password) < 4:
+                    st.error("Password must be at least 4 characters.")
                 else:
-                    ok, otp_msg = verify_otp(email, entered_otp)
-                    if not ok:
-                        st.error(otp_msg)
+                    verified, msg = verify_otp(email, otp_input)
+                    if not verified:
+                        st.error(msg)
                     else:
-                        data = {
+                        user = {
+                            "full_name": full_name,
+                            "username": username,
+                            "email": email,
                             "password": hash_password(password),
                             "role": role,
-                            "full_name": full_name,
-                            "email": email,
-                            "created_at": str(pd.Timestamp.now())
+                            "created_at": datetime.now().isoformat()
                         }
                         if role == "student":
-                            data["dob"] = str(dob)
-                            data["age"] = calculate_age(dob)
-                            data["grade"] = grade
-                            data["school"] = school
+                            user.update({
+                                "dob": str(dob),
+                                "age": calculate_age(dob),
+                                "grade": grade,
+                                "school": school
+                            })
                         else:
-                            data["child_name"] = child_name
-                            data["child_dob"] = str(child_dob)
-                            data["child_age"] = calculate_age(child_dob)
-                            data["child_grade"] = child_grade
-                            data["relation"] = relation
-                        users[username] = data
-                        save_users(users)
-                        st.success("🎉 Account created! Please sign in.")
-                        st.session_state.auth_mode = "login"
-                        st.rerun()
+                            user.update({
+                                "child_name": child_name,
+                                "child_grade": child_grade,
+                                "relation": relation
+                            })
+                        users[username] = user
+                        save_json(USER_DB_FILE, users)
+                        st.success("Account created successfully. Please login now.")
 
-            st.markdown("<hr>", unsafe_allow_html=True)
-            if st.button("← Back to Sign In", use_container_width=True, key="back_login_btn"):
-                st.session_state.auth_mode = "login"; st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown('<p style="text-align:center;font-size:0.55rem;margin-top:1rem;opacity:0.4;">🔒 Secure Portal · AI Powered</p>', unsafe_allow_html=True)
-
-# =====================================
-# LOAD MODEL
-# =====================================
-@st.cache_resource
-def load_models():
-    model   = joblib.load("student_model.pkl")
-    columns = joblib.load("model_columns.pkl")
-    return model, columns
-
-# =====================================
+# =========================================================
 # SIDEBAR
-# =====================================
-def show_sidebar(user_data):
+# =========================================================
+def sidebar(user):
     with st.sidebar:
-        pic_b64    = get_profile_pic_base64(st.session_state.username)
-        role_text  = "Student" if st.session_state.user_role == "student" else "Parent"
-        role_icon  = "🎓" if st.session_state.user_role == "student" else "👨‍👩‍👧"
-        avatar_html = f'<img src="data:image/jpeg;base64,{pic_b64}" />' if pic_b64 else role_icon
+        pic = get_profile_picture(st.session_state.username)
+        avatar = f'<img src="data:image/jpeg;base64,{pic}">' if pic else "🎓"
 
         st.markdown(f"""
-        <div class="profile-card">
-            <div class="avatar-circle">{avatar_html}</div>
-            <div class="profile-name">{user_data.get('full_name', st.session_state.username)}</div>
-            <div class="profile-role">{role_text}</div>
+        <div style="text-align:center;margin-top:0.5rem;">
+            <div class="avatar">{avatar}</div>
+            <div class="profile-name">{user.get('full_name', st.session_state.username)}</div>
+            <div class="profile-role">{user.get('role','student').capitalize()}</div>
         </div>
         """, unsafe_allow_html=True)
 
-        if st.button("✏️ Edit Profile Picture", use_container_width=True, key="toggle_pic_btn"):
-            st.session_state.show_profile_edit = not st.session_state.show_profile_edit
+        st.write("")
+        if st.button("Change Photo", use_container_width=True):
+            st.session_state.show_profile_upload = not st.session_state.show_profile_upload
             st.rerun()
 
-        if st.session_state.show_profile_edit:
-            up = st.file_uploader("Upload Profile Picture", type=["jpg","jpeg","png"],
-                                  key="pic_up", label_visibility="collapsed")
-            if up:
-                save_profile_pic(st.session_state.username, up.read())
-                st.success("✅ Updated!")
-                st.session_state.show_profile_edit = False
+        if st.session_state.show_profile_upload:
+            upload = st.file_uploader("Upload profile photo", type=["jpg", "jpeg", "png"])
+            if upload:
+                save_profile_picture(st.session_state.username, upload.read())
+                st.session_state.show_profile_upload = False
+                st.success("Profile photo updated.")
                 st.rerun()
 
         st.markdown("---")
-        st.markdown("### 👤 Account")
-        st.markdown(f"**User:** `{st.session_state.username}`")
-        st.markdown(f"**Name:** {user_data.get('full_name','N/A')}")
-        st.markdown(f"**Email:** {user_data.get('email','N/A')}")
-        if st.session_state.user_role == "student":
-            st.markdown(f"**Age:** {user_data.get('age','N/A')}")
-            st.markdown(f"**Grade:** {user_data.get('grade','N/A')}")
-            st.markdown(f"**School:** {user_data.get('school','N/A')}")
-        else:
-            st.markdown(f"**Child:** {user_data.get('child_name','N/A')}")
-            st.markdown(f"**Child Grade:** {user_data.get('child_grade','N/A')}")
-            st.markdown(f"**Relation:** {user_data.get('relation','N/A')}")
+        pages = ["Dashboard", "Prediction", "Reports", "History", "Share"]
+        for p in pages:
+            if st.button(p, use_container_width=True, key=f"nav_{p}"):
+                st.session_state.page = p
+                st.rerun()
 
         st.markdown("---")
-        theme_toggle()
+        theme_button()
+
         st.markdown("---")
-        if st.button("🚪 Sign Out", use_container_width=True, key="signout_btn"):
-            for k, v in defaults.items():
-                st.session_state[k] = v
+        if st.button("Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.auth_page = "welcome"
             st.rerun()
 
-# =====================================
-# PLOTLY GRAPH HELPERS
-# =====================================
-def plotly_layout(title_txt, xtitle, ytitle, yrange=None):
-    is_dark = st.session_state.theme == "dark"
-    bg  = "rgba(0,0,0,0)"
-    txt = "#ffffff" if is_dark else "#03045e"
-    grd = "rgba(0,180,216,0.12)" if is_dark else "rgba(0,119,182,0.12)"
-    layout = dict(
-        title=dict(text=title_txt, font=dict(color=txt, size=14)),
-        paper_bgcolor=bg, plot_bgcolor=bg,
-        font=dict(color=txt), height=320,
-        margin=dict(l=10, r=10, t=45, b=10),
-        xaxis=dict(title=xtitle, gridcolor=grd, color=txt, showgrid=True),
-        yaxis=dict(title=ytitle, gridcolor=grd, color=txt, showgrid=True),
-        showlegend=True,
-        legend=dict(font=dict(color=txt)),
-    )
-    if yrange:
-        layout["yaxis"]["range"] = yrange
-    return layout
+# =========================================================
+# DASHBOARD
+# =========================================================
+def dashboard(user):
+    st.markdown("<h1>Dashboard</h1>", unsafe_allow_html=True)
+    history = get_user_history(st.session_state.username)
+    scores = history.get("scores", [])
 
-def graph_score_history(scores):
-    """Graph 1: Score History Line Graph"""
-    attempts = [f"#{i}" for i in range(1, len(scores)+1)]
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=attempts, y=scores, mode='lines+markers', name='Your Score',
-        line=dict(color='#00b4d8', width=3),
-        marker=dict(size=9, color='#00b4d8', line=dict(color='white', width=2)),
-        fill='tozeroy', fillcolor='rgba(0,180,216,0.08)'
-    ))
-    fig.add_hline(y=60, line_dash="dash", line_color="#f87171",
-                  annotation_text="Pass (60)", annotation_font_color="#f87171")
-    fig.add_hline(y=70, line_dash="dot", line_color="#fbbf24",
-                  annotation_text="Good (70)", annotation_font_color="#fbbf24")
-    fig.add_hline(y=85, line_dash="dash", line_color="#34d399",
-                  annotation_text="Excellent (85)", annotation_font_color="#34d399")
-    fig.update_layout(**plotly_layout("📈 Score History", "Attempt", "Score", [30, 105]))
-    return fig
+    c1, c2, c3, c4 = st.columns(4)
+    metrics = [
+        ("Total Reports", len(scores)),
+        ("Last Score", scores[-1] if scores else "N/A"),
+        ("Best Score", max(scores) if scores else "N/A"),
+        ("Role", user.get("role", "student").capitalize())
+    ]
+    for col, (label, value) in zip([c1, c2, c3, c4], metrics):
+        with col:
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="metric-value">{value}</div>
+                <div class="metric-label">{label}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
-def graph_hours_vs_score(hours_list, scores):
-    """Graph 2: Hours Studied vs Score — Scatter"""
-    if len(hours_list) != len(scores) or len(scores) < 2:
-        return None
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=hours_list, y=scores, mode='markers',
-        name='Attempts',
-        marker=dict(size=11, color='#00b4d8',
-                    line=dict(color='white', width=2),
-                    symbol='circle'),
-        text=[f"Attempt #{i+1}<br>Hours: {h}h<br>Score: {s}" for i,(h,s) in enumerate(zip(hours_list, scores))],
-        hovertemplate="%{text}<extra></extra>"
-    ))
-    # Trend line
-    if len(hours_list) >= 3:
-        z = np.polyfit(hours_list, scores, 1)
-        p = np.poly1d(z)
-        x_line = np.linspace(min(hours_list), max(hours_list), 100)
-        fig.add_trace(go.Scatter(
-            x=x_line.tolist(), y=p(x_line).tolist(),
-            mode='lines', name='Trend',
-            line=dict(color='#90e0ef', width=2, dash='dash')
-        ))
-    fig.update_layout(**plotly_layout("📖 Hours Studied vs Score", "Study Hours / Day", "Score", [30, 105]))
-    return fig
+    st.write("")
+    st.markdown('<div class="app-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Welcome</div>', unsafe_allow_html=True)
+    st.write("Use the left navigation to predict score, generate printable PDF report, and share the document through email or WhatsApp.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-def graph_attendance_vs_score(att_list, scores):
-    """Graph 3: Attendance vs Score — Scatter"""
-    if len(att_list) != len(scores) or len(scores) < 2:
-        return None
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=att_list, y=scores, mode='markers',
-        name='Attempts',
-        marker=dict(size=11, color='#0077b6',
-                    line=dict(color='white', width=2),
-                    symbol='diamond'),
-        text=[f"Attempt #{i+1}<br>Attendance: {a}%<br>Score: {s}" for i,(a,s) in enumerate(zip(att_list, scores))],
-        hovertemplate="%{text}<extra></extra>"
-    ))
-    # Trend line
-    if len(att_list) >= 3:
-        z = np.polyfit(att_list, scores, 1)
-        p = np.poly1d(z)
-        x_line = np.linspace(min(att_list), max(att_list), 100)
-        fig.add_trace(go.Scatter(
-            x=x_line.tolist(), y=p(x_line).tolist(),
-            mode='lines', name='Trend',
-            line=dict(color='#90e0ef', width=2, dash='dash')
-        ))
-    fig.update_layout(**plotly_layout("🏫 Attendance vs Score", "Attendance (%)", "Score", [30, 105]))
-    return fig
+    if scores:
+        st.plotly_chart(score_chart(scores), use_container_width=True)
+    else:
+        st.info("No prediction yet. Go to Prediction page and generate your first report.")
 
-# =====================================
-# MAIN APP
-# =====================================
-def show_main_app():
-    apply_theme()
-    users     = load_users()
-    user_data = users.get(st.session_state.username, {})
-    show_sidebar(user_data)
+# =========================================================
+# PREDICTION PAGE
+# =========================================================
+def prediction_page(user):
+    st.markdown("<h1>Prediction</h1>", unsafe_allow_html=True)
 
-    st.markdown("<h1 style='text-align:center;letter-spacing:-1px;'>🎓 Student Score Predictor</h1>", unsafe_allow_html=True)
+    if user.get("role") == "parent":
+        st.info(f"Predicting for child: {user.get('child_name', 'Child')}")
 
-    if st.session_state.user_role == "parent":
-        child_name = user_data.get("child_name", "Child")
-        st.info(f"👨‍👩‍👧 Predicting for: **{child_name}**")
-
-    model, columns = load_models()
-
-    # ── Input Parameters ──
-    st.markdown('<div class="section-header">📋 Input Parameters</div>', unsafe_allow_html=True)
+    st.markdown('<div class="app-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Academic Inputs</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        hours      = st.number_input("📖 Hours Studied", min_value=0.0, max_value=24.0, value=5.0, step=0.5)
-        attendance = st.number_input("🏫 Attendance (%)", min_value=0.0, max_value=100.0, value=75.0, step=5.0)
-        previous   = st.number_input("📊 Previous Score", min_value=0.0, max_value=100.0, value=60.0, step=5.0)
-        sleep      = st.number_input("💤 Sleep Hours", min_value=0.0, max_value=12.0, value=7.0, step=0.5)
-        motivation = st.selectbox("🔥 Motivation Level", ["Low", "Medium", "High"])
-        teacher    = st.selectbox("👩‍🏫 Teacher Quality", ["Poor", "Average", "Good"])
-        school_t   = st.selectbox("🏛️ School Type", ["Public", "Private"])
-    with col2:
-        internet   = st.selectbox("🌐 Internet Access", ["Yes", "No"])
-        income     = st.selectbox("💰 Family Income", ["Low", "Medium", "High"])
-        parent_inv = st.selectbox("👨‍👩‍👦 Parental Involvement", ["Low", "Medium", "High"])
-        education  = st.selectbox("🎓 Parent Education", ["School", "College"])
-        peer       = st.selectbox("👥 Peer Influence", ["Negative", "Neutral", "Positive"])
-        resources  = st.selectbox("📚 Learning Resources", ["Low", "Medium", "High"])
-        activities = st.selectbox("⚽ Extracurricular Activities", ["Yes", "No"])
+        hours = st.number_input("Hours Studied per Day", 0.0, 24.0, 5.0, 0.5)
+        attendance = st.number_input("Attendance (%)", 0.0, 100.0, 75.0, 1.0)
+        previous = st.number_input("Previous Score", 0.0, 100.0, 65.0, 1.0)
+        sleep = st.number_input("Sleep Hours", 0.0, 12.0, 7.0, 0.5)
+        motivation = st.selectbox("Motivation Level", ["Low", "Medium", "High"])
+        teacher = st.selectbox("Teacher Quality", ["Poor", "Average", "Good"])
+        school_type = st.selectbox("School Type", ["Public", "Private"])
 
-    st.markdown("")
-    if st.button("🚀 Predict My Score", use_container_width=True, key="predict_btn"):
+    with col2:
+        internet = st.selectbox("Internet Access", ["Yes", "No"])
+        income = st.selectbox("Family Income", ["Low", "Medium", "High"])
+        parent_inv = st.selectbox("Parental Involvement", ["Low", "Medium", "High"])
+        education = st.selectbox("Parental Education Level", ["School", "College"])
+        peer = st.selectbox("Peer Influence", ["Negative", "Neutral", "Positive"])
+        resources = st.selectbox("Learning Resources", ["Low", "Medium", "High"])
+        activities = st.selectbox("Extracurricular Activities", ["Yes", "No"])
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    if st.button("Predict Score & Generate PDF", use_container_width=True):
         data = {
-            "Hours_Studied": hours, "Attendance": attendance, "Previous_Scores": previous,
-            "Sleep_Hours": sleep, "Motivation_Level": motivation, "Teacher_Quality": teacher,
-            "School_Type": school_t, "Internet_Access": internet, "Family_Income": income,
-            "Parental_Involvement": parent_inv, "Parental_Education_Level": education,
-            "Peer_Influence": peer, "Learning_Resources": resources,
+            "Hours_Studied": hours,
+            "Attendance": attendance,
+            "Previous_Scores": previous,
+            "Sleep_Hours": sleep,
+            "Motivation_Level": motivation,
+            "Teacher_Quality": teacher,
+            "School_Type": school_type,
+            "Internet_Access": internet,
+            "Family_Income": income,
+            "Parental_Involvement": parent_inv,
+            "Parental_Education_Level": education,
+            "Peer_Influence": peer,
+            "Learning_Resources": resources,
             "Extracurricular_Activities": activities
         }
-        input_df = pd.DataFrame([data])
-        input_df = pd.get_dummies(input_df)
-        input_df = input_df.reindex(columns=columns, fill_value=0)
-        prediction = model.predict(input_df)
-        final_score = max(40, min(100, int(round(prediction[0]))))
 
-        # Update parallel history lists
-        uname = st.session_state.username
-        if uname not in all_history:
-            all_history[uname] = {"scores": [], "study_hours": [], "attendance": []}
-        # Support both old list format and new dict format
-        if isinstance(all_history[uname], list):
-            old_scores = all_history[uname]
-            all_history[uname] = {"scores": old_scores, "study_hours": [], "attendance": []}
-
-        all_history[uname]["scores"].append(final_score)
-        all_history[uname]["study_hours"].append(float(hours))
-        all_history[uname]["attendance"].append(float(attendance))
-
-        # Keep last 15 entries
-        for key in ["scores","study_hours","attendance"]:
-            if len(all_history[uname][key]) > 15:
-                all_history[uname][key] = all_history[uname][key][-15:]
-
-        save_history(all_history)
-        st.session_state.study_hours_history = all_history[uname]["study_hours"]
-        st.session_state.attendance_history  = all_history[uname]["attendance"]
-
-        # Recommendations
-        recs = []
-        if hours < 6:        recs.append("Increase study hours to 6–8 daily for better results")
-        if attendance < 75:  recs.append("Improve attendance to at least 80%")
-        if sleep < 7:        recs.append("Get 7–9 hours of quality sleep daily")
-        if motivation == "Low": recs.append("Set clear daily goals to boost motivation")
-        if teacher == "Poor":   recs.append("Seek additional tutoring or online resources")
-        if resources == "Low":  recs.append("Utilise free online learning platforms (Khan Academy, YouTube)")
-        if peer == "Negative":  recs.append("Join positive study groups or study with high achievers")
-
-        st.session_state.last_score  = final_score
-        st.session_state.last_recs   = recs
-        st.session_state.last_inputs = {"hours": hours, "attendance": attendance,
-                                         "previous": previous, "sleep": sleep}
-        pdf_buf = generate_pdf_report(st.session_state.username, final_score, user_data,
-                                       hours, attendance, previous, sleep, recs)
-        st.session_state.last_pdf = pdf_buf.read()
-
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="result-label">PREDICTED EXAM SCORE</div>
-            <div class="result-score">{final_score}<span style="font-size:1.2rem;opacity:0.6;"> / 100</span></div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        if final_score >= 85:
-            st.success("🌟 Exceptional Performance! Outstanding!"); st.balloons()
-        elif final_score >= 70:
-            st.success("📈 Good Performance! Keep it up!")
-        elif final_score >= 55:
-            st.info("📚 Satisfactory — room for improvement")
+        model, columns, err = load_model_files()
+        if model is not None and columns is not None:
+            input_df = pd.DataFrame([data])
+            input_df = pd.get_dummies(input_df)
+            input_df = input_df.reindex(columns=columns, fill_value=0)
+            pred = model.predict(input_df)[0]
+            score = int(max(35, min(100, round(pred))))
         else:
-            st.warning("⚠️ Needs Improvement — check recommendations below")
+            score = fallback_prediction(data)
+            st.warning("Model files not found. Fallback scoring formula is being used. Keep student_model.pkl and model_columns.pkl in same folder for ML prediction.")
 
-    # ── Download & Share ──
-    uname = st.session_state.username
-    user_hist = all_history.get(uname, {})
-    if isinstance(user_hist, list):
-        scores_list = user_hist
-        hours_list  = st.session_state.study_hours_history
-        att_list    = st.session_state.attendance_history
-    else:
-        scores_list = user_hist.get("scores", [])
-        hours_list  = user_hist.get("study_hours", [])
-        att_list    = user_hist.get("attendance", [])
+        recs = make_recommendations(data)
+        result = {
+            "score": score,
+            "inputs": data,
+            "recommendations": recs,
+            "created_at": datetime.now().strftime("%d %B %Y, %I:%M %p")
+        }
 
-    if st.session_state.last_score is not None:
-        final_score = st.session_state.last_score
-        inp = st.session_state.last_inputs
+        pdf_bytes = make_pdf_report(st.session_state.username, user, result)
+        result["pdf_filename"] = f"student_score_report_{st.session_state.username}_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
 
-        st.markdown('<div class="section-header">📤 Download & Share</div>', unsafe_allow_html=True)
-        st.markdown('<div class="share-box">', unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.session_state.last_pdf:
-                fname = f"score_report_{uname}_{datetime.now().strftime('%Y%m%d')}.pdf"
-                st.download_button("📄 Download PDF Report", data=st.session_state.last_pdf,
-                    file_name=fname, mime="application/pdf", use_container_width=True)
-        with c2:
-            share_text = (
-                f"🎓 My Predicted Score: {final_score}/100\n"
-                f"📖 Study Hours: {inp.get('hours','N/A')}\n"
-                f"🏫 Attendance: {inp.get('attendance','N/A')}%\n"
-                f"📊 Previous Score: {inp.get('previous','N/A')}\n"
-                f"Generated by Student Score Predictor"
-            )
-            st.download_button("📋 Score Summary (TXT)", data=share_text,
-                file_name=f"score_{uname}.txt", mime="text/plain", use_container_width=True)
+        st.session_state.last_result = result
+        st.session_state.last_pdf = pdf_bytes
+        append_history(st.session_state.username, result)
 
-        # Direct WhatsApp PDF sending works only with WhatsApp Cloud API configuration.
-        # Normal wa.me/browser links cannot auto-attach local PDF files due to browser security limits.
-        st.markdown("---")
-        st.markdown("**📱 Send PDF Document on WhatsApp**")
-        wa_text = (
-            f"🎓 Student Score Predictor Report\n"
-            f"Predicted Score: {final_score}/100\n"
-            f"Please find the PDF report attached."
-        )
-        wa_phone = st.text_input(
-            "Receiver WhatsApp Number with Country Code",
-            placeholder="Example: 919876543210",
-            key="wa_receiver_phone"
-        )
+        st.success("Prediction completed and PDF report generated.")
+        st.rerun()
 
-        cw1, cw2 = st.columns(2)
-        with cw1:
-            if st.button("📱 Send PDF Directly on WhatsApp", use_container_width=True, key="send_wa_pdf_btn"):
-                if not wa_phone:
-                    st.warning("Please enter receiver WhatsApp number with country code.")
-                elif not st.session_state.last_pdf:
-                    st.error("PDF report not found. Please predict score again.")
-                else:
-                    fname = f"score_report_{uname}_{datetime.now().strftime('%Y%m%d')}.pdf"
-                    ok, msg = send_whatsapp_pdf_report(wa_phone, wa_text, st.session_state.last_pdf, fname)
-                    if ok:
-                        st.success("✅ PDF document sent on WhatsApp successfully.")
-                    else:
-                        st.error(msg)
-        with cw2:
-            wa_url = f"https://wa.me/{wa_phone.strip().replace('+','').replace(' ','').replace('-','')}?text={quote(wa_text)}" if wa_phone else f"https://wa.me/?text={quote(wa_text)}"
-            st.markdown(f"""
-            <a href="{wa_url}" target="_blank" style="text-decoration:none;">
-                <button style="width:100%;background:linear-gradient(135deg,#25d366,#128c7e);color:white;border:none;
-                    border-radius:50px;padding:0.55rem 1.25rem;font-size:0.85rem;font-weight:700;cursor:pointer;">
-                    📎 Open WhatsApp Manually
-                </button>
-            </a>
-            """, unsafe_allow_html=True)
-        st.caption("Direct PDF sending needs WhatsApp Cloud API. If API is not configured, download the PDF and use Open WhatsApp Manually to attach it.")
+    if st.session_state.last_result:
+        show_result_block(st.session_state.last_result)
 
-        st.markdown("---")
-        st.markdown("**📧 Send PDF Report by Email**")
-        default_email = user_data.get("email", "")
-        report_email = st.text_input("Receiver Email", value=default_email, key="report_receiver_email")
-        email_note = st.text_area(
+# =========================================================
+# REPORTS PAGE
+# =========================================================
+def reports_page(user):
+    st.markdown("<h1>Reports</h1>", unsafe_allow_html=True)
+
+    if not st.session_state.last_result or not st.session_state.last_pdf:
+        st.info("No active report. Generate a prediction first.")
+        return
+
+    result = st.session_state.last_result
+    show_result_block(result)
+
+    st.markdown('<div class="app-card">', unsafe_allow_html=True)
+    st.markdown('<div class="section-title">Printable Document</div>', unsafe_allow_html=True)
+    st.download_button(
+        "Download PDF Report",
+        data=st.session_state.last_pdf,
+        file_name=result.get("pdf_filename", "student_score_report.pdf"),
+        mime="application/pdf",
+        use_container_width=True
+    )
+    st.write("This PDF contains user information, prediction score, input summary, and recommendations.")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+# =========================================================
+# SHARE PAGE
+# =========================================================
+def share_page(user):
+    st.markdown("<h1>Share Report</h1>", unsafe_allow_html=True)
+
+    if not st.session_state.last_result or not st.session_state.last_pdf:
+        st.info("Generate a prediction first. Then share the PDF document.")
+        return
+
+    result = st.session_state.last_result
+    score = result["score"]
+    filename = result.get("pdf_filename", "student_score_report.pdf")
+    caption = f"Student Score Predictor Report\nPredicted Score: {score}/100\nPlease find the PDF report attached."
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown('<div class="app-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Email PDF Document</div>', unsafe_allow_html=True)
+        receiver = st.text_input("Receiver Email", value=user.get("email", ""))
+        body = st.text_area(
             "Email Message",
-            value=(
-                f"Hello,\n\nPlease find attached the Student Score Predictor PDF report.\n\n"
-                f"Predicted Score: {final_score}/100\n\nRegards"
-            ),
-            key="report_email_note"
+            value=f"Hello,\n\nPlease find attached the Student Score Predictor PDF report.\n\nPredicted Score: {score}/100\n\nRegards,\n{user.get('full_name', st.session_state.username)}"
         )
-        if st.button("📧 Send PDF Report to Email", use_container_width=True, key="send_pdf_email_btn"):
-            if not report_email:
-                st.warning("Please enter receiver email.")
-            elif not st.session_state.last_pdf:
-                st.error("PDF report not found. Please predict score again.")
+        if st.button("Send PDF by Email", use_container_width=True):
+            if not receiver:
+                st.warning("Enter receiver email.")
             else:
-                fname = f"score_report_{uname}_{datetime.now().strftime('%Y%m%d')}.pdf"
-                ok, msg = send_pdf_report_email(
-                    report_email,
+                ok, msg = send_pdf_email(
+                    receiver,
                     "Student Score Predictor PDF Report",
-                    email_note,
+                    body,
                     st.session_state.last_pdf,
-                    fname
+                    filename
                 )
-                if ok:
-                    st.success("✅ PDF report sent to email successfully.")
-                else:
-                    st.error(msg)
+                st.success(msg) if ok else st.error(msg)
+        st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # ── Performance Overview ──
-    if len(scores_list) >= 1:
-        st.markdown('<div class="section-header">📊 Performance Overview</div>', unsafe_allow_html=True)
-        passing  = len([s for s in scores_list if s >= 60])
-        needs_imp= len([s for s in scores_list if s < 60])
-        avg_score= int(np.mean(scores_list))
-        pass_pct = (passing / len(scores_list)) * 100
-        best     = max(scores_list)
-        last_s   = scores_list[-1]
-
-        cols = st.columns(5)
-        stats = [(cols[0],last_s,"Last Score",False),(cols[1],avg_score,"Average",False),
-                 (cols[2],best,"Best Score",False),(cols[3],passing,"Passed",False),
-                 (cols[4],needs_imp,"Need Improve",True)]
-        for col, val, label, red in stats:
-            cls = "stat-value-red" if red else "stat-value"
-            with col:
-                st.markdown(f"""
-                <div class="stat-card">
-                    <div class="{cls}">{val}</div>
-                    <div class="stat-label">{label}</div>
-                </div>
-                """, unsafe_allow_html=True)
-
-        st.markdown("")
-        st.progress(pass_pct / 100)
-        st.caption(f"✅ Success Rate: {pass_pct:.0f}% ({passing}/{len(scores_list)} attempts passed)")
-
-        if len(scores_list) >= 2:
-            trend = scores_list[-1] - scores_list[-2]
-            if trend > 0:
-                st.success(f"📈 Improving! +{trend} points from last attempt")
-            elif trend < 0:
-                st.warning(f"📉 Declined by {abs(trend)} points. Review recommendations!")
+    with col2:
+        st.markdown('<div class="app-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">WhatsApp PDF Document</div>', unsafe_allow_html=True)
+        phone = st.text_input("Receiver WhatsApp Number with Country Code", placeholder="Example: 919876543210")
+        if st.button("Send PDF Directly on WhatsApp", use_container_width=True):
+            if not phone:
+                st.warning("Enter WhatsApp number.")
             else:
-                st.info("➡️ Same as last attempt. Aim higher!")
+                ok, msg = send_pdf_whatsapp(phone, caption, st.session_state.last_pdf, filename)
+                st.success(msg) if ok else st.error(msg)
 
-    # ==========================================
-    # ✅ THE 3 REQUESTED GRAPHS (PLOTLY)
-    # ==========================================
+        manual_url = f"https://wa.me/{clean_phone(phone)}?text={quote(caption)}" if phone else f"https://wa.me/?text={quote(caption)}"
+        st.markdown(f"""
+        <a href="{manual_url}" target="_blank" style="text-decoration:none;">
+            <button style="width:100%;background:linear-gradient(135deg,#25D366,#128C7E);color:white;border:none;border-radius:999px;padding:0.65rem;font-weight:800;cursor:pointer;">
+                Open WhatsApp Manually
+            </button>
+        </a>
+        """, unsafe_allow_html=True)
+        st.caption("Manual WhatsApp button opens chat with message. PDF auto-attach only works through WhatsApp Cloud API.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    # GRAPH 1 — Score History Line Graph
-    if len(scores_list) >= 1:
-        st.markdown('<div class="section-header">📈 Graph 1 — Score History</div>', unsafe_allow_html=True)
-        st.caption("Track your predicted score across all attempts. Benchmarks: Pass=60, Good=70, Excellent=85")
-        st.plotly_chart(graph_score_history(scores_list), use_container_width=True)
+# =========================================================
+# HISTORY PAGE
+# =========================================================
+def history_page(user):
+    st.markdown("<h1>History</h1>", unsafe_allow_html=True)
+    history = get_user_history(st.session_state.username)
+    scores = history.get("scores", [])
+    records = history.get("records", [])
 
-    # GRAPH 2 — Hours Studied vs Score
-    if len(hours_list) >= 2 and len(scores_list) >= 2:
-        st.markdown('<div class="section-header">📖 Graph 2 — Hours Studied vs Score</div>', unsafe_allow_html=True)
-        st.caption("Educational insight: Does studying more hours lead to higher scores? Trend line included.")
-        fig2 = graph_hours_vs_score(hours_list[:len(scores_list)], scores_list)
-        if fig2:
-            st.plotly_chart(fig2, use_container_width=True)
-    elif len(scores_list) >= 1:
-        st.markdown('<div class="section-header">📖 Graph 2 — Hours Studied vs Score</div>', unsafe_allow_html=True)
-        st.info("📊 Hours vs Score chart will appear after 2+ predictions")
+    if not records:
+        st.info("No report history yet.")
+        return
 
-    # GRAPH 3 — Attendance vs Score
-    if len(att_list) >= 2 and len(scores_list) >= 2:
-        st.markdown('<div class="section-header">🏫 Graph 3 — Attendance vs Score</div>', unsafe_allow_html=True)
-        st.caption("Academic analysis: How does attendance % correlate with your predicted score?")
-        fig3 = graph_attendance_vs_score(att_list[:len(scores_list)], scores_list)
-        if fig3:
-            st.plotly_chart(fig3, use_container_width=True)
-    elif len(scores_list) >= 1:
-        st.markdown('<div class="section-header">🏫 Graph 3 — Attendance vs Score</div>', unsafe_allow_html=True)
-        st.info("📊 Attendance vs Score chart will appear after 2+ predictions")
+    st.plotly_chart(score_chart(scores), use_container_width=True)
 
-    # ── Recommendations ──
-    if st.session_state.last_recs is not None:
-        recs = st.session_state.last_recs
-        if recs:
-            st.markdown('<div class="section-header">💡 Recommendations</div>', unsafe_allow_html=True)
-            for r in recs:
-                st.info(f"→ {r}")
-        elif st.session_state.last_score:
-            st.success("✅ Excellent habits! Maintain your current routine.")
+    table_rows = []
+    for i, rec in enumerate(records, 1):
+        table_rows.append({
+            "No.": i,
+            "Date": rec.get("created_at", ""),
+            "Score": rec.get("score", ""),
+            "Hours": rec.get("inputs", {}).get("Hours_Studied", ""),
+            "Attendance": rec.get("inputs", {}).get("Attendance", ""),
+            "Previous Score": rec.get("inputs", {}).get("Previous_Scores", "")
+        })
+    st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
 
-    st.markdown("---")
-    st.caption("🎓 Student Score Predictor v2.0 · AI Powered Academic Tool · Built with ❤️")
+# =========================================================
+# SHARED UI
+# =========================================================
+def show_result_block(result):
+    score = result["score"]
+    status = "Excellent" if score >= 85 else "Good" if score >= 70 else "Satisfactory" if score >= 55 else "Needs Improvement"
 
-# =====================================
+    st.markdown(f"""
+    <div class="result-box">
+        <div style="letter-spacing:3px;font-size:0.78rem;color:#90e0ef !important;">PREDICTED EXAM SCORE</div>
+        <div class="result-score">{score}<span style="font-size:1.3rem;">/100</span></div>
+        <div style="font-size:1rem;color:#caf0f8 !important;">{status}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.write("")
+    if result.get("recommendations"):
+        st.markdown('<div class="app-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">Recommendations</div>', unsafe_allow_html=True)
+        for rec in result["recommendations"]:
+            st.write(f"• {rec}")
+        st.markdown("</div>", unsafe_allow_html=True)
+
+def make_recommendations(data):
+    recs = []
+    if data["Hours_Studied"] < 6:
+        recs.append("Increase daily study time to 6-8 hours with short revision breaks.")
+    if data["Attendance"] < 80:
+        recs.append("Improve attendance because regular classes strongly support consistent marks.")
+    if data["Sleep_Hours"] < 7:
+        recs.append("Take 7-9 hours of sleep for better concentration and memory.")
+    if data["Previous_Scores"] < 60:
+        recs.append("Revise weak chapters and solve previous question papers weekly.")
+    if data["Motivation_Level"] == "Low":
+        recs.append("Set small daily targets and track them to improve motivation.")
+    if data["Teacher_Quality"] == "Poor":
+        recs.append("Use extra learning support such as online lectures or tutoring.")
+    if data["Internet_Access"] == "No":
+        recs.append("Use offline notes, library books, and downloaded study material.")
+    if data["Learning_Resources"] == "Low":
+        recs.append("Improve access to books, notes, practice sets, and learning videos.")
+    if data["Peer_Influence"] == "Negative":
+        recs.append("Prefer a positive study group and avoid distractions.")
+    return recs
+
+def get_user_history(username):
+    history = load_json(HISTORY_FILE, {})
+    return history.get(username, {"scores": [], "records": []})
+
+def append_history(username, result):
+    history = load_json(HISTORY_FILE, {})
+    if username not in history:
+        history[username] = {"scores": [], "records": []}
+
+    history[username]["scores"].append(result["score"])
+    history[username]["records"].append(result)
+
+    history[username]["scores"] = history[username]["scores"][-20:]
+    history[username]["records"] = history[username]["records"][-20:]
+
+    save_json(HISTORY_FILE, history)
+
+def score_chart(scores):
+    x = [f"Report {i}" for i in range(1, len(scores) + 1)]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=x,
+        y=scores,
+        mode="lines+markers",
+        name="Score",
+        line=dict(color="#00b4d8", width=3),
+        marker=dict(size=9, color="#00b4d8", line=dict(color="white", width=2)),
+        fill="tozeroy",
+        fillcolor="rgba(0,180,216,0.10)"
+    ))
+    fig.add_hline(y=60, line_dash="dash", line_color="#f87171", annotation_text="Pass")
+    fig.add_hline(y=85, line_dash="dash", line_color="#34d399", annotation_text="Excellent")
+
+    dark = st.session_state.get("theme", "dark") == "dark"
+    fig.update_layout(
+        title="Score Progress",
+        height=360,
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#ffffff" if dark else "#03045e"),
+        xaxis=dict(gridcolor="rgba(0,180,216,0.15)"),
+        yaxis=dict(gridcolor="rgba(0,180,216,0.15)", range=[30, 105])
+    )
+    return fig
+
+# =========================================================
 # MAIN ROUTER
-# =====================================
-if st.session_state.logged_in:
-    show_main_app()
-elif st.session_state.auth_mode == "home":
-    show_home_page()
-else:
-    show_auth_page()
+# =========================================================
+def main():
+    init_state()
+
+    if not st.session_state.logged_in:
+        if st.session_state.auth_page == "welcome":
+            welcome_page()
+        else:
+            auth_page()
+        return
+
+    apply_theme()
+    users = load_json(USER_DB_FILE, {})
+    user = users.get(st.session_state.username, {})
+    sidebar(user)
+
+    page = st.session_state.page
+    if page == "Dashboard":
+        dashboard(user)
+    elif page == "Prediction":
+        prediction_page(user)
+    elif page == "Reports":
+        reports_page(user)
+    elif page == "History":
+        history_page(user)
+    elif page == "Share":
+        share_page(user)
+
+if __name__ == "__main__":
+    main()
