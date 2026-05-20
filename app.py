@@ -163,48 +163,50 @@ def apply_css():
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
 
     if dark:
-        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 24%,#0077b6 52%,#0096c7 76%,#00b4d8 100%)"
-        page_overlay = "linear-gradient(90deg,rgba(3,4,94,.78),rgba(0,0,0,.56),rgba(0,0,0,.48))"
-        card_bg = "rgba(3, 7, 30, 0.72)"
-        soft_card_bg = "rgba(255,255,255,0.09)"
-        panel_bg = "rgba(3,4,94,0.78)"
-        text_primary = "#ffffff"
-        text_secondary = "#d9f7ff"
-        text_muted = "#ade8f4"
-        border = "rgba(0, 180, 216, 0.72)"
-        input_bg = "rgba(255,255,255,0.12)"
-        input_text = "#ffffff"
-        sidebar_bg = "rgba(3,4,94,0.90)"
-        shadow = "0 22px 70px rgba(0,0,0,.34)"
-        btn_bg = "linear-gradient(135deg,#03045e,#0077b6,#00b4d8)"
+        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 28%,#0077b6 58%,#00b4d8 100%)"
+        text_primary  = "#ffffff"
+        text_secondary= "#d9f7ff"
+        text_muted    = "#caf0f8"
+        panel_bg      = "rgba(3,4,94,0.72)"
+        card_bg       = "rgba(3,7,30,0.70)"
+        soft_card_bg  = "rgba(255,255,255,0.10)"
+        border_color  = "rgba(144,224,239,0.28)"
+        input_bg      = "rgba(255,255,255,0.13)"
+        input_text    = "#ffffff"
+        accent1       = "#90e0ef"
+        accent2       = "#48cae4"
+        accent3       = "#00b4d8"
+        sidebar_bg    = "rgba(3,4,94,0.92)"
+        shadow        = "0 24px 70px rgba(0,0,0,0.42)"
+        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,.82),rgba(0,0,0,.56),rgba(0,0,0,.45))"
     else:
-        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 22%,#90e0ef 48%,#48cae4 72%,#00b4d8 100%)"
-        page_overlay = "linear-gradient(90deg,rgba(255,255,255,.85),rgba(202,240,248,.64),rgba(255,255,255,.52))"
-        card_bg = "rgba(255,255,255,0.76)"
-        soft_card_bg = "rgba(255,255,255,0.62)"
-        panel_bg = "rgba(255,255,255,0.78)"
-        text_primary = "#03045e"
-        text_secondary = "#023e8a"
-        text_muted = "#0077b6"
-        border = "rgba(2,62,138,0.48)"
-        input_bg = "rgba(255,255,255,0.92)"
-        input_text = "#03045e"
-        sidebar_bg = "rgba(255,255,255,0.86)"
-        shadow = "0 20px 60px rgba(2,62,138,.22)"
-        btn_bg = "linear-gradient(135deg,#023e8a,#0077b6,#00b4d8)"
+        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 24%,#90e0ef 55%,#48cae4 100%)"
+        text_primary  = "#03045e"
+        text_secondary= "#023e8a"
+        text_muted    = "#0077b6"
+        panel_bg      = "rgba(255,255,255,0.78)"
+        card_bg       = "rgba(255,255,255,0.78)"
+        soft_card_bg  = "rgba(255,255,255,0.92)"
+        border_color  = "rgba(2,62,138,0.25)"
+        input_bg      = "rgba(255,255,255,0.94)"
+        input_text    = "#03045e"
+        accent1       = "#0077b6"
+        accent2       = "#0096c7"
+        accent3       = "#00b4d8"
+        sidebar_bg    = "rgba(255,255,255,0.92)"
+        shadow        = "0 22px 65px rgba(2,62,138,0.20)"
+        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,.86),rgba(202,240,248,.58),rgba(255,255,255,.38))"
 
     welcome_img = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
 
     if is_welcome:
-        app_background = f"{page_overlay}, url('{welcome_img}')"
+        app_background = f"{welcome_overlay}, url('{welcome_img}')"
         background_extra = "background-size: cover; background-position: center; background-attachment: fixed;"
-        block_width = "1380px"
-        block_top = "1.1rem"
+        container_width = "1500px"
     else:
         app_background = app_gradient
         background_extra = "background-size: 220% 220%; animation: shineBg 12s ease infinite;"
-        block_width = "1180px"
-        block_top = "1.4rem"
+        container_width = "1180px"
 
     st.markdown(f"""
     <style>
@@ -228,24 +230,33 @@ def apply_css():
     }}
 
     .main .block-container {{
-        padding-top: {block_top};
-        max-width: {block_width};
-        padding-left: 2rem;
-        padding-right: 2rem;
+        padding-top: 1.2rem;
+        max-width: {container_width};
     }}
 
-    [data-testid="stDecoration"],
+    /* Keep Streamlit header visible enough so sidebar arrow can come back after collapse */
     #MainMenu,
     footer,
-    header {{
+    [data-testid="stDecoration"] {{
         visibility: hidden;
         height: 0;
     }}
 
+    header {{
+        background: transparent !important;
+    }}
+
+    [data-testid="collapsedControl"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 999999 !important;
+    }}
+
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
-        border-right: 1px solid {border};
-        backdrop-filter: blur(24px);
+        border-right: 1px solid {border_color};
+        backdrop-filter: blur(22px);
     }}
 
     [data-testid="stSidebar"] * {{
@@ -257,7 +268,7 @@ def apply_css():
     .profile-info-card,
     .score-badge {{
         background: {card_bg};
-        border: 1px solid {border};
+        border: 1px solid {border_color};
         box-shadow: {shadow};
         backdrop-filter: blur(22px);
     }}
@@ -267,182 +278,191 @@ def apply_css():
         padding: 28px;
     }}
 
-    /* ---------- Attractive welcome page ---------- */
-    .welcome-page {{
+    /* New welcome page */
+    .welcome-shell {{
         min-height: 88vh;
-        padding: 20px 10px 8px;
+        padding: 1.2rem 1rem 1rem;
         position: relative;
     }}
 
-    .welcome-header {{
+    .welcome-top {{
         display: flex;
-        align-items: center;
-        gap: 22px;
-        margin: 8px 0 34px;
-        animation: fadeInDown .75s ease;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 2rem;
     }}
 
-    .welcome-logo {{
-        width: 94px;
-        height: 94px;
+    .brand-row {{
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 1.2rem;
+    }}
+
+    .brand-logo {{
         font-size: 4.4rem;
-        filter: drop-shadow(0 0 22px rgba(0,180,216,.75));
-        animation: floatLogo 3.2s ease-in-out infinite;
+        line-height: 1;
+        filter: drop-shadow(0 0 18px rgba(0,180,216,.65));
     }}
 
-    @keyframes floatLogo {{
-        0%,100% {{ transform: translateY(0) rotate(-3deg); }}
-        50% {{ transform: translateY(-8px) rotate(3deg); }}
-    }}
-
-    @keyframes fadeInDown {{
-        from {{ opacity:0; transform: translateY(-22px); }}
-        to {{ opacity:1; transform: translateY(0); }}
-    }}
-
-    .welcome-title {{
+    .brand-title {{
         margin: 0;
-        color: {text_primary};
-        font-size: clamp(2.9rem, 5.2vw, 5.4rem);
+        font-size: clamp(2.8rem, 5vw, 5.4rem);
+        line-height: .95;
         font-weight: 900;
         letter-spacing: -2px;
-        line-height: .95;
-        text-shadow: 0 6px 28px rgba(0,0,0,.40);
+        color: {text_primary};
+        text-shadow: 0 6px 30px rgba(0,0,0,.35);
     }}
 
-    .welcome-title span {{
-        background: linear-gradient(135deg,#00b4d8,#90e0ef,#caf0f8);
+    .brand-title span {{
+        background: linear-gradient(135deg,#00b4d8,#90e0ef);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }}
 
-    .welcome-subtitle {{
-        margin-top: 9px;
-        font-size: 1.18rem;
-        font-weight: 800;
+    .brand-subtitle {{
+        margin-top: .55rem;
         color: {text_secondary};
-        text-shadow: 0 3px 16px rgba(0,0,0,.28);
+        font-size: 1.15rem;
+        font-weight: 800;
+        text-shadow: 0 4px 20px rgba(0,0,0,.25);
+    }}
+
+    .mode-pill {{
+        padding: .75rem 1.1rem;
+        border: 1px solid {border_color};
+        border-radius: 999px;
+        background: {card_bg};
+        color: {text_primary};
+        font-weight: 900;
+        box-shadow: {shadow};
+        backdrop-filter: blur(18px);
+        white-space: nowrap;
     }}
 
     .feature-grid {{
         display: grid;
-        grid-template-columns: repeat(3, minmax(260px, 1fr));
-        gap: 34px;
-        margin-top: 18px;
+        grid-template-columns: repeat(3, minmax(250px, 1fr));
+        gap: 2.1rem;
+        margin: 2rem auto 1.8rem;
+        max-width: 1280px;
     }}
 
     .feature-card {{
         min-height: 330px;
-        padding: 32px 30px 26px;
-        border-radius: 26px;
+        padding: 2rem 1.7rem 1.7rem;
+        border-radius: 24px;
         background: {card_bg};
-        border: 2px solid var(--card-border, {border});
-        box-shadow: 0 0 30px rgba(0,180,216,.23);
+        border: 2px solid var(--card-border);
+        box-shadow: 0 0 35px var(--card-glow);
         backdrop-filter: blur(20px);
+        color: {text_primary};
         text-align: center;
-        transition: all .25s ease;
-        animation: fadeInUp .85s ease;
+        transition: .25s ease;
     }}
 
     .feature-card:hover {{
         transform: translateY(-8px);
-        box-shadow: 0 0 46px rgba(0,180,216,.42);
-    }}
-
-    @keyframes fadeInUp {{
-        from {{ opacity:0; transform: translateY(26px); }}
-        to {{ opacity:1; transform: translateY(0); }}
+        box-shadow: 0 0 52px var(--card-glow);
     }}
 
     .feature-icon {{
         width: 92px;
         height: 92px;
-        margin: 0 auto 18px;
         border-radius: 50%;
+        margin: 0 auto 1rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.9rem;
-        background: rgba(0,180,216,.17);
-        border: 1px solid var(--card-border, {border});
-        box-shadow: inset 0 0 28px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.20);
+        font-size: 3rem;
+        background: rgba(255,255,255,.12);
+        border: 1px solid var(--card-border);
+        box-shadow: inset 0 0 25px rgba(255,255,255,.08);
     }}
 
     .feature-card h3 {{
-        color: {text_primary};
-        font-size: 1.48rem;
-        font-weight: 900;
-        margin: 0 0 10px;
-    }}
-
-    .small-line {{
-        width: 60px;
-        height: 4px;
-        border-radius: 20px;
-        margin: 0 auto 18px;
-        background: var(--line-color, #00b4d8);
-    }}
-
-    .feature-card ul {{
-        text-align: left;
-        margin: 0 auto 24px;
-        max-width: 245px;
-        color: {text_primary};
-        font-weight: 700;
-        line-height: 1.8;
-        padding-left: 20px;
-    }}
-
-    .feature-card li::marker {{
-        color: var(--line-color, #00b4d8);
-    }}
-
-    .hero-btn {{
-        display: inline-block;
-        width: 100%;
-        padding: 13px 20px;
-        border-radius: 13px;
-        background: var(--btn-bg, {btn_bg});
-        color: white !important;
-        text-decoration: none !important;
-        font-weight: 900;
-        box-shadow: 0 12px 25px rgba(0,119,182,.35);
-    }}
-
-    .used-title {{
-        margin: 34px 0 18px;
-        text-align: center;
+        margin: .5rem 0 .55rem;
         color: {text_primary};
         font-size: 1.55rem;
         font-weight: 900;
-        text-shadow: 0 4px 18px rgba(0,0,0,.28);
+    }}
+
+    .mini-line {{
+        width: 60px;
+        height: 4px;
+        border-radius: 999px;
+        margin: 0 auto 1.15rem;
+        background: var(--card-border);
+    }}
+
+    .feature-card ul {{
+        margin: 0 auto 1.5rem;
+        padding-left: 1.2rem;
+        max-width: 245px;
+        text-align: left;
+        color: {text_primary};
+        font-weight: 700;
+        line-height: 1.9;
+    }}
+
+    .feature-card li::marker {{
+        color: var(--card-border);
+    }}
+
+    .fake-card-btn {{
+        display: block;
+        padding: .82rem 1rem;
+        border-radius: 12px;
+        background: var(--btn-bg);
+        color: white !important;
+        font-weight: 900;
+        text-decoration: none;
+        box-shadow: 0 12px 25px rgba(0,0,0,.25);
+    }}
+
+    .used-title {{
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem auto 1rem;
+        color: {text_primary};
+        font-size: 1.5rem;
+        font-weight: 900;
+    }}
+
+    .used-title::before,
+    .used-title::after {{
+        content: "";
+        width: 220px;
+        height: 1px;
+        background: {border_color};
     }}
 
     .used-row {{
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 14px;
+        gap: .75rem;
+        max-width: 1160px;
+        margin: 0 auto;
+        color: {text_primary};
         text-align: center;
     }}
 
     .used-box {{
-        padding: 14px 10px;
-        border-right: 1px solid rgba(255,255,255,.24);
-        color: {text_primary};
+        padding: 1rem .5rem;
+        border-right: 1px solid {border_color};
         font-weight: 900;
-        text-shadow: 0 3px 12px rgba(0,0,0,.22);
     }}
 
     .used-box:last-child {{
-        border-right: none;
+        border-right: 0;
     }}
 
-    .used-box div:first-child {{
-        font-size: 2.15rem;
-        margin-bottom: 6px;
+    .used-icon {{
+        font-size: 2.1rem;
+        margin-bottom: .25rem;
     }}
 
     .used-box small {{
@@ -451,43 +471,58 @@ def apply_css():
     }}
 
     .stat-panel {{
-        margin-top: 28px;
-        padding: 19px 25px;
-        border-radius: 20px;
+        max-width: 1240px;
+        margin: 1.7rem auto 0;
+        padding: 1rem 1.4rem;
+        border-radius: 18px;
         background: {card_bg};
-        border: 1px solid {border};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(20px);
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 18px;
-        backdrop-filter: blur(20px);
-        box-shadow: {shadow};
+        gap: 1rem;
     }}
 
     .stat-box {{
-        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .9rem;
         color: {text_primary};
-        font-weight: 900;
-        border-right: 1px solid rgba(255,255,255,.24);
+        font-weight: 800;
+        border-right: 1px solid {border_color};
+        min-height: 62px;
     }}
 
     .stat-box:last-child {{
-        border-right: none;
+        border-right: 0;
     }}
 
-    .stat-box span {{
-        display: block;
-        font-size: 1.8rem;
+    .stat-ico {{
+        font-size: 2rem;
+    }}
+
+    .stat-num {{
+        font-size: 1.55rem;
+        font-weight: 900;
         color: {text_primary};
+        line-height: 1;
     }}
 
-    .welcome-footer {{
-        margin-top: 16px;
+    .stat-label {{
+        color: {text_secondary};
+        font-size: .92rem;
+        margin-top: .25rem;
+    }}
+
+    .footer-line {{
         text-align: center;
+        margin-top: 1rem;
         color: {text_secondary};
         font-weight: 700;
     }}
 
-    /* ---------- Existing app pages ---------- */
     .page-title {{
         font-size: 2.25rem;
         font-weight: 900;
@@ -519,7 +554,7 @@ def apply_css():
     .metric-value {{
         font-size: 2.25rem;
         font-weight: 900;
-        color: #90e0ef;
+        color: {accent1};
     }}
 
     .metric-label {{
@@ -528,7 +563,7 @@ def apply_css():
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-top: 4px;
-        font-weight: 900;
+        font-weight: 800;
     }}
 
     .avatar-circle {{
@@ -540,8 +575,8 @@ def apply_css():
         justify-content: center;
         overflow: hidden;
         margin: auto;
-        border: 3px solid #48cae4;
-        background: linear-gradient(135deg,#0077b6,#00b4d8);
+        border: 3px solid {accent2};
+        background: linear-gradient(135deg,{accent1},{accent3});
         font-size: 2.2rem;
         box-shadow: 0 12px 34px rgba(0,0,0,0.22);
     }}
@@ -560,7 +595,7 @@ def apply_css():
         font-weight: 900 !important;
         cursor: pointer !important;
         padding: 0.66rem 1.5rem !important;
-        background: {btn_bg} !important;
+        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8) !important;
         color: white !important;
         box-shadow: 0 12px 26px rgba(0,119,182,0.34) !important;
         transition: all 0.22s ease !important;
@@ -587,23 +622,23 @@ def apply_css():
     textarea {{
         background: {input_bg} !important;
         color: {input_text} !important;
-        border: 1px solid {border} !important;
+        border: 1px solid {border_color} !important;
         font-weight: 700 !important;
     }}
 
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
-        border: 1px solid {border} !important;
+        border: 1px solid {border_color} !important;
     }}
 
-    label, p, span, div, h1, h2, h3, h4, h5, h6 {{
-        color: {text_primary};
+    label, p, span, div {{
+        color: inherit;
     }}
 
     [data-baseweb="tab-list"] {{
         background: transparent !important;
-        border-bottom: 1px solid {border} !important;
+        border-bottom: 1px solid {border_color} !important;
     }}
 
     [data-baseweb="tab"] {{
@@ -612,8 +647,8 @@ def apply_css():
     }}
 
     [aria-selected="true"][data-baseweb="tab"] {{
-        color: #00b4d8 !important;
-        border-bottom: 3px solid #00b4d8 !important;
+        color: {accent1} !important;
+        border-bottom: 3px solid {accent1} !important;
     }}
 
     .whatsapp-btn,
@@ -634,7 +669,7 @@ def apply_css():
     }}
 
     .email-btn {{
-        background: {btn_bg};
+        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
     }}
 
     .profile-info-card {{
@@ -647,7 +682,7 @@ def apply_css():
         justify-content: space-between;
         gap: 14px;
         padding: 11px 0;
-        border-bottom: 1px solid {border};
+        border-bottom: 1px solid {border_color};
         font-size: 0.95rem;
     }}
 
@@ -657,7 +692,7 @@ def apply_css():
 
     .pf-label {{
         color: {text_muted};
-        font-weight: 900;
+        font-weight: 800;
     }}
 
     .pf-value {{
@@ -669,14 +704,14 @@ def apply_css():
         display: inline-block;
         font-size: 3.5rem;
         font-weight: 900;
-        color: #90e0ef;
+        color: {accent1};
         padding: 18px 34px;
         border-radius: 24px;
         text-align: center;
     }}
 
     hr {{
-        border-color: {border} !important;
+        border-color: {border_color} !important;
     }}
 
     .stAlert {{
@@ -688,31 +723,31 @@ def apply_css():
         overflow: hidden;
     }}
 
-    @media(max-width: 950px) {{
+    @media(max-width: 1000px) {{
         .feature-grid,
         .used-row,
         .stat-panel {{
             grid-template-columns: 1fr;
         }}
 
-        .welcome-header {{
-            flex-direction: column;
-            text-align: center;
-        }}
-
         .used-box,
         .stat-box {{
-            border-right: none;
-            border-bottom: 1px solid rgba(255,255,255,.20);
+            border-right: 0;
+            border-bottom: 1px solid {border_color};
         }}
 
-        .used-box:last-child,
-        .stat-box:last-child {{
-            border-bottom: none;
+        .used-title::before,
+        .used-title::after {{
+            width: 70px;
+        }}
+
+        .welcome-top {{
+            flex-direction: column;
         }}
     }}
     </style>
     """, unsafe_allow_html=True)
+
 apply_css()
 
 # =====================================================
@@ -943,88 +978,90 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
-    c1, c2 = st.columns([9, 1])
-    with c2:
-        toggle_theme_button("theme_welcome")
-
     st.markdown(f"""
-    <div class="welcome-page">
-
-        <div class="welcome-header">
-            <div class="welcome-logo">🎓</div>
-            <div>
-                <h1 class="welcome-title">ScoreWise <span>AI</span></h1>
-                <div class="welcome-subtitle">Smart Student Performance Predictor ✨</div>
+    <div class="welcome-shell">
+        <div class="welcome-top">
+            <div class="brand-row">
+                <div class="brand-logo">🎓</div>
+                <div>
+                    <h1 class="brand-title">ScoreWise <span>AI</span></h1>
+                    <div class="brand-subtitle">Smart Student Performance Predictor ✨</div>
+                </div>
             </div>
+            <div class="mode-pill">☀️ / 🌙</div>
         </div>
 
         <div class="feature-grid">
-
-            <div class="feature-card" style="--card-border:rgba(0,180,216,.78); --line-color:#00b4d8; --btn-bg:linear-gradient(135deg,#0077b6,#00b4d8);">
+            <div class="feature-card" style="--card-border:#00b4d8;--card-glow:rgba(0,180,216,.35);--btn-bg:linear-gradient(135deg,#0077b6,#00b4d8);">
                 <div class="feature-icon">📊</div>
                 <h3>Smart Graph</h3>
-                <div class="small-line"></div>
+                <div class="mini-line"></div>
                 <ul>
                     <li>Visualize academic trends</li>
                     <li>Subject-wise performance</li>
                     <li>Interactive & insightful</li>
                 </ul>
-                <div class="hero-btn">View Graph →</div>
+                <div class="fake-card-btn">View Graph →</div>
             </div>
 
-            <div class="feature-card" style="--card-border:rgba(82,255,130,.78); --line-color:#52ff82; --btn-bg:linear-gradient(135deg,#00b894,#52ff82);">
+            <div class="feature-card" style="--card-border:#52ff82;--card-glow:rgba(82,255,130,.30);--btn-bg:linear-gradient(135deg,#00b894,#52ff82);">
                 <div class="feature-icon">🔮</div>
                 <h3>Prediction</h3>
-                <div class="small-line"></div>
+                <div class="mini-line"></div>
                 <ul>
                     <li>AI score prediction</li>
                     <li>Simple result</li>
                     <li>Quick & accurate</li>
                 </ul>
-                <div class="hero-btn">View Prediction →</div>
+                <div class="fake-card-btn">View Prediction →</div>
             </div>
 
-            <div class="feature-card" style="--card-border:rgba(168,85,247,.78); --line-color:#a855f7; --btn-bg:linear-gradient(135deg,#7c3aed,#c026d3);">
+            <div class="feature-card" style="--card-border:#a855f7;--card-glow:rgba(168,85,247,.35);--btn-bg:linear-gradient(135deg,#7c3aed,#c026d3);">
                 <div class="feature-icon">📄</div>
                 <h3>PDF Report</h3>
-                <div class="small-line"></div>
+                <div class="mini-line"></div>
                 <ul>
                     <li>Downloadable report</li>
                     <li>Share with anyone</li>
                     <li>Professional format</li>
                 </ul>
-                <div class="hero-btn">View Report →</div>
+                <div class="fake-card-btn">View Report →</div>
             </div>
-
         </div>
 
         <div class="used-title">Used For</div>
 
         <div class="used-row">
-            <div class="used-box"><div>🎓</div>Students<br><small>Track & improve performance</small></div>
-            <div class="used-box"><div>👨‍👩‍👧</div>Parents<br><small>Monitor child progress</small></div>
-            <div class="used-box"><div>📚</div>Teachers<br><small>Analyze & support students</small></div>
-            <div class="used-box"><div>🏫</div>Schools<br><small>Improve academic outcomes</small></div>
-            <div class="used-box"><div>💼</div>Counselors<br><small>Guide future decisions</small></div>
+            <div class="used-box"><div class="used-icon">🎓</div>Students<br><small>Track & improve performance</small></div>
+            <div class="used-box"><div class="used-icon">👨‍👩‍👧</div>Parents<br><small>Monitor child progress</small></div>
+            <div class="used-box"><div class="used-icon">📚</div>Teachers<br><small>Analyze & support students</small></div>
+            <div class="used-box"><div class="used-icon">🏫</div>Schools<br><small>Improve academic outcomes</small></div>
+            <div class="used-box"><div class="used-icon">💼</div>Counselors<br><small>Guide future decisions</small></div>
         </div>
 
         <div class="stat-panel">
-            <div class="stat-box"><span>5000+</span>Students Helped*</div>
-            <div class="stat-box"><span>25K+</span>Predictions Made</div>
-            <div class="stat-box"><span>10K+</span>Reports Generated</div>
-            <div class="stat-box"><span>99%</span>Accuracy Rate</div>
+            <div class="stat-box"><div class="stat-ico">👥</div><div><div class="stat-num">5000+</div><div class="stat-label">Students Helped</div></div></div>
+            <div class="stat-box"><div class="stat-ico">📊</div><div><div class="stat-num">25K+</div><div class="stat-label">Predictions Made</div></div></div>
+            <div class="stat-box"><div class="stat-ico">📄</div><div><div class="stat-num">10K+</div><div class="stat-label">Reports Generated</div></div></div>
+            <div class="stat-box"><div class="stat-ico">🛡️</div><div><div class="stat-num">99%</div><div class="stat-label">Accuracy Rate</div></div></div>
         </div>
 
-        <div class="welcome-footer">Made with ❤️ for Students &nbsp; | &nbsp; Empowering Education with AI</div>
-
+        <div class="footer-line">Made with ❤️ for Students &nbsp; | &nbsp; Empowering Education with AI</div>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([2.2, 1, 2.2])
-    with col2:
+    c0, c1, c2, c3, c4 = st.columns([2.1, 1, 1, 1, 2.1])
+    with c1:
+        if st.button("📊 Smart Graph", use_container_width=True):
+            st.session_state.auth_page = "login"
+            st.rerun()
+    with c2:
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
+    with c3:
+        toggle_theme_button("theme_welcome")
+
 # =====================================================
 # AUTH PAGE
 # =====================================================
