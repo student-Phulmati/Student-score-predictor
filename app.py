@@ -127,6 +127,7 @@ init_state()
 
 def apply_css():
     dark = st.session_state.theme == "dark"
+    is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
 
     if dark:
         # Deep forest dark — rich, shining greens
@@ -201,28 +202,27 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', Inter, sans-serif !important; box-sizing: border-box; }}
 
-    /* ── APP BG: inner pages only (no bg-image) ── */
+    /* ── APP BACKGROUND ── */
     .stApp {{
-        background: {inner_gradient} !important;
+        background: {("url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920&q=90') center center / cover fixed no-repeat" if is_welcome else inner_gradient)} !important;
         min-height: 100vh;
         color: {text_primary};
     }}
-    /* Shining overlay pattern */
     .stApp::before {{
         content: '';
         position: fixed;
         inset: 0;
-        background:
-            radial-gradient(ellipse at 20% 20%, {shine1} 0%, transparent 55%),
-            radial-gradient(ellipse at 80% 80%, {shine2} 0%, transparent 55%),
-            radial-gradient(ellipse at 60% 10%, {shine1} 0%, transparent 40%);
+        background: {("transparent" if is_welcome else f"radial-gradient(ellipse at 20% 20%, {shine1} 0%, transparent 55%), radial-gradient(ellipse at 80% 80%, {shine2} 0%, transparent 55%), radial-gradient(ellipse at 60% 10%, {shine1} 0%, transparent 40%)")};
         pointer-events: none;
         z-index: 0;
     }}
     .main .block-container {{
         position: relative; z-index: 1;
-        padding-top: 1.6rem;
-        max-width: 1220px;
+        padding-top: {("4.5rem" if is_welcome else "1.6rem")};
+        max-width: {("980px" if is_welcome else "1220px")};
+    }}
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
     }}
 
     /* ── SIDEBAR ── */
@@ -256,115 +256,104 @@ def apply_css():
         background: linear-gradient(90deg, transparent, {accent1}44, transparent);
     }}
 
-    /* ── WELCOME HERO — has bg image ── */
-    .hero-fullpage {{
-        position: fixed; inset: 0; z-index: 9999;
-        background:
-            linear-gradient(160deg, rgba(8,28,21,0.72) 0%, rgba(27,67,50,0.55) 50%, rgba(45,106,79,0.45) 100%),
-            url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920&q=85');
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+    /* ── WELCOME HERO — background is only photo, no color overlay ── */
+    .hero-photo-card {{
+        width: 100%;
+        max-width: 860px;
+        margin: 0 auto;
+        background: rgba(255,255,255,0.82);
+        border: 1px solid rgba(255,255,255,0.70);
+        border-radius: 34px;
+        padding: 54px 46px 44px;
+        box-shadow: 0 28px 90px rgba(0,0,0,0.28);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        text-align: center;
+        animation: heroFadeUp 0.75s cubic-bezier(.22,1,.36,1) both;
+    }}
+    @keyframes heroFadeUp {{
+        from {{ opacity:0; transform:translateY(34px) scale(0.98); }}
+        to   {{ opacity:1; transform:translateY(0) scale(1); }}
+    }}
+    .welcome-logo {{
+        width: 92px;
+        height: 92px;
+        border-radius: 28px;
+        margin: 0 auto 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 20px;
+        font-size: 3.1rem;
+        background: rgba(255,255,255,0.88);
+        box-shadow: 0 12px 35px rgba(0,0,0,0.18);
     }}
-    .hero-box {{
-        max-width: 880px; width: 100%;
-        background: {hero_box_bg};
-        border: 1.5px solid rgba(82,183,136,0.35);
-        border-radius: 36px;
-        padding: 68px 52px 56px;
-        box-shadow:
-            0 32px 100px rgba(8,28,21,0.55),
-            0 0 0 1px rgba(82,183,136,0.08) inset,
-            0 1px 0 rgba(255,255,255,0.06) inset;
-        backdrop-filter: blur(22px);
-        -webkit-backdrop-filter: blur(22px);
-        text-align: center;
-        position: relative; overflow: hidden;
-        animation: heroFadeUp 0.85s cubic-bezier(.22,1,.36,1) both;
-    }}
-    .hero-box::before {{
-        content:'';
-        position:absolute; top:0; left:0; right:0; height:2px;
-        background: linear-gradient(90deg, transparent, #52b788, #74c69d, #52b788, transparent);
-    }}
-    @keyframes heroFadeUp {{
-        from {{ opacity:0; transform:translateY(48px) scale(0.97); }}
-        to   {{ opacity:1; transform:translateY(0) scale(1); }}
-    }}
-    .logo-glow {{
-        font-size: 5rem;
-        display: block;
-        margin-bottom: 4px;
-        filter: drop-shadow(0 0 20px rgba(82,183,136,0.6));
-        animation: floatLogo 3.5s ease-in-out infinite;
-    }}
-    @keyframes floatLogo {{
-        0%,100% {{ transform: translateY(0) rotate(-2deg); }}
-        50%      {{ transform: translateY(-10px) rotate(2deg); }}
-    }}
-    .hero-title {{
-        font-size: 4.2rem;
+    .welcome-title {{
+        font-size: 4rem;
         font-weight: 900;
-        color: #d8f3dc;
-        margin: 4px 0 6px;
+        color: #102a1d;
+        margin: 0;
         letter-spacing: -2px;
         line-height: 1.05;
-        text-shadow: 0 4px 32px rgba(8,28,21,0.60);
     }}
-    .hero-title .accent {{ color: #52b788; }}
-    .hero-sub {{
-        font-size: 1.15rem;
-        color: #b7e4c7;
-        margin: 0 0 34px;
-        font-weight: 500;
-        letter-spacing: 0.3px;
-        opacity: 0.92;
-    }}
-    .chips-wrap {{
-        display: flex; flex-wrap: wrap;
-        justify-content: center; gap: 9px;
-        margin-bottom: 38px;
-    }}
-    .chip {{
-        background: rgba(82,183,136,0.14);
-        border: 1px solid rgba(82,183,136,0.38);
-        color: #95d5b2;
-        border-radius: 999px;
-        padding: 8px 18px;
-        font-size: 0.81rem;
+    .welcome-title span {{ color: #2d6a4f; }}
+    .welcome-sub {{
+        font-size: 1.05rem;
+        color: #204b35;
+        margin: 12px 0 24px;
         font-weight: 700;
-        letter-spacing: 0.4px;
-        backdrop-filter: blur(8px);
     }}
-    .stats-bar {{
-        display: flex; justify-content: center;
-        gap: 44px; flex-wrap: wrap; margin-top: 6px;
+    .mini-features {{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 18px 0 30px;
     }}
-    .stat-num {{ font-size: 2rem; font-weight: 900; color: #52b788; line-height: 1; }}
-    .stat-lbl {{
-        font-size: 0.70rem; color: #95d5b2;
-        text-transform: uppercase; letter-spacing: 1.4px;
-        font-weight: 700; margin-top: 3px;
+    .mini-chip {{
+        background: rgba(45,106,79,0.10);
+        color: #1b4332;
+        border: 1px solid rgba(45,106,79,0.22);
+        border-radius: 999px;
+        padding: 8px 15px;
+        font-size: 0.80rem;
+        font-weight: 800;
     }}
-    .hero-btn-wrap {{
-        position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
-        display: flex; justify-content: center;
-        padding: 28px 20px 36px;
-        background: linear-gradient(to top, rgba(8,28,21,0.85) 0%, transparent 100%);
+    .photo-strip {{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 22px 0 26px;
     }}
-    .hero-btn-wrap .stButton > button {{
-        padding: 0.82rem 3.4rem !important;
-        font-size: 1.05rem !important;
-        font-weight: 800 !important;
-        letter-spacing: 0.5px !important;
-        min-width: 220px;
-        background: linear-gradient(135deg, #40916c, #52b788) !important;
-        box-shadow: 0 8px 32px rgba(64,145,108,0.50) !important;
-        color: #ffffff !important;
+    .photo-tile {{
+        height: 108px;
+        border-radius: 22px;
+        background-size: cover;
+        background-position: center;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35), 0 10px 24px rgba(0,0,0,0.16);
+    }}
+    .welcome-note {{
+        font-size: 0.80rem;
+        color: #315c45;
+        margin-top: 14px;
+        font-weight: 600;
+        opacity: 0.9;
+    }}
+    .welcome-btn-area .stButton > button {{
+        max-width: 230px !important;
+        margin: 0 auto !important;
+        display: block !important;
+        padding: 0.78rem 2.3rem !important;
+        border-radius: 16px !important;
+        font-size: 1rem !important;
+        background: #2d6a4f !important;
+        color: white !important;
+        box-shadow: 0 10px 30px rgba(45,106,79,0.35) !important;
+    }}
+    @media (max-width: 720px) {{
+        .welcome-title {{ font-size: 2.7rem; }}
+        .hero-photo-card {{ padding: 38px 22px 32px; }}
+        .photo-strip {{ grid-template-columns: 1fr; }}
+        .photo-tile {{ height: 88px; }}
     }}
 
     /* ── PAGE TITLES ── */
@@ -824,36 +813,32 @@ def factor_bar_chart(inputs):
 # ═══════════════════════════════════════════════
 def welcome_page():
     st.markdown(f"""
-    <div class="hero-fullpage">
-      <div class="hero-box">
-        <span class="logo-glow">🌿</span>
-        <h1 class="hero-title">Acadra<span class="accent">IQ</span></h1>
-        <p class="hero-sub">{TAGLINE}</p>
-        <div class="chips-wrap">
-          <span class="chip">🔐 OTP Signup</span>
-          <span class="chip">🤖 AI Prediction</span>
-          <span class="chip">📄 PDF Report</span>
-          <span class="chip">📱 WhatsApp Share</span>
-          <span class="chip">🌙 Dark / Light</span>
-          <span class="chip">📈 Smart Charts</span>
+    <div class="hero-photo-card">
+        <div class="welcome-logo">🎓</div>
+        <h1 class="welcome-title">Acadra<span>IQ</span></h1>
+        <p class="welcome-sub">{TAGLINE}</p>
+
+        <div class="photo-strip">
+            <div class="photo-tile" style="background-image:url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=700&q=85');"></div>
+            <div class="photo-tile" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=700&q=85');"></div>
+            <div class="photo-tile" style="background-image:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=700&q=85');"></div>
         </div>
-        <div class="stats-bar">
-          <div><div class="stat-num">98%</div><div class="stat-lbl">Accuracy</div></div>
-          <div><div class="stat-num">10K+</div><div class="stat-lbl">Predictions</div></div>
-          <div><div class="stat-num">3</div><div class="stat-lbl">Smart Charts</div></div>
-          <div><div class="stat-num">Free</div><div class="stat-lbl">Always</div></div>
+
+        <div class="mini-features">
+            <span class="mini-chip">OTP Signup</span>
+            <span class="mini-chip">AI Prediction</span>
+            <span class="mini-chip">PDF Report</span>
+            <span class="mini-chip">Smart Graphs</span>
         </div>
-      </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<div class='hero-btn-wrap'>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([2, 1.2, 2])
-    with col2:
-        if st.button("🚀 Get Started", use_container_width=True, key="hero_start"):
-            st.session_state.auth_page = "login"
-            st.rerun()
+    st.markdown("<div class='welcome-btn-area'>", unsafe_allow_html=True)
+    if st.button("Get Started →", key="hero_start"):
+        st.session_state.auth_page = "login"
+        st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("<p class='welcome-note' style='text-align:center'>Professional student performance prediction dashboard</p>", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════
 # AUTH PAGE
