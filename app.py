@@ -163,47 +163,39 @@ def apply_css():
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
 
     if dark:
-        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 24%,#0077b6 52%,#0096c7 76%,#00b4d8 100%)"
-        panel_bg      = "rgba(3,4,94,0.72)"
-        card_bg       = "rgba(255,255,255,0.10)"
-        soft_card_bg  = "rgba(255,255,255,0.08)"
-        text_primary  = "#f7fbff"
-        text_secondary= "#caf0f8"
-        text_muted    = "#ade8f4"
-        border_color  = "rgba(202,240,248,0.22)"
+        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 35%,#0077b6 70%,#00b4d8 100%)"
+        text_primary  = "#F8FCFF"
+        text_secondary= "#D9F7FF"
+        text_muted    = "#ADE8F4"
+        border_color  = "rgba(144,224,239,0.24)"
         input_bg      = "rgba(255,255,255,0.12)"
-        input_text    = "#ffffff"
-        accent1       = "#90e0ef"
-        accent2       = "#48cae4"
-        accent3       = "#00b4d8"
+        input_text    = "#FFFFFF"
+        card_bg       = "rgba(2,18,54,0.72)"
+        soft_card_bg  = "rgba(255,255,255,0.08)"
         sidebar_bg    = "rgba(3,4,94,0.88)"
-        shadow        = "0 22px 70px rgba(0,0,0,0.32)"
-        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,0.66),rgba(0,119,182,0.26),rgba(0,0,0,0.12))"
+        shadow        = "0 22px 70px rgba(0,0,0,0.38)"
     else:
-        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 22%,#90e0ef 48%,#48cae4 72%,#00b4d8 100%)"
-        panel_bg      = "rgba(255,255,255,0.74)"
-        card_bg       = "rgba(255,255,255,0.60)"
-        soft_card_bg  = "rgba(255,255,255,0.46)"
+        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 35%,#90e0ef 70%,#48cae4 100%)"
         text_primary  = "#03045e"
         text_secondary= "#023e8a"
         text_muted    = "#0077b6"
-        border_color  = "rgba(2,62,138,0.18)"
-        input_bg      = "rgba(255,255,255,0.86)"
+        border_color  = "rgba(2,62,138,0.20)"
+        input_bg      = "rgba(255,255,255,0.88)"
         input_text    = "#03045e"
-        accent1       = "#0077b6"
-        accent2       = "#0096c7"
-        accent3       = "#00b4d8"
+        card_bg       = "rgba(255,255,255,0.72)"
+        soft_card_bg  = "rgba(255,255,255,0.55)"
         sidebar_bg    = "rgba(255,255,255,0.78)"
         shadow        = "0 20px 60px rgba(2,62,138,0.22)"
-        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,0.48),rgba(202,240,248,0.20),rgba(0,180,216,0.10))"
 
-    welcome_img = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
+    welcome_img = "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=1900&q=85"
     if is_welcome:
-        app_background = f"{welcome_overlay}, url('{welcome_img}')"
+        app_background = f"linear-gradient(90deg,rgba(1,8,35,0.95),rgba(3,37,83,0.88),rgba(5,22,54,0.70)), url('{welcome_img}')"
         background_extra = "background-size: cover; background-position: center; background-attachment: fixed;"
+        block_padding = "0.75rem 2.2rem 0.6rem 2.2rem"
     else:
         app_background = app_gradient
         background_extra = "background-size: 220% 220%; animation: shineBg 12s ease infinite;"
+        block_padding = "1.35rem 2rem 2rem 2rem"
 
     st.markdown(f"""
     <style>
@@ -214,81 +206,14 @@ def apply_css():
         box-sizing: border-box;
     }}
 
-    .stApp {{
-        background: {app_background};
-        {background_extra}
+    html, body, .stApp {{
         color: {text_primary};
     }}
 
-    /* Fixed emoji-only theme toggle */
-    .st-key-theme_welcome,
-    .st-key-theme_auth,
-    .st-key-theme_app {{
-        position: fixed !important;
-        top: 18px !important;
-        right: 22px !important;
-        z-index: 999999 !important;
-        width: 48px !important;
+    .stApp {{
+        background: {app_background};
+        {background_extra}
     }}
-    .st-key-theme_welcome button,
-    .st-key-theme_auth button,
-    .st-key-theme_app button {{
-        width: 46px !important;
-        height: 46px !important;
-        min-height: 46px !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        font-size: 1.25rem !important;
-        background: rgba(255,255,255,0.18) !important;
-        border: 1px solid rgba(255,255,255,0.34) !important;
-        backdrop-filter: blur(16px) !important;
-        box-shadow: 0 12px 32px rgba(0,0,0,0.22) !important;
-    }}
-
-    .welcome-feature-grid {{
-        display: grid;
-        grid-template-columns: repeat(3, minmax(160px, 1fr));
-        gap: 16px;
-        max-width: 790px;
-        margin-top: 28px;
-    }}
-    .welcome-feature-card {{
-        min-height: 170px;
-        padding: 20px 18px;
-        border-radius: 24px;
-        background: rgba(255,255,255,0.16);
-        border: 1px solid rgba(255,255,255,0.30);
-        backdrop-filter: blur(18px);
-        box-shadow: 0 18px 42px rgba(0,0,0,0.18);
-    }}
-    .welcome-feature-icon {{
-        font-size: 2.1rem;
-        display: block;
-        margin-bottom: 8px;
-    }}
-    .welcome-feature-title {{
-        color: white;
-        font-size: 1.08rem;
-        font-weight: 900;
-        margin-bottom: 8px;
-        text-shadow: 0 4px 18px rgba(0,0,0,0.32);
-    }}
-    .welcome-feature-card ul {{
-        margin: 0;
-        padding-left: 18px;
-    }}
-    .welcome-feature-card li {{
-        color: #f7fbff;
-        font-size: 0.84rem;
-        line-height: 1.45;
-        font-weight: 650;
-        margin-bottom: 4px;
-    }}
-    @media (max-width: 800px) {{
-        .welcome-feature-grid {{ grid-template-columns: 1fr; }}
-        .hero {{ min-height: auto !important; padding-top: 70px !important; }}
-    }}
-
 
     @keyframes shineBg {{
         0% {{ background-position: 0% 50%; }}
@@ -297,11 +222,10 @@ def apply_css():
     }}
 
     .main .block-container {{
-        padding-top: 1.4rem;
-        max-width: 1180px;
+        padding: {block_padding};
+        max-width: 1240px;
     }}
 
-    /* Hide unnecessary Streamlit decoration boxes */
     [data-testid="stDecoration"],
     #MainMenu,
     footer,
@@ -310,7 +234,44 @@ def apply_css():
         height: 0;
     }}
 
-    /* Sidebar */
+    /* Fixed emoji theme button */
+    .theme-fixed {{
+        position: fixed;
+        top: 18px;
+        right: 22px;
+        z-index: 99999;
+        width: 84px;
+        height: 48px;
+        border-radius: 24px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.32);
+        backdrop-filter: blur(16px);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.25);
+        pointer-events: none;
+    }}
+    div[data-testid="stButton"] button[kind="secondary"] {{
+        cursor: pointer !important;
+    }}
+    .fixed-theme-holder {{
+        position: fixed;
+        top: 18px;
+        right: 22px;
+        z-index: 100000;
+        width: 84px;
+    }}
+    .fixed-theme-holder .stButton > button {{
+        width: 84px !important;
+        height: 48px !important;
+        border-radius: 24px !important;
+        padding: 0 !important;
+        font-size: 1.35rem !important;
+        background: rgba(255,255,255,0.12) !important;
+        border: 1px solid rgba(255,255,255,0.32) !important;
+        color: #fff !important;
+        box-shadow: 0 10px 28px rgba(0,0,0,0.25) !important;
+        backdrop-filter: blur(16px) !important;
+    }}
+
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
@@ -320,7 +281,6 @@ def apply_css():
         color: {text_primary} !important;
     }}
 
-    /* Clean professional panels */
     .glass,
     .metric-card,
     .profile-info-card,
@@ -336,97 +296,217 @@ def apply_css():
         padding: 28px;
     }}
 
-    /* Welcome page: photo background only, no heavy box */
-    .hero {{
-        min-height: 92vh;
+    /* Welcome page fixed one-screen layout */
+    .welcome-fixed {{
+        height: calc(100vh - 30px);
+        min-height: 660px;
+        max-height: 900px;
+        overflow: hidden;
+        position: relative;
         display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        text-align: left;
-        padding: 5vh 3vw;
-    }}
-    .hero-box {{
-        max-width: 760px;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
-        padding: 20px 8px;
-        animation: fadeInUp 0.8s ease;
-    }}
-    @keyframes fadeInUp {{
-        from {{ opacity: 0; transform: translateY(34px); }}
-        to   {{ opacity: 1; transform: translateY(0); }}
-    }}
-    .app-logo {{
-        font-size: 4.2rem;
-        display: block;
-        margin-bottom: 8px;
-        filter: drop-shadow(0 8px 22px rgba(0,0,0,0.35));
-    }}
-    .app-title {{
-        font-size: clamp(3rem, 6vw, 5.4rem);
-        font-weight: 900;
-        line-height: 0.98;
-        margin: 0 0 12px 0;
-        background: linear-gradient(90deg,#ffffff,#90e0ef,#ffffff,#48cae4);
-        background-size: 260% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        animation: titleShine 4s linear infinite;
-        text-shadow: 0 6px 28px rgba(0,0,0,0.16);
-        letter-spacing: -2px;
-    }}
-    .tagline {{
-        font-size: 1.22rem;
-        color: #f7fbff;
-        margin: 0 0 28px 0;
-        font-weight: 600;
-        max-width: 560px;
-        text-shadow: 0 3px 16px rgba(0,0,0,0.42);
-    }}
-    .feature-mini {{
-        display: inline-block;
-        margin: 6px 8px 6px 0;
-        padding: 10px 18px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.20);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.32);
-        font-weight: 800;
-        font-size: 0.86rem;
-        backdrop-filter: blur(10px);
-    }}
-    .stats-row {{
-        display: flex;
-        gap: 16px;
-        margin-top: 28px;
-        flex-wrap: wrap;
-    }}
-    .stat-item {{
-        min-width: 112px;
-        padding: 12px 16px;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.28);
-        backdrop-filter: blur(12px);
-        text-align: center;
-    }}
-    .stat-num {{
-        font-size: 1.7rem;
-        font-weight: 900;
-        color: white;
-    }}
-    .stat-label {{
-        font-size: 0.72rem;
-        color: #e9fbff;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
     }}
 
+    .welcome-top {{
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        align-items: center;
+        gap: 28px;
+        margin-bottom: 4px;
+    }}
+
+    .cap-icon {{
+        width: 190px;
+        height: 150px;
+        border-radius: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6.4rem;
+        filter: drop-shadow(0 0 22px rgba(255,184,28,0.38));
+    }}
+
+    .animated-title {{
+        margin: 0;
+        font-size: clamp(3.2rem, 6vw, 5.4rem);
+        line-height: 0.95;
+        font-weight: 900;
+        letter-spacing: -2px;
+        color: #ffffff;
+        text-shadow: 0 10px 36px rgba(0,0,0,0.45);
+    }}
+    .animated-title span {{
+        background: linear-gradient(90deg,#ffffff,#90e0ef,#48cae4,#9b5cff);
+        background-size: 240% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: titleShine 5s linear infinite;
+    }}
     @keyframes titleShine {{
         0% {{ background-position: 0% center; }}
-        100% {{ background-position: 260% center; }}
+        100% {{ background-position: 240% center; }}
+    }}
+    .welcome-subtitle {{
+        margin-top: 14px;
+        color: #EAFBFF;
+        font-size: 1.32rem;
+        font-weight: 700;
+        text-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }}
+
+    .feature-row {{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 28px;
+        align-items: stretch;
+    }}
+    .welcome-card {{
+        min-height: 305px;
+        border-radius: 28px;
+        padding: 24px 26px;
+        background: rgba(1,15,45,0.66);
+        border: 2px solid var(--card-color);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 22px 55px rgba(0,0,0,0.32), 0 0 24px var(--card-glow);
+        backdrop-filter: blur(12px);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }}
+    .welcome-card .icon {{
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.1rem;
+        background: rgba(255,255,255,0.08);
+        border: 2px solid rgba(255,255,255,0.16);
+        margin-bottom: 15px;
+        box-shadow: inset 0 0 26px rgba(255,255,255,0.08);
+    }}
+    .welcome-card h3 {{
+        margin: 4px 0 12px 0;
+        color: #ffffff;
+        font-size: 1.75rem;
+        font-weight: 900;
+        text-shadow: 0 5px 15px rgba(0,0,0,0.35);
+    }}
+    .mini-line {{
+        width: 58px;
+        height: 4px;
+        border-radius: 8px;
+        background: var(--card-color);
+        margin: 0 auto 16px auto;
+        box-shadow: 0 0 14px var(--card-color);
+    }}
+    .welcome-card ul {{
+        width: 100%;
+        padding-left: 0;
+        margin: 0;
+        list-style: none;
+        text-align: left;
+    }}
+    .welcome-card li {{
+        color: #F3FAFF;
+        font-size: 0.98rem;
+        line-height: 1.72;
+        font-weight: 650;
+        margin: 3px 0;
+    }}
+    .welcome-card li::before {{
+        content: "●";
+        color: var(--card-color);
+        margin-right: 12px;
+        text-shadow: 0 0 10px var(--card-color);
+    }}
+
+    .used-title {{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        color: #fff;
+        font-weight: 900;
+        font-size: 1.25rem;
+        margin: 0;
+    }}
+    .used-title:before, .used-title:after {{
+        content: "";
+        width: 160px;
+        height: 1px;
+        background: linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent);
+    }}
+    .used-row {{
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+        margin-top: 12px;
+    }}
+    .used-item {{
+        text-align: center;
+        color: white;
+        padding: 6px 8px;
+        border-right: 1px solid rgba(255,255,255,0.20);
+    }}
+    .used-item:last-child {{ border-right: 0; }}
+    .used-icon {{
+        font-size: 1.85rem;
+        margin-bottom: 4px;
+    }}
+    .used-name {{
+        font-weight: 900;
+        font-size: 0.93rem;
+    }}
+    .used-desc {{
+        color: #D7F8FF;
+        font-size: 0.79rem;
+        line-height: 1.22;
+        margin-top: 3px;
+        font-weight: 550;
+    }}
+    .stats-strip {{
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(144,224,239,0.26);
+        border-radius: 22px;
+        padding: 12px 16px;
+        box-shadow: 0 18px 42px rgba(0,0,0,0.24);
+        backdrop-filter: blur(14px);
+    }}
+    .stat-box {{
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        border-right: 1px solid rgba(255,255,255,0.20);
+    }}
+    .stat-box:last-child {{ border-right: 0; }}
+    .stat-icon {{ font-size: 2rem; }}
+    .stat-num {{
+        font-size: 1.25rem;
+        font-weight: 900;
+        line-height: 1;
+    }}
+    .stat-label {{
+        font-size: 0.80rem;
+        color: #D7F8FF;
+        font-weight: 650;
+        margin-top: 3px;
+    }}
+    .welcome-footer {{
+        text-align: center;
+        color: #E9FBFF;
+        font-size: 0.86rem;
+        font-weight: 600;
+        margin-top: -4px;
     }}
 
     .page-title {{
@@ -457,7 +537,7 @@ def apply_css():
     .metric-value {{
         font-size: 2.25rem;
         font-weight: 900;
-        color: {accent1};
+        color: #90e0ef;
     }}
     .metric-label {{
         font-size: 0.78rem;
@@ -477,8 +557,8 @@ def apply_css():
         justify-content: center;
         overflow: hidden;
         margin: auto;
-        border: 3px solid {accent2};
-        background: linear-gradient(135deg,{accent1},{accent3});
+        border: 3px solid #48cae4;
+        background: linear-gradient(135deg,#90e0ef,#00b4d8);
         font-size: 2.2rem;
         box-shadow: 0 12px 34px rgba(0,0,0,0.22);
     }}
@@ -542,12 +622,11 @@ def apply_css():
         font-weight: 800 !important;
     }}
     [aria-selected="true"][data-baseweb="tab"] {{
-        color: {accent1} !important;
-        border-bottom: 3px solid {accent1} !important;
+        color: #90e0ef !important;
+        border-bottom: 3px solid #90e0ef !important;
     }}
 
-    .whatsapp-btn,
-    .email-btn {{
+    .whatsapp-btn {{
         display: inline-block;
         border-radius: 999px;
         padding: 11px 22px;
@@ -557,12 +636,7 @@ def apply_css():
         margin: 6px 4px;
         font-size: 0.92rem;
         box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }}
-    .whatsapp-btn {{
         background: linear-gradient(135deg,#25D366,#128C7E);
-    }}
-    .email-btn {{
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
     }}
 
     .profile-info-card {{
@@ -577,47 +651,45 @@ def apply_css():
         border-bottom: 1px solid {border_color};
         font-size: 0.95rem;
     }}
-    .profile-field:last-child {{
-        border-bottom: none;
-    }}
-    .pf-label {{
-        color: {text_muted};
-        font-weight: 800;
-    }}
-    .pf-value {{
-        color: {text_primary};
-        font-weight: 900;
-    }}
+    .profile-field:last-child {{ border-bottom: none; }}
+    .pf-label {{ color: {text_muted}; font-weight: 800; }}
+    .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
     .score-badge {{
         display: inline-block;
         font-size: 3.5rem;
         font-weight: 900;
-        color: {accent1};
+        color: #90e0ef;
         padding: 18px 34px;
         border-radius: 24px;
         text-align: center;
     }}
 
-    hr {{
-        border-color: {border_color} !important;
-    }}
-    .stAlert {{
-        border-radius: 18px !important;
-    }}
-    .stDataFrame {{
-        border-radius: 18px;
-        overflow: hidden;
+    hr {{ border-color: {border_color} !important; }}
+    .stAlert {{ border-radius: 18px !important; }}
+    .stDataFrame {{ border-radius: 18px; overflow: hidden; }}
+
+    @media (max-width: 1000px) {{
+        .welcome-fixed {{
+            height: auto;
+            overflow: visible;
+            min-height: auto;
+            padding-bottom: 20px;
+        }}
+        .welcome-top {{ grid-template-columns: 1fr; text-align: center; gap: 6px; }}
+        .cap-icon {{ margin: 0 auto; width: 120px; height: 90px; font-size: 4rem; }}
+        .feature-row {{ grid-template-columns: 1fr; }}
+        .used-row {{ grid-template-columns: repeat(2,1fr); }}
+        .stats-strip {{ grid-template-columns: repeat(2,1fr); row-gap: 14px; }}
+        .used-title:before, .used-title:after {{ width: 80px; }}
     }}
     </style>
     """, unsafe_allow_html=True)
 
+
 apply_css()
 
-# =====================================================
-# MODEL AND PREDICTION
-# =====================================================
-@st.cache_resource
+
 def load_model_files():
     if os.path.exists(MODEL_FILE) and os.path.exists(COLUMNS_FILE):
         return joblib.load(MODEL_FILE), joblib.load(COLUMNS_FILE)
@@ -729,10 +801,13 @@ def generate_pdf(username, user_data, score, inputs, recs):
 # UI HELPERS
 # =====================================================
 def toggle_theme_button(key):
-    label = "☀️" if st.session_state.theme == "dark" else "🌙"
-    if st.button(label, key=key, help="Change theme"):
+    label = "☀️ / 🌙" if st.session_state.theme == "dark" else "🌙 / ☀️"
+    st.markdown("<div class='fixed-theme-holder'>", unsafe_allow_html=True)
+    if st.button(label, key=key):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 def get_chart_colors():
     dark = st.session_state.theme == "dark"
@@ -842,60 +917,112 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
-    toggle_theme_button("theme_welcome")
+    toggle_theme_button("theme_welcome_fixed")
 
     st.markdown(f"""
-    <div class='hero'>
-      <div class='hero-box'>
-        <span class='app-logo'>🎓</span>
-        <h1 class='app-title'>{APP_NAME}</h1>
-        <p class='tagline'>{TAGLINE}</p>
-
-        <div class='welcome-feature-grid'>
-          <div class='welcome-feature-card'>
-            <span class='welcome-feature-icon'>📊</span>
-            <div class='welcome-feature-title'>Smart Graph</div>
-            <ul>
-              <li>Clear academic trend view</li>
-              <li>Useful report-based charts</li>
-            </ul>
-          </div>
-          <div class='welcome-feature-card'>
-            <span class='welcome-feature-icon'>🔮</span>
-            <div class='welcome-feature-title'>Prediction</div>
-            <ul>
-              <li>Fast AI score prediction</li>
-              <li>Simple result-only screen</li>
-            </ul>
-          </div>
-          <div class='welcome-feature-card'>
-            <span class='welcome-feature-icon'>📄</span>
-            <div class='welcome-feature-title'>PDF Report</div>
-            <ul>
-              <li>Downloadable performance report</li>
-              <li>Share report on WhatsApp</li>
-            </ul>
-          </div>
+    <div class="welcome-fixed">
+        <div class="welcome-top">
+            <div class="cap-icon">🎓</div>
+            <div>
+                <h1 class="animated-title">ScoreWise <span>AI</span></h1>
+                <div class="welcome-subtitle">Smart Student Performance Predictor ✨</div>
+            </div>
         </div>
-      </div>
+
+        <div class="feature-row">
+            <div class="welcome-card" style="--card-color:#2f86ff;--card-glow:rgba(47,134,255,0.42);">
+                <div class="icon">📊</div>
+                <h3>Smart Graph</h3>
+                <div class="mini-line"></div>
+                <ul>
+                    <li>Visualize academic trends</li>
+                    <li>Compare key study factors</li>
+                    <li>Understand performance clearly</li>
+                </ul>
+            </div>
+
+            <div class="welcome-card" style="--card-color:#42d957;--card-glow:rgba(66,217,87,0.38);">
+                <div class="icon">🔮</div>
+                <h3>Prediction</h3>
+                <div class="mini-line"></div>
+                <ul>
+                    <li>AI score prediction</li>
+                    <li>Simple result view</li>
+                    <li>Quick and accurate output</li>
+                </ul>
+            </div>
+
+            <div class="welcome-card" style="--card-color:#9b45ff;--card-glow:rgba(155,69,255,0.42);">
+                <div class="icon">📄</div>
+                <h3>PDF Report</h3>
+                <div class="mini-line"></div>
+                <ul>
+                    <li>Downloadable report</li>
+                    <li>Professional format</li>
+                    <li>Easy WhatsApp sharing</li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <div class="used-title">Used For</div>
+            <div class="used-row">
+                <div class="used-item">
+                    <div class="used-icon">🎓</div>
+                    <div class="used-name">Students</div>
+                    <div class="used-desc">Track and improve performance</div>
+                </div>
+                <div class="used-item">
+                    <div class="used-icon">👨‍👩‍👧</div>
+                    <div class="used-name">Parents</div>
+                    <div class="used-desc">Monitor child progress</div>
+                </div>
+                <div class="used-item">
+                    <div class="used-icon">📚</div>
+                    <div class="used-name">Teachers</div>
+                    <div class="used-desc">Analyze and support students</div>
+                </div>
+                <div class="used-item">
+                    <div class="used-icon">🏫</div>
+                    <div class="used-name">Schools</div>
+                    <div class="used-desc">Improve academic outcomes</div>
+                </div>
+                <div class="used-item">
+                    <div class="used-icon">💼</div>
+                    <div class="used-name">Counselors</div>
+                    <div class="used-desc">Guide future decisions</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-strip">
+            <div class="stat-box"><div class="stat-icon">👥</div><div><div class="stat-num">5000+</div><div class="stat-label">Students Helped</div></div></div>
+            <div class="stat-box"><div class="stat-icon">📊</div><div><div class="stat-num">25K+</div><div class="stat-label">Predictions Made</div></div></div>
+            <div class="stat-box"><div class="stat-icon">📑</div><div><div class="stat-num">10K+</div><div class="stat-label">Reports Generated</div></div></div>
+            <div class="stat-box"><div class="stat-icon">🛡️</div><div><div class="stat-num">99%</div><div class="stat-label">Accuracy Rate</div></div></div>
+        </div>
+
+        <div class="welcome-footer">♡ Made with ❤️ for Students | Empowering Education with AI</div>
     </div>
     """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([1.8, 1, 1.8])
+    col1, col2, col3 = st.columns([2.2, 1, 2.2])
     with col2:
-        if st.button("🚀 Get Started", use_container_width=True):
+        if st.button("Get Started →", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
 
-# =====================================================
-# AUTH PAGE
-# =====================================================
+
 def auth_page():
     users = load_json(USER_DB_FILE, {})
 
-    toggle_theme_button("theme_auth")
-    if st.button("← Back"):
-        st.session_state.auth_page = "welcome"; st.rerun()
+    # Top bar
+    c1,c2 = st.columns([8,1])
+    with c1:
+        if st.button("← Back"):
+            st.session_state.auth_page = "welcome"; st.rerun()
+    with c2:
+        toggle_theme_button("theme_auth")
 
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
@@ -1003,6 +1130,7 @@ def sidebar(user):
         selected = st.radio("Navigation", pages, index=sel_idx)
         st.session_state.active_page = selected.split(" ",1)[1]
         st.markdown("---")
+        toggle_theme_button("theme_sidebar")
         if st.button("🚪 Sign Out", use_container_width=True):
             st.session_state.logged_in  = False
             st.session_state.username   = ""
@@ -1032,7 +1160,7 @@ def home_page(user):
 
 def prediction_page(user):
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Enter academic details and get only the final predicted result here. Graphs and report are available on the Report page.</p>", unsafe_allow_html=True)
 
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
@@ -1073,23 +1201,25 @@ def prediction_page(user):
         st.session_state.last_recs   = recs
         st.session_state.last_pdf    = generate_pdf(st.session_state.username, user, score, data, recs)
 
-        # Result only on Prediction page. Graphs and recommendations are kept in Report page.
-        status = "🌟 Excellent!" if score>=85 else "👍 Good" if score>=70 else "📈 Needs Work"
+        status = "🌟 Excellent!" if score>=85 else "👍 Good" if score>=70 else "📈 Needs Improvement"
         st.markdown(f"""
-        <div style='text-align:center;padding:30px 0'>
+        <div style='text-align:center;padding:34px 0'>
           <div class='score-badge'>{score}<span style='font-size:1.2rem'>/100</span></div>
-          <p style='margin-top:12px;font-size:1.1rem;font-weight:800'>{status}</p>
-          <p class='subtext'>Graphs and PDF report are available on the Report & Share page.</p>
+          <p style='margin-top:12px;font-size:1.18rem;font-weight:900'>{status}</p>
+          <p class='subtext'>Open Report & Share page to view smart graphs and download the PDF report.</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("📄 Open Report & Share", use_container_width=True):
-            st.session_state.active_page = "Report & Share"
-            st.rerun()
+
+        col_a, col_b, col_c = st.columns([1.4,1,1.4])
+        with col_b:
+            if st.button("📄 Go to Report", use_container_width=True):
+                st.session_state.active_page = "Report & Share"
+                st.rerun()
 
 
 def report_page(user):
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Download the PDF report and view smart performance graphs here.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
         st.info("Please generate a score from the Prediction page first.")
@@ -1113,7 +1243,6 @@ def report_page(user):
     """, unsafe_allow_html=True)
     st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
 
-    # 3 Graphs in report
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
     with col_g1:
@@ -1125,7 +1254,8 @@ def report_page(user):
 
     if recs:
         st.markdown("### 💬 Recommendations")
-        for r in recs: st.info(r)
+        for r in recs:
+            st.info(r)
 
 
 def history_page(user):
@@ -1275,7 +1405,6 @@ def profile_page(user):
 
 
 def main_app():
-    toggle_theme_button("theme_app")
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
