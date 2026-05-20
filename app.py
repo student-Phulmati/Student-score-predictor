@@ -24,9 +24,6 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-# =====================================================
-# APP CONFIG
-# =====================================================
 APP_NAME = "ScoreWise AI"
 TAGLINE = "Smart Student Performance Predictor"
 USER_DB_FILE = "users.json"
@@ -43,9 +40,6 @@ os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
 st.set_page_config(page_title=APP_NAME, page_icon="🎓", layout="wide", initial_sidebar_state="expanded")
 
-# =====================================================
-# BASIC STORAGE HELPERS
-# =====================================================
 def load_json(path, default):
     if os.path.exists(path):
         try:
@@ -81,9 +75,6 @@ def profile_pic_html(username, fallback="🎓"):
         return f'<img src="data:image/jpeg;base64,{b64}" />'
     return fallback
 
-# =====================================================
-# OTP FUNCTIONS
-# =====================================================
 def generate_otp():
     return str(random.randint(100000, 999999))
 
@@ -128,9 +119,6 @@ def send_otp_email(receiver, otp, name="User"):
     except Exception as e:
         return False, str(e)
 
-# =====================================================
-# SESSION STATE
-# =====================================================
 def init_state():
     defaults = {
         "logged_in": False,
@@ -152,398 +140,354 @@ def init_state():
 
 init_state()
 
-# =====================================================
-# COLOR PALETTE (from coolors.co)
-# Dark mode  : bg=#07111f, card=rgba(24,78,119,.82), accents from palette
-# Light mode : bg=#f0faf5, card=rgba(255,255,255,.90), accents from palette
-# Palette: #d9ed92 #b5e48c #99d98c #76c893 #52b69a #34a0a4 #168aad #1a759f #1e6091 #184e77
-# =====================================================
 def apply_css():
     dark = st.session_state.theme == "dark"
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
 
     if dark:
-        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 24%,#0077b6 52%,#0096c7 76%,#00b4d8 100%)"
-        panel_bg      = "rgba(3,4,94,0.72)"
-        card_bg       = "rgba(255,255,255,0.10)"
-        soft_card_bg  = "rgba(255,255,255,0.08)"
-        text_primary  = "#f7fbff"
-        text_secondary= "#caf0f8"
-        text_muted    = "#ade8f4"
-        border_color  = "rgba(202,240,248,0.22)"
-        input_bg      = "rgba(255,255,255,0.12)"
-        input_text    = "#ffffff"
-        accent1       = "#90e0ef"
-        accent2       = "#48cae4"
-        accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(3,4,94,0.88)"
-        shadow        = "0 22px 70px rgba(0,0,0,0.32)"
-        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,0.66),rgba(0,119,182,0.26),rgba(0,0,0,0.12))"
+        # Deep navy/midnight blue theme
+        app_bg_css      = "background: linear-gradient(135deg,#020818 0%,#050d2a 40%,#071440 70%,#0a1a50 100%) !important; background-attachment: fixed !important;"
+        sidebar_bg      = "rgba(5,13,42,0.95)"
+        card_bg         = "rgba(255,255,255,0.07)"
+        card_border     = "rgba(100,160,255,0.18)"
+        text_primary    = "#e8f0ff"
+        text_secondary  = "#a0b8e8"
+        text_muted      = "#6a90cc"
+        input_bg        = "rgba(255,255,255,0.09)"
+        input_text      = "#e8f0ff"
+        input_border    = "rgba(100,160,255,0.25)"
+        accent1         = "#6ab4ff"
+        accent2         = "#4a9eff"
+        accent3         = "#2d7dd2"
+        shadow          = "0 8px 32px rgba(0,0,0,0.5)"
+        btn_gradient    = "linear-gradient(135deg,#1a3a7a,#1e5bbf,#2d7dd2)"
+        btn_hover       = "linear-gradient(135deg,#2d7dd2,#4a9eff,#6ab4ff)"
+        score_color     = "#6ab4ff"
+        tab_selected    = "#6ab4ff"
+        metric_val_color= "#6ab4ff"
     else:
-        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 22%,#90e0ef 48%,#48cae4 72%,#00b4d8 100%)"
-        panel_bg      = "rgba(255,255,255,0.74)"
-        card_bg       = "rgba(255,255,255,0.60)"
-        soft_card_bg  = "rgba(255,255,255,0.46)"
-        text_primary  = "#03045e"
-        text_secondary= "#023e8a"
-        text_muted    = "#0077b6"
-        border_color  = "rgba(2,62,138,0.18)"
-        input_bg      = "rgba(255,255,255,0.86)"
-        input_text    = "#03045e"
-        accent1       = "#0077b6"
-        accent2       = "#0096c7"
-        accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(255,255,255,0.78)"
-        shadow        = "0 20px 60px rgba(2,62,138,0.22)"
-        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,0.48),rgba(202,240,248,0.20),rgba(0,180,216,0.10))"
+        # Clean white/light blue theme
+        app_bg_css      = "background: linear-gradient(135deg,#f0f5ff 0%,#e8f0fe 40%,#ddeeff 70%,#cce4ff 100%) !important; background-attachment: fixed !important;"
+        sidebar_bg      = "rgba(240,245,255,0.97)"
+        card_bg         = "rgba(255,255,255,0.85)"
+        card_border     = "rgba(50,100,200,0.15)"
+        text_primary    = "#0d1b4b"
+        text_secondary  = "#1e3a8a"
+        text_muted      = "#2563eb"
+        input_bg        = "rgba(255,255,255,0.95)"
+        input_text      = "#0d1b4b"
+        input_border    = "rgba(50,100,200,0.3)"
+        accent1         = "#1a56db"
+        accent2         = "#1e40af"
+        accent3         = "#2563eb"
+        shadow          = "0 4px 20px rgba(30,64,175,0.12)"
+        btn_gradient    = "linear-gradient(135deg,#1a3a8a,#1e56db,#2563eb)"
+        btn_hover       = "linear-gradient(135deg,#2563eb,#3b82f6,#60a5fa)"
+        score_color     = "#1a56db"
+        tab_selected    = "#1a56db"
+        metric_val_color= "#1a56db"
+
+    # Theme toggle button style — emoji only, minimal
+    toggle_btn_style = """
+    .theme-toggle-btn > button {
+        background: transparent !important;
+        border: 1.5px solid """ + card_border + """ !important;
+        border-radius: 50% !important;
+        width: 42px !important;
+        height: 42px !important;
+        padding: 0 !important;
+        font-size: 1.3rem !important;
+        box-shadow: none !important;
+        color: """ + text_primary + """ !important;
+        min-width: 42px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    .theme-toggle-btn > button:hover {
+        background: """ + card_bg + """ !important;
+        transform: scale(1.08) !important;
+        box-shadow: none !important;
+    }
+    """
 
     welcome_img = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
-    if is_welcome:
-        app_background = f"{welcome_overlay}, url('{welcome_img}')"
-        background_extra = "background-size: cover; background-position: center; background-attachment: fixed;"
-    else:
-        app_background = app_gradient
-        background_extra = "background-size: 220% 220%; animation: shineBg 12s ease infinite;"
+    overlay = "rgba(2,8,24,0.62)" if dark else "rgba(240,245,255,0.45)"
 
     st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    * {{
-        font-family: Inter, sans-serif !important;
-        box-sizing: border-box;
-    }}
+    * {{ font-family: Inter, sans-serif !important; box-sizing: border-box; }}
 
-    .stApp {{
-        background: {app_background};
-        {background_extra}
-        color: {text_primary};
-    }}
+    /* App background */
+    .stApp {{ {app_bg_css} color: {text_primary}; }}
 
-    @keyframes shineBg {{
-        0% {{ background-position: 0% 50%; }}
-        50% {{ background-position: 100% 50%; }}
-        100% {{ background-position: 0% 50%; }}
-    }}
-
-    .main .block-container {{
-        padding-top: 1.4rem;
-        max-width: 1180px;
-    }}
-
-    /* Hide unnecessary Streamlit decoration boxes */
-    [data-testid="stDecoration"],
-    #MainMenu,
-    footer,
-    header {{
-        visibility: hidden;
-        height: 0;
-    }}
+    /* Remove Streamlit default decorations */
+    [data-testid="stDecoration"], #MainMenu, footer, header {{ visibility: hidden; height: 0; }}
 
     /* Sidebar */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
-        border-right: 1px solid {border_color};
-        backdrop-filter: blur(24px);
+        border-right: 1px solid {card_border};
+        backdrop-filter: blur(20px);
     }}
-    [data-testid="stSidebar"] * {{
-        color: {text_primary} !important;
+    [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
+
+    .main .block-container {{ padding-top: 1.2rem; max-width: 1180px; }}
+
+    /* Cards / glass panels */
+    .glass {{
+        background: {card_bg};
+        border: 1px solid {card_border};
+        box-shadow: {shadow};
+        backdrop-filter: blur(16px);
+        border-radius: 22px;
+        padding: 26px;
     }}
 
-    /* Clean professional panels */
-    .glass,
-    .metric-card,
-    .profile-info-card,
+    /* Metric cards */
+    .metric-card {{
+        background: {card_bg};
+        border: 1px solid {card_border};
+        border-radius: 18px;
+        padding: 20px 14px;
+        text-align: center;
+        transition: 0.2s ease;
+    }}
+    .metric-card:hover {{ transform: translateY(-3px); }}
+    .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {metric_val_color}; }}
+    .metric-label {{ font-size: 0.75rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 700; }}
+
+    /* Score badge */
     .score-badge {{
         background: {card_bg};
-        border: 1px solid {border_color};
-        box-shadow: {shadow};
-        backdrop-filter: blur(22px);
-    }}
-
-    .glass {{
-        border-radius: 26px;
-        padding: 28px;
-    }}
-
-    /* Welcome page: photo background only, no heavy box */
-    .hero {{
-        min-height: 82vh;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        text-align: left;
-        padding: 5vh 3vw;
-    }}
-    .hero-box {{
-        max-width: 760px;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
-        padding: 20px 8px;
-        animation: fadeInUp 0.8s ease;
-    }}
-    @keyframes fadeInUp {{
-        from {{ opacity: 0; transform: translateY(34px); }}
-        to   {{ opacity: 1; transform: translateY(0); }}
-    }}
-    .app-logo {{
-        font-size: 4.2rem;
-        display: block;
-        margin-bottom: 8px;
-        filter: drop-shadow(0 8px 22px rgba(0,0,0,0.35));
-    }}
-    .app-title {{
-        font-size: clamp(3rem, 6vw, 5.4rem);
-        font-weight: 900;
-        line-height: 0.98;
-        margin: 0 0 12px 0;
-        color: white;
-        text-shadow: 0 6px 28px rgba(0,0,0,0.42);
-        letter-spacing: -2px;
-    }}
-    .tagline {{
-        font-size: 1.22rem;
-        color: #f7fbff;
-        margin: 0 0 28px 0;
-        font-weight: 600;
-        max-width: 560px;
-        text-shadow: 0 3px 16px rgba(0,0,0,0.42);
-    }}
-    .feature-mini {{
+        border: 1px solid {card_border};
         display: inline-block;
-        margin: 6px 8px 6px 0;
-        padding: 10px 18px;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.20);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.32);
-        font-weight: 800;
-        font-size: 0.86rem;
-        backdrop-filter: blur(10px);
-    }}
-    .stats-row {{
-        display: flex;
-        gap: 16px;
-        margin-top: 28px;
-        flex-wrap: wrap;
-    }}
-    .stat-item {{
-        min-width: 112px;
-        padding: 12px 16px;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.18);
-        border: 1px solid rgba(255,255,255,0.28);
-        backdrop-filter: blur(12px);
+        font-size: 3.2rem;
+        font-weight: 900;
+        color: {score_color};
+        padding: 16px 30px;
+        border-radius: 20px;
         text-align: center;
     }}
-    .stat-num {{
-        font-size: 1.7rem;
-        font-weight: 900;
-        color: white;
-    }}
-    .stat-label {{
-        font-size: 0.72rem;
-        color: #e9fbff;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }}
 
-    .page-title {{
-        font-size: 2.25rem;
-        font-weight: 900;
-        margin-bottom: 4px;
-        color: {text_primary};
-        letter-spacing: -0.8px;
-        text-shadow: 0 4px 20px rgba(0,0,0,0.12);
-    }}
-    .subtext {{
-        color: {text_secondary};
-        font-size: 0.98rem;
-        margin-bottom: 14px;
-        font-weight: 600;
-    }}
-
-    .metric-card {{
-        border-radius: 22px;
-        padding: 22px 14px;
-        text-align: center;
-        transition: 0.22s ease;
-    }}
-    .metric-card:hover {{
-        transform: translateY(-4px);
-        background: {soft_card_bg};
-    }}
-    .metric-value {{
-        font-size: 2.25rem;
-        font-weight: 900;
-        color: {accent1};
-    }}
-    .metric-label {{
-        font-size: 0.78rem;
-        color: {text_muted};
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-top: 4px;
-        font-weight: 800;
-    }}
-
+    /* Avatar */
     .avatar-circle {{
-        width: 92px;
-        height: 92px;
+        width: 88px; height: 88px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        margin: auto;
-        border: 3px solid {accent2};
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; margin: auto;
+        border: 2.5px solid {accent2};
         background: linear-gradient(135deg,{accent1},{accent3});
-        font-size: 2.2rem;
-        box-shadow: 0 12px 34px rgba(0,0,0,0.22);
+        font-size: 2rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }}
-    .avatar-circle img {{
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }}
+    .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; }}
 
+    /* Buttons */
     .stButton > button,
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
         border-radius: 999px !important;
         border: 0 !important;
-        font-weight: 900 !important;
+        font-weight: 800 !important;
         cursor: pointer !important;
-        padding: 0.66rem 1.5rem !important;
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8) !important;
+        padding: 0.6rem 1.4rem !important;
+        background: {btn_gradient} !important;
         color: white !important;
-        box-shadow: 0 12px 26px rgba(0,119,182,0.34) !important;
-        transition: all 0.22s ease !important;
-        letter-spacing: 0.2px !important;
+        box-shadow: 0 6px 18px rgba(30,64,175,0.28) !important;
+        transition: all 0.2s ease !important;
     }}
     .stButton > button:hover,
     [data-testid="stDownloadButton"] button:hover,
     .stFormSubmitButton > button:hover {{
-        transform: translateY(-2px) scale(1.01) !important;
-        box-shadow: 0 18px 38px rgba(0,180,216,0.42) !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8,#90e0ef) !important;
+        transform: translateY(-2px) !important;
+        background: {btn_hover} !important;
         color: white !important;
     }}
 
-    input, textarea, [data-baseweb="select"] > div {{
-        border-radius: 15px !important;
-    }}
-    .stTextInput input,
-    .stNumberInput input,
-    .stDateInput input,
-    .stPasswordInput input,
-    textarea {{
+    {toggle_btn_style}
+
+    /* Inputs */
+    .stTextInput input, .stNumberInput input, .stDateInput input, .stPasswordInput input, textarea {{
         background: {input_bg} !important;
         color: {input_text} !important;
-        border: 1px solid {border_color} !important;
-        font-weight: 650 !important;
+        border: 1px solid {input_border} !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
     }}
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
-        border: 1px solid {border_color} !important;
+        border: 1px solid {input_border} !important;
+        border-radius: 12px !important;
     }}
-    label, p, span, div {{
-        color: {text_primary};
-    }}
+    label, p, span, div {{ color: {text_primary}; }}
 
-    [data-baseweb="tab-list"] {{
-        background: transparent !important;
-        border-bottom: 1px solid {border_color} !important;
-    }}
-    [data-baseweb="tab"] {{
-        color: {text_muted} !important;
-        font-weight: 800 !important;
-    }}
-    [aria-selected="true"][data-baseweb="tab"] {{
-        color: {accent1} !important;
-        border-bottom: 3px solid {accent1} !important;
-    }}
+    /* Tabs */
+    [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {card_border} !important; }}
+    [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 700 !important; }}
+    [aria-selected="true"][data-baseweb="tab"] {{ color: {tab_selected} !important; border-bottom: 2.5px solid {tab_selected} !important; }}
 
-    .whatsapp-btn,
-    .email-btn {{
-        display: inline-block;
-        border-radius: 999px;
-        padding: 11px 22px;
-        color: white !important;
-        text-decoration: none;
-        font-weight: 900;
-        margin: 6px 4px;
-        font-size: 0.92rem;
-        box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    /* Page titles */
+    .page-title {{
+        font-size: 2.1rem; font-weight: 900;
+        margin-bottom: 4px; color: {text_primary};
+        letter-spacing: -0.5px;
     }}
-    .whatsapp-btn {{
-        background: linear-gradient(135deg,#25D366,#128C7E);
-    }}
-    .email-btn {{
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
-    }}
+    .subtext {{ color: {text_secondary}; font-size: 0.96rem; margin-bottom: 12px; font-weight: 600; }}
 
+    /* Profile card */
     .profile-info-card {{
-        border-radius: 22px;
-        padding: 24px;
+        background: {card_bg}; border: 1px solid {card_border};
+        border-radius: 18px; padding: 22px;
     }}
     .profile-field {{
+        display: flex; justify-content: space-between; gap: 12px;
+        padding: 10px 0; border-bottom: 1px solid {card_border}; font-size: 0.93rem;
+    }}
+    .profile-field:last-child {{ border-bottom: none; }}
+    .pf-label {{ color: {text_muted}; font-weight: 700; }}
+    .pf-value {{ color: {text_primary}; font-weight: 800; }}
+
+    /* Share buttons */
+    .whatsapp-btn {{
+        display: inline-block; border-radius: 999px; padding: 10px 20px;
+        color: white !important; text-decoration: none; font-weight: 800;
+        margin: 6px 4px; font-size: 0.9rem;
+        background: linear-gradient(135deg,#25D366,#128C7E);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    }}
+
+    hr {{ border-color: {card_border} !important; }}
+    .stAlert {{ border-radius: 14px !important; }}
+    .stDataFrame {{ border-radius: 14px; overflow: hidden; }}
+
+    /* Fixed theme button positioning */
+    .fixed-theme-btn {{
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 9999;
+    }}
+
+    /* Welcome page hero — FIXED, no movement */
+    .hero-section {{
+        min-height: 100vh;
+        background: linear-gradient({overlay}, {overlay}),
+                    url('{welcome_img}') center/cover no-repeat fixed;
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        padding: 5vh 4vw;
+        position: relative;
+    }}
+    .hero-content {{
+        max-width: 700px;
+        animation: fadeUp 0.7s ease both;
+    }}
+    @keyframes fadeUp {{
+        from {{ opacity: 0; transform: translateY(28px); }}
+        to   {{ opacity: 1; transform: translateY(0); }}
+    }}
+    .hero-emoji {{
+        font-size: 5rem;
+        display: block;
+        animation: gentleBob 3s ease-in-out infinite;
+        margin-bottom: 10px;
+    }}
+    @keyframes gentleBob {{
+        0%, 100% {{ transform: translateY(0); }}
+        50%       {{ transform: translateY(-8px); }}
+    }}
+    .hero-title {{
+        font-size: clamp(2.8rem, 5.5vw, 5rem);
+        font-weight: 900;
+        line-height: 1.0;
+        margin: 0 0 14px;
+        color: white;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        letter-spacing: -2px;
+    }}
+    .hero-tagline {{
+        font-size: 1.15rem;
+        color: rgba(255,255,255,0.88);
+        margin: 0 0 26px;
+        font-weight: 600;
+        max-width: 520px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }}
+
+    /* Feature boxes on welcome page */
+    .feature-grid {{
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 14px;
-        padding: 11px 0;
-        border-bottom: 1px solid {border_color};
-        font-size: 0.95rem;
+        margin: 24px 0 30px;
+        max-width: 620px;
     }}
-    .profile-field:last-child {{
-        border-bottom: none;
-    }}
-    .pf-label {{
-        color: {text_muted};
-        font-weight: 800;
-    }}
-    .pf-value {{
-        color: {text_primary};
-        font-weight: 900;
-    }}
-
-    .score-badge {{
-        display: inline-block;
-        font-size: 3.5rem;
-        font-weight: 900;
-        color: {accent1};
-        padding: 18px 34px;
-        border-radius: 24px;
+    .feature-box {{
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.25);
+        border-radius: 16px;
+        padding: 16px 14px;
         text-align: center;
+        backdrop-filter: blur(12px);
+        transition: 0.2s ease;
+    }}
+    .feature-box:hover {{
+        background: rgba(255,255,255,0.22);
+        transform: translateY(-3px);
+    }}
+    .feature-icon {{ font-size: 1.8rem; display: block; margin-bottom: 6px; }}
+    .feature-title {{
+        font-size: 0.82rem;
+        font-weight: 800;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }}
+    .feature-desc {{
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.72);
+        font-weight: 500;
     }}
 
-    hr {{
-        border-color: {border_color} !important;
+    .hero-stats {{
+        display: flex; gap: 14px; flex-wrap: wrap; margin-top: 6px;
     }}
-    .stAlert {{
-        border-radius: 18px !important;
+    .stat-box {{
+        padding: 10px 18px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        backdrop-filter: blur(10px);
+        text-align: center;
+        min-width: 90px;
     }}
-    .stDataFrame {{
-        border-radius: 18px;
-        overflow: hidden;
-    }}
+    .stat-num {{ font-size: 1.55rem; font-weight: 900; color: white; }}
+    .stat-lab {{ font-size: 0.68rem; color: rgba(255,255,255,0.8); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }}
     </style>
     """, unsafe_allow_html=True)
 
 apply_css()
 
-# =====================================================
-# MODEL AND PREDICTION
-# =====================================================
+# ─── Fixed theme toggle button (always top-right) ────────────────────────────
+def fixed_theme_button():
+    label = "☀️" if st.session_state.theme == "dark" else "🌙"
+    st.markdown('<div class="fixed-theme-btn theme-toggle-btn">', unsafe_allow_html=True)
+    if st.button(label, key="fixed_theme_toggle"):
+        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# ─── Model & Prediction ───────────────────────────────────────────────────────
 @st.cache_resource
 def load_model_files():
     if os.path.exists(MODEL_FILE) and os.path.exists(COLUMNS_FILE):
         return joblib.load(MODEL_FILE), joblib.load(COLUMNS_FILE)
     return None, None
-
 
 def predict_score(data):
     model, columns = load_model_files()
@@ -561,24 +505,27 @@ def predict_score(data):
         pred += bonus
     return int(max(0, min(100, round(pred))))
 
-
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:    recs.append("📚 Improve daily study hours to 6–8 hours.")
-    if d["Attendance"] < 80:       recs.append("🏫 Keep attendance above 80% for stronger performance.")
-    if d["Sleep_Hours"] < 7:       recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
-    if d["Motivation_Level"] == "Low": recs.append("🎯 Set small daily goals and track your progress.")
-    if d["Internet_Access"] == "No":   recs.append("📖 Use offline notes, library support, and teacher guidance.")
-    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
-    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
+    if d["Hours_Studied"] < 6:
+        recs.append("📚 Roz 6–8 ghante padhai karo — consistency zaruri hai.")
+    if d["Attendance"] < 80:
+        recs.append("🏫 Attendance 80% se upar rakho — class miss mat karo.")
+    if d["Sleep_Hours"] < 7:
+        recs.append("😴 7–8 ghante ki neend lo — brain ke liye zaroori hai.")
+    if d["Motivation_Level"] == "Low":
+        recs.append("🎯 Chhote chhote daily goals set karo aur track karo.")
+    if d["Internet_Access"] == "No":
+        recs.append("📖 Offline notes, library aur teacher se help lo.")
+    if d["Learning_Resources"] == "Low":
+        recs.append("💡 Free resources use karo — lectures, notes, PDFs.")
+    if d["Peer_Influence"] == "Negative":
+        recs.append("🤝 Positive peer group banao — padhai improve hogi.")
     return recs
 
-# =====================================================
-# HISTORY AND PDF
-# =====================================================
+# ─── History & PDF ────────────────────────────────────────────────────────────
 def user_history(username):
-    all_h = load_json(HISTORY_FILE, {})
-    return all_h.get(username, [])
+    return load_json(HISTORY_FILE, {}).get(username, [])
 
 def save_prediction(username, record):
     all_h = load_json(HISTORY_FILE, {})
@@ -632,8 +579,8 @@ def generate_pdf(username, user_data, score, inputs, recs):
     it = Table(input_rows, colWidths=[2.7*inch, 3.6*inch])
     it.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#184e77')),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),7)]))
     story.append(it); story.append(Spacer(1, 12))
-    scores = [r.get("score",0) for r in user_history(username)] + [score]
-    story.append(simple_pdf_graph(scores[-10:]))
+    scores_list = [r.get("score",0) for r in user_history(username)] + [score]
+    story.append(simple_pdf_graph(scores_list[-10:]))
     story.append(Spacer(1, 12))
     story.append(Paragraph("Recommendations", head))
     if recs:
@@ -646,26 +593,16 @@ def generate_pdf(username, user_data, score, inputs, recs):
     buffer.seek(0)
     return buffer.read()
 
-# =====================================================
-# UI HELPERS
-# =====================================================
-def toggle_theme_button(key):
-    label = "☀️ Light Mode" if st.session_state.theme == "dark" else "🌙 Dark Mode"
-    if st.button(label, key=key):
-        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-        st.rerun()
-
+# ─── Chart helpers ────────────────────────────────────────────────────────────
 def get_chart_colors():
     dark = st.session_state.theme == "dark"
     return {
-        "paper":   "rgba(0,0,0,0)",
-        "plot":    "rgba(0,0,0,0)",
-        "line":    "#52b69a" if dark else "#1e6091",
-        "marker":  "#34a0a4" if dark else "#168aad",
-        "bar":     "#34a0a4" if dark else "#1a759f",
-        "bar2":    "#168aad" if dark else "#52b69a",
-        "text":    "#d9ed92" if dark else "#184e77",
-        "grid":    "rgba(82,182,154,0.15)" if dark else "rgba(26,117,159,0.12)",
+        "paper":  "rgba(0,0,0,0)",
+        "plot":   "rgba(0,0,0,0)",
+        "line":   "#6ab4ff" if dark else "#1a56db",
+        "marker": "#4a9eff" if dark else "#1e40af",
+        "text":   "#a0b8e8" if dark else "#1e3a8a",
+        "grid":   "rgba(100,160,255,0.12)" if dark else "rgba(30,64,175,0.1)",
     }
 
 def score_trend_chart(records):
@@ -676,18 +613,17 @@ def score_trend_chart(records):
     fig.add_trace(go.Scatter(
         x=dates, y=scores,
         mode="lines+markers+text",
-        name="Score",
         text=scores, textposition="top center",
-        line=dict(width=3, color=cc["line"]),
-        marker=dict(size=10, color=cc["marker"], line=dict(width=2, color="white")),
+        line=dict(width=2.5, color=cc["line"]),
+        marker=dict(size=9, color=cc["marker"], line=dict(width=2, color="white")),
         fill="tozeroy",
-        fillcolor=f"rgba(52,160,164,0.12)",
+        fillcolor="rgba(74,158,255,0.10)",
     ))
-    fig.add_hline(y=60, line_dash="dash", line_color="#b5e48c", annotation_text="Pass Line", annotation_font_color="#b5e48c")
-    fig.add_hline(y=85, line_dash="dot",  line_color="#d9ed92", annotation_text="Excellent",  annotation_font_color="#d9ed92")
+    fig.add_hline(y=60, line_dash="dash", line_color="#4ade80", annotation_text="Pass", annotation_font_color="#4ade80")
+    fig.add_hline(y=85, line_dash="dot", line_color="#fbbf24", annotation_text="Excellent", annotation_font_color="#fbbf24")
     fig.update_layout(
-        title=dict(text="📈 Score Trend Over Time", font=dict(color=cc["text"], size=15)),
-        height=320, margin=dict(l=10,r=10,t=45,b=10),
+        title=dict(text="📈 Score Trend", font=dict(color=cc["text"], size=14)),
+        height=300, margin=dict(l=10,r=10,t=45,b=10),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
         xaxis=dict(gridcolor=cc["grid"], color=cc["text"]),
         yaxis=dict(gridcolor=cc["grid"], color=cc["text"], range=[0,110]),
@@ -697,52 +633,49 @@ def score_trend_chart(records):
 
 def radar_chart(inputs):
     cc = get_chart_colors()
-    cats   = ["Study Hours", "Attendance", "Sleep", "Motivation", "Resources", "Peer Influence"]
-    scores_raw = [
-        min(inputs.get("Hours_Studied",0) / 10 * 100, 100),
-        inputs.get("Attendance", 0),
-        min(inputs.get("Sleep_Hours",0) / 9 * 100, 100),
+    cats = ["Study Hours","Attendance","Sleep","Motivation","Resources","Peer Influence"]
+    vals = [
+        min(inputs.get("Hours_Studied",0)/10*100,100),
+        inputs.get("Attendance",0),
+        min(inputs.get("Sleep_Hours",0)/9*100,100),
         {"Low":20,"Medium":60,"High":100}.get(inputs.get("Motivation_Level","Medium"),60),
         {"Low":20,"Medium":60,"High":100}.get(inputs.get("Learning_Resources","Medium"),60),
         {"Negative":10,"Neutral":55,"Positive":100}.get(inputs.get("Peer_Influence","Neutral"),55),
     ]
     fig = go.Figure(go.Scatterpolar(
-        r=scores_raw + [scores_raw[0]],
-        theta=cats + [cats[0]],
+        r=vals+[vals[0]], theta=cats+[cats[0]],
         fill="toself",
-        fillcolor=f"rgba(52,160,164,0.20)",
-        line=dict(color=cc["line"], width=2.5),
-        marker=dict(color=cc["marker"], size=7),
+        fillcolor="rgba(74,158,255,0.15)",
+        line=dict(color=cc["line"], width=2),
+        marker=dict(color=cc["marker"], size=6),
     ))
     fig.update_layout(
-        title=dict(text="🕸️ Academic Profile Radar", font=dict(color=cc["text"], size=15)),
+        title=dict(text="🕸️ Academic Radar", font=dict(color=cc["text"], size=14)),
         polar=dict(
             bgcolor="rgba(0,0,0,0)",
             radialaxis=dict(visible=True, range=[0,100], color=cc["text"], gridcolor=cc["grid"]),
             angularaxis=dict(color=cc["text"]),
         ),
-        height=340, margin=dict(l=20,r=20,t=50,b=20),
-        paper_bgcolor=cc["paper"],
-        showlegend=False,
+        height=320, margin=dict(l=20,r=20,t=50,b=20),
+        paper_bgcolor=cc["paper"], showlegend=False,
     )
     return fig
 
 def factor_bar_chart(inputs):
     cc = get_chart_colors()
     factors = {
-        "Hours Studied":     min(inputs.get("Hours_Studied",0) / 10 * 100, 100),
-        "Attendance":        inputs.get("Attendance", 0),
-        "Prev Score":        inputs.get("Previous_Scores", 0),
-        "Sleep Quality":     min(inputs.get("Sleep_Hours",0) / 9 * 100, 100),
-        "Motivation":        {"Low":25,"Medium":60,"High":100}.get(inputs.get("Motivation_Level","Medium"),60),
-        "Learning Res.":     {"Low":25,"Medium":60,"High":100}.get(inputs.get("Learning_Resources","Medium"),60),
+        "Study Hours": min(inputs.get("Hours_Studied",0)/10*100,100),
+        "Attendance":  inputs.get("Attendance",0),
+        "Prev Score":  inputs.get("Previous_Scores",0),
+        "Sleep":       min(inputs.get("Sleep_Hours",0)/9*100,100),
+        "Motivation":  {"Low":25,"Medium":60,"High":100}.get(inputs.get("Motivation_Level","Medium"),60),
+        "Resources":   {"Low":25,"Medium":60,"High":100}.get(inputs.get("Learning_Resources","Medium"),60),
     }
     fig = go.Figure(go.Bar(
-        x=list(factors.keys()),
-        y=list(factors.values()),
+        x=list(factors.keys()), y=list(factors.values()),
         marker=dict(
             color=list(factors.values()),
-            colorscale=[[0,"#1e6091"],[0.4,"#34a0a4"],[0.7,"#76c893"],[1,"#d9ed92"]],
+            colorscale=[[0,"#1a3a8a"],[0.4,"#1a56db"],[0.7,"#4a9eff"],[1,"#93c5fd"]],
             showscale=False,
         ),
         text=[f"{v:.0f}" for v in factors.values()],
@@ -750,87 +683,85 @@ def factor_bar_chart(inputs):
         textfont=dict(color=cc["text"], size=11),
     ))
     fig.update_layout(
-        title=dict(text="📊 Key Factors Contributing to Score", font=dict(color=cc["text"], size=15)),
-        height=320, margin=dict(l=10,r=10,t=50,b=10),
+        title=dict(text="📊 Factor Analysis", font=dict(color=cc["text"], size=14)),
+        height=300, margin=dict(l=10,r=10,t=50,b=10),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
         xaxis=dict(gridcolor=cc["grid"], color=cc["text"]),
-        yaxis=dict(gridcolor=cc["grid"], color=cc["text"], range=[0,115]),
+        yaxis=dict(gridcolor=cc["grid"], color=cc["text"], range=[0,120]),
         showlegend=False,
     )
     return fig
 
-# =====================================================
-# WELCOME PAGE
-# =====================================================
+# ─── Welcome Page ─────────────────────────────────────────────────────────────
 def welcome_page():
-    # Theme toggle top-right
-    c1,c2,c3 = st.columns([1,8,1])
-    with c3: toggle_theme_button("theme_welcome")
+    fixed_theme_button()
 
     st.markdown(f"""
-    <div class='hero'>
-      <div class='hero-box'>
-        <span class='app-logo'>🎓</span>
-        <h1 class='app-title'>{APP_NAME}</h1>
-        <p class='tagline'>{TAGLINE}</p>
-        <div style='margin-bottom:28px'>
-          <span class='feature-mini'>🔐 OTP Signup</span>
-          <span class='feature-mini'>📊 AI Prediction</span>
-          <span class='feature-mini'>📄 PDF Report</span>
-          <span class='feature-mini'>📱 WhatsApp Share</span>
-          <span class='feature-mini'>🌙 Dark / Light</span>
-          <span class='feature-mini'>📈 Smart Graphs</span>
+    <div class="hero-section">
+      <div class="hero-content">
+        <span class="hero-emoji">🎓</span>
+        <h1 class="hero-title">{APP_NAME}</h1>
+        <p class="hero-tagline">{TAGLINE} — Apna score predict karo AI ke saath!</p>
+
+        <div class="feature-grid">
+          <div class="feature-box">
+            <span class="feature-icon">📊</span>
+            <div class="feature-title">Smart Graphs</div>
+            <div class="feature-desc">Radar, bar & trend charts</div>
+          </div>
+          <div class="feature-box">
+            <span class="feature-icon">🔮</span>
+            <div class="feature-title">AI Prediction</div>
+            <div class="feature-desc">ML-based score forecast</div>
+          </div>
+          <div class="feature-box">
+            <span class="feature-icon">📄</span>
+            <div class="feature-title">PDF Report</div>
+            <div class="feature-desc">Download & share</div>
+          </div>
         </div>
-        <div class='stats-row'>
-          <div class='stat-item'><div class='stat-num'>98%</div><div class='stat-label'>Accuracy</div></div>
-          <div class='stat-item'><div class='stat-num'>10K+</div><div class='stat-label'>Predictions</div></div>
-          <div class='stat-item'><div class='stat-num'>3</div><div class='stat-label'>Smart Charts</div></div>
-          <div class='stat-item'><div class='stat-num'>Free</div><div class='stat-label'>Always</div></div>
+
+        <div class="hero-stats">
+          <div class="stat-box"><div class="stat-num">98%</div><div class="stat-lab">Accuracy</div></div>
+          <div class="stat-box"><div class="stat-num">10K+</div><div class="stat-lab">Predictions</div></div>
+          <div class="stat-box"><div class="stat-num">Free</div><div class="stat-lab">Always</div></div>
         </div>
       </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Centered Get Started button
-    col1, col2, col3 = st.columns([1.8, 1, 1.8])
+    col1, col2, col3 = st.columns([2, 1, 2])
     with col2:
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
 
-# =====================================================
-# AUTH PAGE
-# =====================================================
+# ─── Auth Page ────────────────────────────────────────────────────────────────
 def auth_page():
+    fixed_theme_button()
     users = load_json(USER_DB_FILE, {})
 
-    # Top bar
-    c1,c2 = st.columns([8,1])
+    c1, c2 = st.columns([8, 1])
     with c1:
         if st.button("← Back"):
             st.session_state.auth_page = "welcome"; st.rerun()
-    with c2:
-        toggle_theme_button("theme_auth")
 
-    col1, col2, col3 = st.columns([1,2,1])
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
-        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:18px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
+        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
-            st.markdown("<div class='login-btn-wrap'>", unsafe_allow_html=True)
-            login_clicked = st.button("Login", key="do_login")
-            st.markdown("</div>", unsafe_allow_html=True)
-            if login_clicked:
+            if st.button("Login", key="do_login"):
                 if username in users and users[username]["password"] == hash_password(password):
-                    st.session_state.logged_in  = True
-                    st.session_state.username   = username
-                    st.session_state.role       = users[username].get("role","student")
+                    st.session_state.logged_in   = True
+                    st.session_state.username    = username
+                    st.session_state.role        = users[username].get("role","student")
                     st.session_state.active_page = "Home"
                     st.rerun()
                 else:
@@ -849,13 +780,10 @@ def auth_page():
                 school = st.text_input("School / College")
             else:
                 child_name = st.text_input("Child Name")
-                grade      = st.selectbox("Child Class / Course", ["Class 8","Class 9","Class 10","Class 11","Class 12","College"])
+                grade      = st.selectbox("Child Class", ["Class 8","Class 9","Class 10","Class 11","Class 12","College"])
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"])
 
-            st.markdown("<div class='login-btn-wrap'>", unsafe_allow_html=True)
-            send_otp_clicked = st.button("Send OTP", key="send_otp_btn")
-            st.markdown("</div>", unsafe_allow_html=True)
-            if send_otp_clicked:
+            if st.button("Send OTP", key="send_otp_btn"):
                 if not email:
                     st.warning("Email required.")
                 else:
@@ -865,10 +793,7 @@ def auth_page():
                     else:   st.warning(f"Email not configured. Testing OTP: {otp}")
 
             otp_entered = st.text_input("Enter OTP", max_chars=6)
-            st.markdown("<div class='login-btn-wrap'>", unsafe_allow_html=True)
-            verify_clicked = st.button("Verify & Create Account", key="verify_otp_btn")
-            st.markdown("</div>", unsafe_allow_html=True)
-            if verify_clicked:
+            if st.button("Verify & Create Account", key="verify_otp_btn"):
                 if not username or not email or not password or not full_name:
                     st.warning("Please fill all required fields.")
                 elif password != confirm:
@@ -887,50 +812,46 @@ def auth_page():
                             data.update({"child_name": child_name, "child_grade": grade, "relation": relation})
                         users[username] = data
                         save_json(USER_DB_FILE, users)
-
-                        # Auto-login immediately after successful signup
-                        st.session_state.logged_in = True
-                        st.session_state.username = username
-                        st.session_state.role = role
+                        st.session_state.logged_in   = True
+                        st.session_state.username    = username
+                        st.session_state.role        = role
                         st.session_state.active_page = "Home"
-                        st.session_state.auth_page = "welcome"
-                        st.success("Account created successfully! Opening your dashboard...")
+                        st.session_state.auth_page   = "welcome"
+                        st.success("Account created! Opening dashboard...")
                         st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-# =====================================================
-# MAIN APP PAGES
-# =====================================================
+# ─── Sidebar ──────────────────────────────────────────────────────────────────
 def sidebar(user):
     with st.sidebar:
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:14px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
         st.markdown("---")
         pages = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
         labels = [p.split(" ",1)[1] for p in pages]
         sel_idx = 0
-        for i,label in enumerate(labels):
+        for i, label in enumerate(labels):
             if st.session_state.active_page == label:
                 sel_idx = i
         selected = st.radio("Navigation", pages, index=sel_idx)
         st.session_state.active_page = selected.split(" ",1)[1]
         st.markdown("---")
-        toggle_theme_button("theme_sidebar")
         if st.button("🚪 Sign Out", use_container_width=True):
             st.session_state.logged_in  = False
             st.session_state.username   = ""
             st.session_state.auth_page  = "welcome"
             st.rerun()
 
-
+# ─── Home Page ────────────────────────────────────────────────────────────────
 def home_page(user):
+    fixed_theme_button()
     records = user_history(st.session_state.username)
     name = user.get("full_name", st.session_state.username)
     st.markdown(f"<div class='page-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Your academic performance dashboard.</p>", unsafe_allow_html=True)
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -943,32 +864,32 @@ def home_page(user):
     if records:
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
     else:
-        st.info("🚀 Go to the Prediction page and generate your first score!")
+        st.info("🚀 Prediction page pe jao aur apna pehla score generate karo!")
 
-
+# ─── Prediction Page (ONLY shows score + recs, graphs go to Report) ───────────
 def prediction_page(user):
+    fixed_theme_button()
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Academic details bharo aur AI-based predicted score pao.</p>", unsafe_allow_html=True)
 
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
         with col1:
-            hours      = st.number_input("📖 Hours Studied (per day)",   0, 24, 5, 1)
-            attendance = st.number_input("🏫 Attendance (%)",            0, 100, 75, 1)
-            previous   = st.number_input("📝 Previous Score",            0, 100, 60, 1)
-            sleep      = st.number_input("😴 Sleep Hours",               0, 12, 7, 1)
-            motivation = st.selectbox("💡 Motivation Level",  ["Low","Medium","High"])
-            teacher    = st.selectbox("👨‍🏫 Teacher Quality",  ["Poor","Average","Good"])
-            school_type= st.selectbox("🏢 School Type",       ["Public","Private"])
+            hours      = st.number_input("📖 Hours Studied (per day)", 0, 24, 5, 1)
+            attendance = st.number_input("🏫 Attendance (%)",          0, 100, 75, 1)
+            previous   = st.number_input("📝 Previous Score",          0, 100, 60, 1)
+            sleep      = st.number_input("😴 Sleep Hours",             0, 12, 7, 1)
+            motivation = st.selectbox("💡 Motivation Level", ["Low","Medium","High"])
+            teacher    = st.selectbox("👨‍🏫 Teacher Quality", ["Poor","Average","Good"])
+            school_type= st.selectbox("🏢 School Type",      ["Public","Private"])
         with col2:
-            internet   = st.selectbox("🌐 Internet Access",              ["Yes","No"])
-            income     = st.selectbox("💰 Family Income",                ["Low","Medium","High"])
-            parental   = st.selectbox("👨‍👩‍👦 Parental Involvement",          ["Low","Medium","High"])
-            education  = st.selectbox("🎓 Parent Education",             ["School","College"])
-            peer       = st.selectbox("🤝 Peer Influence",               ["Negative","Neutral","Positive"])
-            resources  = st.selectbox("📚 Learning Resources",           ["Low","Medium","High"])
-            activities = st.selectbox("⚽ Extracurricular Activities",   ["Yes","No"])
-
+            internet   = st.selectbox("🌐 Internet Access",          ["Yes","No"])
+            income     = st.selectbox("💰 Family Income",            ["Low","Medium","High"])
+            parental   = st.selectbox("👨‍👩‍👦 Parental Involvement",      ["Low","Medium","High"])
+            education  = st.selectbox("🎓 Parent Education",         ["School","College"])
+            peer       = st.selectbox("🤝 Peer Influence",           ["Negative","Neutral","Positive"])
+            resources  = st.selectbox("📚 Learning Resources",       ["Low","Medium","High"])
+            activities = st.selectbox("⚽ Extracurricular",          ["Yes","No"])
         submitted = st.form_submit_button("🚀 Predict My Score", use_container_width=True)
 
     if submitted:
@@ -989,64 +910,62 @@ def prediction_page(user):
         st.session_state.last_recs   = recs
         st.session_state.last_pdf    = generate_pdf(st.session_state.username, user, score, data, recs)
 
-        # Show score badge
+        # Score display only
         status = "🌟 Excellent!" if score>=85 else "👍 Good" if score>=70 else "📈 Needs Work"
         st.markdown(f"""
-        <div style='text-align:center;padding:24px 0'>
-          <div class='score-badge'>{score}<span style='font-size:1.2rem'>/100</span></div>
-          <p style='margin-top:10px;font-size:1.1rem;font-weight:700'>{status}</p>
+        <div style='text-align:center;padding:28px 0'>
+          <div class='score-badge'>{score}<span style='font-size:1.1rem'>/100</span></div>
+          <p style='margin-top:12px;font-size:1.05rem;font-weight:700'>{status}</p>
         </div>
         """, unsafe_allow_html=True)
 
-        # 3 Graphs
-        st.markdown("### 📊 Your Performance Analysis")
-        col_g1, col_g2 = st.columns(2)
-        with col_g1:
-            st.plotly_chart(radar_chart(data), use_container_width=True)
-        with col_g2:
-            st.plotly_chart(factor_bar_chart(data), use_container_width=True)
-
-        records = user_history(st.session_state.username)
-        if len(records) > 1:
-            st.plotly_chart(score_trend_chart(records), use_container_width=True)
-
+        # Recommendations only
         if recs:
-            st.markdown("### 💬 Personalized Recommendations")
+            st.markdown("### 💬 Recommendations")
             for r in recs:
                 st.info(r)
 
-        st.session_state.active_page = "Report & Share"
+        st.success("✅ Report & Share page pe jao — graphs aur PDF wahan milenge!")
+        if st.button("📄 Report & Graphs Dekho →"):
+            st.session_state.active_page = "Report & Share"
+            st.rerun()
 
-
+# ─── Report & Share Page (all graphs here) ────────────────────────────────────
 def report_page(user):
+    fixed_theme_button()
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>PDF download karo aur WhatsApp ya email se share karo.</p>", unsafe_allow_html=True)
+
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
-        st.info("Please generate a score from the Prediction page first.")
+        st.info("Pehle Prediction page pe score generate karo.")
         return
-    latest = records[-1] if records else {"score": st.session_state.last_score, "inputs": st.session_state.last_inputs, "recommendations": st.session_state.last_recs}
-    score, inputs, recs = latest["score"], latest["inputs"], latest.get("recommendations",[])
-    pdf = st.session_state.last_pdf or generate_pdf(st.session_state.username, user, score, inputs, recs)
 
-    col1,col2,col3 = st.columns([1,1,1])
+    latest = records[-1] if records else {"score": st.session_state.last_score, "inputs": st.session_state.last_inputs, "recommendations": st.session_state.last_recs}
+    score  = latest["score"]
+    inputs = latest["inputs"]
+    recs   = latest.get("recommendations", [])
+    pdf    = st.session_state.last_pdf or generate_pdf(st.session_state.username, user, score, inputs, recs)
+
+    col1, col2, col3 = st.columns([1,1,1])
     with col2:
         st.markdown(f"<div class='metric-card'><div class='metric-label'>Predicted Score</div><div class='metric-value'>{score}/100</div></div>", unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
-    st.download_button("📥 Download PDF Report", data=pdf, file_name=f"ScoreWise_Report_{st.session_state.username}.pdf", mime="application/pdf", use_container_width=True)
+    st.download_button("📥 Download PDF Report", data=pdf,
+                       file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
+                       mime="application/pdf", use_container_width=True)
 
     share_text = f"{APP_NAME} Report%0APredicted Score: {score}/100%0AHours Studied: {inputs.get('Hours_Studied')}%0AAttendance: {inputs.get('Attendance')}%25"
-    wa_url    = "https://wa.me/?text=" + share_text
-    email_url = "mailto:?subject=" + urllib.parse.quote(f"{APP_NAME} Prediction Report") + "&body=" + share_text
+    wa_url = "https://wa.me/?text=" + share_text
     st.markdown(f"""
     <div style='text-align:center;margin:16px 0'>
       <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
-      <a class='email-btn' href='{email_url}'>✉️ Share via Email</a>
     </div>
     """, unsafe_allow_html=True)
-    st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
+    st.caption("PDF share ke liye pehle download karo, phir WhatsApp me manually attach karo.")
 
-    # 3 Graphs in report
+    # All 3 graphs here
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
     with col_g1:
@@ -1058,15 +977,17 @@ def report_page(user):
 
     if recs:
         st.markdown("### 💬 Recommendations")
-        for r in recs: st.info(r)
+        for r in recs:
+            st.info(r)
 
-
+# ─── History Page ─────────────────────────────────────────────────────────────
 def history_page(user):
+    fixed_theme_button()
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Apni saari predictions ek jagah dekho.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
     if not records:
-        st.info("No prediction history yet.")
+        st.info("Abhi koi prediction history nahi hai.")
         return
     df = pd.DataFrame([{
         "Date": r["date"], "Score": r["score"],
@@ -1077,10 +998,11 @@ def history_page(user):
     st.dataframe(df, use_container_width=True)
     st.plotly_chart(score_trend_chart(records), use_container_width=True)
 
-
+# ─── Profile Page ─────────────────────────────────────────────────────────────
 def profile_page(user):
+    fixed_theme_button()
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Profile details edit karo aur picture update karo.</p>", unsafe_allow_html=True)
 
     users = load_json(USER_DB_FILE, {})
     uname = st.session_state.username
@@ -1098,28 +1020,16 @@ def profile_page(user):
 
     with col2:
         edit = st.session_state.profile_edit_mode
-
         if not edit:
             st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
-            fields = [
-                ("Username",    uname),
-                ("Full Name",   user.get("full_name","N/A")),
-                ("Email",       user.get("email","N/A")),
-                ("Role",        user.get("role","N/A").title()),
-            ]
+            fields = [("Username", uname), ("Full Name", user.get("full_name","N/A")),
+                      ("Email", user.get("email","N/A")), ("Role", user.get("role","N/A").title())]
             if user.get("role") == "student":
-                fields += [
-                    ("Date of Birth", user.get("dob","N/A")),
-                    ("Age",           str(user.get("age","N/A"))),
-                    ("Class/Grade",   user.get("grade","N/A")),
-                    ("School/College",user.get("school","N/A")),
-                ]
+                fields += [("Date of Birth", user.get("dob","N/A")), ("Age", str(user.get("age","N/A"))),
+                           ("Class/Grade", user.get("grade","N/A")), ("School/College", user.get("school","N/A"))]
             else:
-                fields += [
-                    ("Child Name",    user.get("child_name","N/A")),
-                    ("Child Grade",   user.get("child_grade","N/A")),
-                    ("Relation",      user.get("relation","N/A")),
-                ]
+                fields += [("Child Name", user.get("child_name","N/A")), ("Child Grade", user.get("child_grade","N/A")),
+                           ("Relation", user.get("relation","N/A"))]
             for label, val in fields:
                 st.markdown(f"<div class='profile-field'><span class='pf-label'>{label}</span><span class='pf-value'>{val}</span></div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
@@ -1127,20 +1037,15 @@ def profile_page(user):
             if st.button("✏️ Edit Profile", use_container_width=True):
                 st.session_state.profile_edit_mode = True
                 st.rerun()
-
         else:
-            # EDIT MODE
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name",  value=user.get("full_name",""))
                 new_email = st.text_input("Email",      value=user.get("email",""))
-
                 if user.get("role") == "student":
-                    dob_val = user.get("dob","2000-01-01")
-                    try:
-                        dob_date = datetime.strptime(dob_val, "%Y-%m-%d").date()
-                    except Exception:
-                        dob_date = date(2000,1,1)
+                    dob_val  = user.get("dob","2000-01-01")
+                    try:    dob_date = datetime.strptime(dob_val, "%Y-%m-%d").date()
+                    except: dob_date = date(2000,1,1)
                     new_dob    = st.date_input("Date of Birth", value=dob_date, min_value=date(1990,1,1), max_value=date.today())
                     grade_opts = ["Class 8","Class 9","Class 10","Class 11","Class 12","College"]
                     cur_grade  = user.get("grade","Class 10")
@@ -1157,22 +1062,16 @@ def profile_page(user):
                     cur_rel    = user.get("relation","Father")
                     r_idx      = rel_opts.index(cur_rel) if cur_rel in rel_opts else 0
                     new_rel    = st.selectbox("Relation", rel_opts, index=r_idx)
-
                 st.markdown("##### 🔒 Change Password (optional)")
                 old_pass = st.text_input("Current Password", type="password")
                 new_pass = st.text_input("New Password",     type="password")
                 cnf_pass = st.text_input("Confirm New Password", type="password")
-
                 col_s1, col_s2 = st.columns(2)
-                with col_s1:
-                    save_clicked   = st.form_submit_button("💾 Save Changes", use_container_width=True)
-                with col_s2:
-                    cancel_clicked = st.form_submit_button("❌ Cancel",       use_container_width=True)
+                with col_s1: save_clicked   = st.form_submit_button("💾 Save Changes", use_container_width=True)
+                with col_s2: cancel_clicked = st.form_submit_button("❌ Cancel",        use_container_width=True)
 
             if cancel_clicked:
-                st.session_state.profile_edit_mode = False
-                st.rerun()
-
+                st.session_state.profile_edit_mode = False; st.rerun()
             if save_clicked:
                 updated = users[uname].copy()
                 updated["full_name"] = new_name
@@ -1186,41 +1085,34 @@ def profile_page(user):
                     updated["child_name"]  = new_child
                     updated["child_grade"] = new_cgrade
                     updated["relation"]    = new_rel
-
                 if old_pass or new_pass or cnf_pass:
                     if users[uname]["password"] != hash_password(old_pass):
-                        st.error("Current password is incorrect.")
-                        st.stop()
+                        st.error("Current password is incorrect."); st.stop()
                     elif new_pass != cnf_pass:
-                        st.error("New passwords do not match.")
-                        st.stop()
+                        st.error("New passwords do not match."); st.stop()
                     elif len(new_pass) < 6:
-                        st.error("Password must be at least 6 characters.")
-                        st.stop()
+                        st.error("Password must be at least 6 characters."); st.stop()
                     else:
                         updated["password"] = hash_password(new_pass)
-
                 users[uname] = updated
                 save_json(USER_DB_FILE, users)
                 st.session_state.profile_edit_mode = False
                 st.success("✅ Profile updated successfully!")
                 st.rerun()
 
-
+# ─── Main App ─────────────────────────────────────────────────────────────────
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
     page = st.session_state.active_page
-    if   page == "Home":          home_page(user)
-    elif page == "Prediction":    prediction_page(user)
-    elif page == "Report & Share":report_page(user)
-    elif page == "History":       history_page(user)
-    elif page == "Profile":       profile_page(user)
+    if   page == "Home":           home_page(user)
+    elif page == "Prediction":     prediction_page(user)
+    elif page == "Report & Share": report_page(user)
+    elif page == "History":        history_page(user)
+    elif page == "Profile":        profile_page(user)
 
-# =====================================================
-# ROUTER
-# =====================================================
+# ─── Router ───────────────────────────────────────────────────────────────────
 if st.session_state.logged_in:
     main_app()
 elif st.session_state.auth_page == "welcome":
