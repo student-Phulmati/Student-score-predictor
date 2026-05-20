@@ -160,352 +160,376 @@ init_state()
 # =====================================================
 def apply_css():
     dark = st.session_state.theme == "dark"
+    is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
+
     if dark:
-        bg_color       = "#07111f"
-        card_bg        = "rgba(24,78,119,0.75)"
-        text_primary   = "#d9ed92"
-        text_secondary = "#b5e48c"
-        text_muted     = "#99d98c"
-        border_color   = "rgba(82,182,154,0.35)"
-        accent1        = "#34a0a4"
-        accent2        = "#168aad"
-        accent3        = "#1a759f"
-        input_bg       = "rgba(7,17,31,0.80)"
-        input_text     = "#d9ed92"
-        metric_val     = "#52b69a"
-        hero_box_bg    = "rgba(7,17,31,0.72)"
-        hero_text      = "#d9ed92"
-        tagline_color  = "#b5e48c"
-        feature_bg     = "rgba(82,182,154,0.15)"
-        feature_border = "rgba(82,182,154,0.35)"
-        feature_text   = "#99d98c"
-        sidebar_bg     = "rgba(24,78,119,0.92)"
-        page_title_clr = "#52b69a"
-        btn_grad       = "linear-gradient(135deg,#1e6091,#34a0a4)"
-        btn_hover      = "linear-gradient(135deg,#168aad,#52b69a)"
-        tab_active     = "#34a0a4"
-        bg_image_url   = "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1800&q=80"
-        bg_overlay     = "rgba(7,17,31,0.82)"
+        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 24%,#0077b6 52%,#0096c7 76%,#00b4d8 100%)"
+        panel_bg      = "rgba(3,4,94,0.72)"
+        card_bg       = "rgba(255,255,255,0.10)"
+        soft_card_bg  = "rgba(255,255,255,0.08)"
+        text_primary  = "#f7fbff"
+        text_secondary= "#caf0f8"
+        text_muted    = "#ade8f4"
+        border_color  = "rgba(202,240,248,0.22)"
+        input_bg      = "rgba(255,255,255,0.12)"
+        input_text    = "#ffffff"
+        accent1       = "#90e0ef"
+        accent2       = "#48cae4"
+        accent3       = "#00b4d8"
+        sidebar_bg    = "rgba(3,4,94,0.88)"
+        shadow        = "0 22px 70px rgba(0,0,0,0.32)"
+        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,0.66),rgba(0,119,182,0.26),rgba(0,0,0,0.12))"
     else:
-        bg_color       = "#f0faf5"
-        card_bg        = "rgba(255,255,255,0.92)"
-        text_primary   = "#184e77"
-        text_secondary = "#1e6091"
-        text_muted     = "#1a759f"
-        border_color   = "rgba(26,117,159,0.28)"
-        accent1        = "#168aad"
-        accent2        = "#34a0a4"
-        accent3        = "#52b69a"
-        input_bg       = "rgba(255,255,255,0.95)"
-        input_text     = "#184e77"
-        metric_val     = "#1e6091"
-        hero_box_bg    = "rgba(255,255,255,0.88)"
-        hero_text      = "#184e77"
-        tagline_color  = "#1e6091"
-        feature_bg     = "rgba(82,182,154,0.12)"
-        feature_border = "rgba(52,160,164,0.40)"
-        feature_text   = "#1e6091"
-        sidebar_bg     = "rgba(240,250,245,0.96)"
-        page_title_clr = "#1e6091"
-        btn_grad       = "linear-gradient(135deg,#34a0a4,#52b69a)"
-        btn_hover      = "linear-gradient(135deg,#168aad,#34a0a4)"
-        tab_active     = "#168aad"
-        bg_image_url   = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1800&q=80"
-        bg_overlay     = "rgba(217,237,146,0.22)"
+        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 22%,#90e0ef 48%,#48cae4 72%,#00b4d8 100%)"
+        panel_bg      = "rgba(255,255,255,0.74)"
+        card_bg       = "rgba(255,255,255,0.60)"
+        soft_card_bg  = "rgba(255,255,255,0.46)"
+        text_primary  = "#03045e"
+        text_secondary= "#023e8a"
+        text_muted    = "#0077b6"
+        border_color  = "rgba(2,62,138,0.18)"
+        input_bg      = "rgba(255,255,255,0.86)"
+        input_text    = "#03045e"
+        accent1       = "#0077b6"
+        accent2       = "#0096c7"
+        accent3       = "#00b4d8"
+        sidebar_bg    = "rgba(255,255,255,0.78)"
+        shadow        = "0 20px 60px rgba(2,62,138,0.22)"
+        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,0.48),rgba(202,240,248,0.20),rgba(0,180,216,0.10))"
+
+    welcome_img = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
+    if is_welcome:
+        app_background = f"{welcome_overlay}, url('{welcome_img}')"
+        background_extra = "background-size: cover; background-position: center; background-attachment: fixed;"
+    else:
+        app_background = app_gradient
+        background_extra = "background-size: 220% 220%; animation: shineBg 12s ease infinite;"
 
     st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    * {{ font-family: Inter, sans-serif !important; }}
 
-    /* ── APP BACKGROUND ── */
+    * {{
+        font-family: Inter, sans-serif !important;
+        box-sizing: border-box;
+    }}
+
     .stApp {{
-        background:
-            linear-gradient({bg_overlay}, {bg_overlay}),
-            url('{bg_image_url}');
-        background-size: cover;
-        background-attachment: fixed;
-        background-position: center;
+        background: {app_background};
+        {background_extra}
         color: {text_primary};
     }}
 
-    .main .block-container {{ padding-top: 1.4rem; max-width: 1200px; }}
+    @keyframes shineBg {{
+        0% {{ background-position: 0% 50%; }}
+        50% {{ background-position: 100% 50%; }}
+        100% {{ background-position: 0% 50%; }}
+    }}
 
-    /* ── SIDEBAR ── */
+    .main .block-container {{
+        padding-top: 1.4rem;
+        max-width: 1180px;
+    }}
+
+    /* Hide unnecessary Streamlit decoration boxes */
+    [data-testid="stDecoration"],
+    #MainMenu,
+    footer,
+    header {{
+        visibility: hidden;
+        height: 0;
+    }}
+
+    /* Sidebar */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
-        backdrop-filter: blur(22px);
+        backdrop-filter: blur(24px);
     }}
-    [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
-    [data-testid="stSidebar"] .stRadio label {{ color: {text_primary} !important; font-weight: 600; }}
+    [data-testid="stSidebar"] * {{
+        color: {text_primary} !important;
+    }}
 
-    /* ── GLASS CARD ── */
-    .glass {{
+    /* Clean professional panels */
+    .glass,
+    .metric-card,
+    .profile-info-card,
+    .score-badge {{
         background: {card_bg};
         border: 1px solid {border_color};
-        border-radius: 28px;
-        padding: 32px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.18);
-        backdrop-filter: blur(18px);
+        box-shadow: {shadow};
+        backdrop-filter: blur(22px);
     }}
 
-    /* ── HERO ── */
+    .glass {{
+        border-radius: 26px;
+        padding: 28px;
+    }}
+
+    /* Welcome page: photo background only, no heavy box */
     .hero {{
-        min-height: 78vh;
+        min-height: 82vh;
         display: flex;
         align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 20px;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 5vh 3vw;
     }}
     .hero-box {{
-        max-width: 820px;
-        background: {hero_box_bg};
-        border: 1.5px solid {border_color};
-        border-radius: 36px;
-        padding: 60px 40px;
-        box-shadow: 0 32px 100px rgba(0,0,0,0.30);
-        backdrop-filter: blur(20px);
+        max-width: 760px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 20px 8px;
         animation: fadeInUp 0.8s ease;
     }}
     @keyframes fadeInUp {{
-        from {{ opacity: 0; transform: translateY(40px); }}
+        from {{ opacity: 0; transform: translateY(34px); }}
         to   {{ opacity: 1; transform: translateY(0); }}
     }}
     .app-logo {{
-        font-size: 5rem;
-        margin-bottom: 8px;
+        font-size: 4.2rem;
         display: block;
-        animation: pulse 2.5s infinite;
-    }}
-    @keyframes pulse {{
-        0%,100% {{ transform: scale(1); }}
-        50%      {{ transform: scale(1.06); }}
+        margin-bottom: 8px;
+        filter: drop-shadow(0 8px 22px rgba(0,0,0,0.35));
     }}
     .app-title {{
-        font-size: 4.0rem;
+        font-size: clamp(3rem, 6vw, 5.4rem);
         font-weight: 900;
-        line-height: 1.05;
-        color: {hero_text};
-        margin: 0 0 8px 0;
-        text-shadow: 0 4px 24px rgba(0,0,0,0.28);
-        letter-spacing: -1px;
+        line-height: 0.98;
+        margin: 0 0 12px 0;
+        color: white;
+        text-shadow: 0 6px 28px rgba(0,0,0,0.42);
+        letter-spacing: -2px;
     }}
     .tagline {{
-        font-size: 1.15rem;
-        color: {tagline_color};
+        font-size: 1.22rem;
+        color: #f7fbff;
         margin: 0 0 28px 0;
-        font-weight: 500;
+        font-weight: 600;
+        max-width: 560px;
+        text-shadow: 0 3px 16px rgba(0,0,0,0.42);
     }}
     .feature-mini {{
         display: inline-block;
-        margin: 5px 6px;
-        padding: 9px 18px;
+        margin: 6px 8px 6px 0;
+        padding: 10px 18px;
         border-radius: 999px;
-        background: {feature_bg};
-        color: {feature_text};
-        border: 1px solid {feature_border};
-        font-weight: 700;
+        background: rgba(255,255,255,0.20);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.32);
+        font-weight: 800;
         font-size: 0.86rem;
-        letter-spacing: 0.3px;
+        backdrop-filter: blur(10px);
     }}
-
-    /* ── STATS ROW ── */
     .stats-row {{
         display: flex;
-        justify-content: center;
-        gap: 32px;
-        margin-top: 32px;
+        gap: 16px;
+        margin-top: 28px;
         flex-wrap: wrap;
     }}
     .stat-item {{
+        min-width: 112px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.28);
+        backdrop-filter: blur(12px);
         text-align: center;
     }}
     .stat-num {{
-        font-size: 2rem;
+        font-size: 1.7rem;
         font-weight: 900;
-        color: {accent1};
+        color: white;
     }}
     .stat-label {{
-        font-size: 0.78rem;
-        color: {tagline_color};
-        font-weight: 600;
+        font-size: 0.72rem;
+        color: #e9fbff;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
     }}
 
-    /* ── PAGE TITLE ── */
     .page-title {{
-        font-size: 2.1rem;
+        font-size: 2.25rem;
         font-weight: 900;
         margin-bottom: 4px;
-        color: {page_title_clr};
-        letter-spacing: -0.5px;
+        color: {text_primary};
+        letter-spacing: -0.8px;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.12);
     }}
-    .subtext {{ color: {text_muted}; font-size: 0.95rem; margin-bottom: 12px; }}
+    .subtext {{
+        color: {text_secondary};
+        font-size: 0.98rem;
+        margin-bottom: 14px;
+        font-weight: 600;
+    }}
 
-    /* ── METRIC CARDS ── */
     .metric-card {{
-        background: {card_bg};
-        border: 1px solid {border_color};
         border-radius: 22px;
         padding: 22px 14px;
         text-align: center;
-        backdrop-filter: blur(14px);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.10);
-        transition: transform 0.2s;
+        transition: 0.22s ease;
     }}
-    .metric-card:hover {{ transform: translateY(-4px); }}
+    .metric-card:hover {{
+        transform: translateY(-4px);
+        background: {soft_card_bg};
+    }}
     .metric-value {{
-        font-size: 2.2rem;
+        font-size: 2.25rem;
         font-weight: 900;
-        color: {metric_val};
+        color: {accent1};
     }}
     .metric-label {{
-        font-size: 0.76rem;
+        font-size: 0.78rem;
         color: {text_muted};
         text-transform: uppercase;
         letter-spacing: 1px;
         margin-top: 4px;
+        font-weight: 800;
     }}
 
-    /* ── AVATAR ── */
     .avatar-circle {{
-        width: 90px; height: 90px;
+        width: 92px;
+        height: 92px;
         border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
         margin: auto;
-        border: 3px solid {accent1};
-        background: linear-gradient(135deg,{accent3},{accent1});
+        border: 3px solid {accent2};
+        background: linear-gradient(135deg,{accent1},{accent3});
         font-size: 2.2rem;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.20);
+        box-shadow: 0 12px 34px rgba(0,0,0,0.22);
     }}
-    .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; }}
+    .avatar-circle img {{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }}
 
-    /* ── BUTTONS ── */
     .stButton > button,
-    [data-testid="stDownloadButton"] button {{
+    [data-testid="stDownloadButton"] button,
+    .stFormSubmitButton > button {{
         border-radius: 999px !important;
         border: 0 !important;
-        font-weight: 800 !important;
+        font-weight: 900 !important;
         cursor: pointer !important;
-        padding: 0.60rem 1.4rem !important;
-        background: {btn_grad} !important;
+        padding: 0.66rem 1.5rem !important;
+        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8) !important;
         color: white !important;
-        box-shadow: 0 8px 22px rgba(52,160,164,0.25) !important;
-        font-size: 0.92rem !important;
-        transition: all 0.22s !important;
+        box-shadow: 0 12px 26px rgba(0,119,182,0.34) !important;
+        transition: all 0.22s ease !important;
         letter-spacing: 0.2px !important;
     }}
     .stButton > button:hover,
-    [data-testid="stDownloadButton"] button:hover {{
-        background: {btn_hover} !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 14px 32px rgba(52,160,164,0.38) !important;
+    [data-testid="stDownloadButton"] button:hover,
+    .stFormSubmitButton > button:hover {{
+        transform: translateY(-2px) scale(1.01) !important;
+        box-shadow: 0 18px 38px rgba(0,180,216,0.42) !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8,#90e0ef) !important;
+        color: white !important;
     }}
 
-    /* ── LOGIN BUTTON CENTER (smaller) ── */
-    .login-btn-wrap {{
-        display: flex;
-        justify-content: center;
-        margin-top: 8px;
-    }}
-    .login-btn-wrap .stButton > button {{
-        padding: 0.48rem 2.2rem !important;
-        font-size: 0.88rem !important;
-        min-width: 140px;
-        max-width: 180px;
-    }}
-
-    /* ── INPUTS ── */
     input, textarea, [data-baseweb="select"] > div {{
-        border-radius: 14px !important;
+        border-radius: 15px !important;
     }}
-    .stTextInput input, .stNumberInput input, .stDateInput input, .stPasswordInput input {{
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stPasswordInput input,
+    textarea {{
         background: {input_bg} !important;
         color: {input_text} !important;
         border: 1px solid {border_color} !important;
+        font-weight: 650 !important;
     }}
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
         border: 1px solid {border_color} !important;
     }}
+    label, p, span, div {{
+        color: {text_primary};
+    }}
 
-    /* ── TABS ── */
     [data-baseweb="tab-list"] {{
         background: transparent !important;
-        border-bottom: 2px solid {border_color} !important;
+        border-bottom: 1px solid {border_color} !important;
     }}
     [data-baseweb="tab"] {{
         color: {text_muted} !important;
-        font-weight: 700 !important;
-        font-size: 0.96rem !important;
+        font-weight: 800 !important;
     }}
     [aria-selected="true"][data-baseweb="tab"] {{
-        color: {tab_active} !important;
-        border-bottom: 3px solid {tab_active} !important;
+        color: {accent1} !important;
+        border-bottom: 3px solid {accent1} !important;
     }}
 
-    /* ── SHARE BUTTONS ── */
+    .whatsapp-btn,
+    .email-btn {{
+        display: inline-block;
+        border-radius: 999px;
+        padding: 11px 22px;
+        color: white !important;
+        text-decoration: none;
+        font-weight: 900;
+        margin: 6px 4px;
+        font-size: 0.92rem;
+        box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }}
     .whatsapp-btn {{
-        display: inline-block; border-radius: 999px;
-        padding: 10px 20px;
         background: linear-gradient(135deg,#25D366,#128C7E);
-        color: white !important; text-decoration: none;
-        font-weight: 800; margin: 6px 4px;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 14px rgba(37,211,102,0.30);
     }}
     .email-btn {{
-        display: inline-block; border-radius: 999px;
-        padding: 10px 20px;
-        background: linear-gradient(135deg,{accent3},{accent1});
-        color: white !important; text-decoration: none;
-        font-weight: 800; margin: 6px 4px;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 14px rgba(26,117,159,0.30);
+        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
     }}
 
-    /* ── PROFILE CARD ── */
     .profile-info-card {{
-        background: {card_bg};
-        border: 1px solid {border_color};
         border-radius: 22px;
         padding: 24px;
-        backdrop-filter: blur(14px);
     }}
     .profile-field {{
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
+        gap: 14px;
+        padding: 11px 0;
         border-bottom: 1px solid {border_color};
         font-size: 0.95rem;
     }}
-    .profile-field:last-child {{ border-bottom: none; }}
-    .pf-label {{ color: {text_muted}; font-weight: 600; }}
-    .pf-value {{ color: {text_primary}; font-weight: 700; }}
+    .profile-field:last-child {{
+        border-bottom: none;
+    }}
+    .pf-label {{
+        color: {text_muted};
+        font-weight: 800;
+    }}
+    .pf-value {{
+        color: {text_primary};
+        font-weight: 900;
+    }}
 
-    /* ── SCORE BADGE ── */
     .score-badge {{
         display: inline-block;
         font-size: 3.5rem;
         font-weight: 900;
-        color: {metric_val};
-        padding: 18px 32px;
-        border-radius: 22px;
-        background: {card_bg};
-        border: 2px solid {border_color};
+        color: {accent1};
+        padding: 18px 34px;
+        border-radius: 24px;
         text-align: center;
-        box-shadow: 0 8px 28px rgba(0,0,0,0.12);
     }}
 
-    hr {{ border-color: {border_color} !important; }}
-    label, p, span {{ color: {text_primary}; }}
-    .stDataFrame {{ border-radius: 18px; overflow: hidden; }}
-    [data-testid="stSidebar"] hr {{ border-color: {border_color} !important; }}
+    hr {{
+        border-color: {border_color} !important;
+    }}
+    .stAlert {{
+        border-radius: 18px !important;
+    }}
+    .stDataFrame {{
+        border-radius: 18px;
+        overflow: hidden;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -540,13 +564,13 @@ def predict_score(data):
 
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:    recs.append("📚 Study hours ko 6–8 hours daily tak improve karein.")
-    if d["Attendance"] < 80:       recs.append("🏫 Attendance ko 80%+ rakhna score ke liye important hai.")
-    if d["Sleep_Hours"] < 7:       recs.append("😴 Daily 7–8 hours sleep rakhein, concentration improve hota hai.")
-    if d["Motivation_Level"] == "Low": recs.append("🎯 Daily small goals set karein aur progress track karein.")
-    if d["Internet_Access"] == "No":   recs.append("📖 Offline notes, library aur teacher support ka use karein.")
-    if d["Learning_Resources"] == "Low": recs.append("💡 Free resources jaise YouTube lectures aur PDFs use karein.")
-    if d["Peer_Influence"] == "Negative": recs.append("🤝 Positive peer group banana performance boost karta hai.")
+    if d["Hours_Studied"] < 6:    recs.append("📚 Improve daily study hours to 6–8 hours.")
+    if d["Attendance"] < 80:       recs.append("🏫 Keep attendance above 80% for stronger performance.")
+    if d["Sleep_Hours"] < 7:       recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
+    if d["Motivation_Level"] == "Low": recs.append("🎯 Set small daily goals and track your progress.")
+    if d["Internet_Access"] == "No":   recs.append("📖 Use offline notes, library support, and teacher guidance.")
+    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
+    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
 # =====================================================
@@ -863,7 +887,15 @@ def auth_page():
                             data.update({"child_name": child_name, "child_grade": grade, "relation": relation})
                         users[username] = data
                         save_json(USER_DB_FILE, users)
-                        st.success("Account created! Now login.")
+
+                        # Auto-login immediately after successful signup
+                        st.session_state.logged_in = True
+                        st.session_state.username = username
+                        st.session_state.role = role
+                        st.session_state.active_page = "Home"
+                        st.session_state.auth_page = "welcome"
+                        st.success("Account created successfully! Opening your dashboard...")
+                        st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
 
@@ -911,12 +943,12 @@ def home_page(user):
     if records:
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
     else:
-        st.info("🚀 Prediction page se apna first score generate karein!")
+        st.info("🚀 Go to the Prediction page and generate your first score!")
 
 
 def prediction_page(user):
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Apni academic details bharo aur AI se predicted score paao.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
 
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
@@ -988,10 +1020,10 @@ def prediction_page(user):
 
 def report_page(user):
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>PDF report download karein aur WhatsApp / email pe share karein.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
-        st.info("Pehle Prediction page se score generate karein.")
+        st.info("Please generate a score from the Prediction page first.")
         return
     latest = records[-1] if records else {"score": st.session_state.last_score, "inputs": st.session_state.last_inputs, "recommendations": st.session_state.last_recs}
     score, inputs, recs = latest["score"], latest["inputs"], latest.get("recommendations",[])
@@ -1031,7 +1063,7 @@ def report_page(user):
 
 def history_page(user):
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Apni saari predictions ek jagah.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
     if not records:
         st.info("No prediction history yet.")
@@ -1048,7 +1080,7 @@ def history_page(user):
 
 def profile_page(user):
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Profile details edit karein aur profile picture update karein.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
 
     users = load_json(USER_DB_FILE, {})
     uname = st.session_state.username
