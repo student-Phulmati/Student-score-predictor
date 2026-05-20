@@ -163,50 +163,47 @@ def apply_css():
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
 
     if dark:
-        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 28%,#0077b6 58%,#00b4d8 100%)"
-        text_primary  = "#ffffff"
-        text_secondary= "#d9f7ff"
-        text_muted    = "#caf0f8"
+        app_gradient = "linear-gradient(135deg,#03045e 0%,#023e8a 24%,#0077b6 52%,#0096c7 76%,#00b4d8 100%)"
         panel_bg      = "rgba(3,4,94,0.72)"
-        card_bg       = "rgba(3,7,30,0.70)"
-        soft_card_bg  = "rgba(255,255,255,0.10)"
-        border_color  = "rgba(144,224,239,0.28)"
-        input_bg      = "rgba(255,255,255,0.13)"
+        card_bg       = "rgba(255,255,255,0.10)"
+        soft_card_bg  = "rgba(255,255,255,0.08)"
+        text_primary  = "#f7fbff"
+        text_secondary= "#caf0f8"
+        text_muted    = "#ade8f4"
+        border_color  = "rgba(202,240,248,0.22)"
+        input_bg      = "rgba(255,255,255,0.12)"
         input_text    = "#ffffff"
         accent1       = "#90e0ef"
         accent2       = "#48cae4"
         accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(3,4,94,0.92)"
-        shadow        = "0 24px 70px rgba(0,0,0,0.42)"
-        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,.82),rgba(0,0,0,.56),rgba(0,0,0,.45))"
+        sidebar_bg    = "rgba(3,4,94,0.88)"
+        shadow        = "0 22px 70px rgba(0,0,0,0.32)"
+        welcome_overlay = "linear-gradient(90deg,rgba(3,4,94,0.66),rgba(0,119,182,0.26),rgba(0,0,0,0.12))"
     else:
-        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 24%,#90e0ef 55%,#48cae4 100%)"
+        app_gradient = "linear-gradient(135deg,#caf0f8 0%,#ade8f4 22%,#90e0ef 48%,#48cae4 72%,#00b4d8 100%)"
+        panel_bg      = "rgba(255,255,255,0.74)"
+        card_bg       = "rgba(255,255,255,0.60)"
+        soft_card_bg  = "rgba(255,255,255,0.46)"
         text_primary  = "#03045e"
         text_secondary= "#023e8a"
         text_muted    = "#0077b6"
-        panel_bg      = "rgba(255,255,255,0.78)"
-        card_bg       = "rgba(255,255,255,0.78)"
-        soft_card_bg  = "rgba(255,255,255,0.92)"
-        border_color  = "rgba(2,62,138,0.25)"
-        input_bg      = "rgba(255,255,255,0.94)"
+        border_color  = "rgba(2,62,138,0.18)"
+        input_bg      = "rgba(255,255,255,0.86)"
         input_text    = "#03045e"
         accent1       = "#0077b6"
         accent2       = "#0096c7"
         accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(255,255,255,0.92)"
-        shadow        = "0 22px 65px rgba(2,62,138,0.20)"
-        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,.86),rgba(202,240,248,.58),rgba(255,255,255,.38))"
+        sidebar_bg    = "rgba(255,255,255,0.78)"
+        shadow        = "0 20px 60px rgba(2,62,138,0.22)"
+        welcome_overlay = "linear-gradient(90deg,rgba(255,255,255,0.48),rgba(202,240,248,0.20),rgba(0,180,216,0.10))"
 
     welcome_img = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
-
     if is_welcome:
         app_background = f"{welcome_overlay}, url('{welcome_img}')"
         background_extra = "background-size: cover; background-position: center; background-attachment: fixed;"
-        container_width = "1500px"
     else:
         app_background = app_gradient
         background_extra = "background-size: 220% 220%; animation: shineBg 12s ease infinite;"
-        container_width = "1180px"
 
     st.markdown(f"""
     <style>
@@ -230,39 +227,30 @@ def apply_css():
     }}
 
     .main .block-container {{
-        padding-top: 1.2rem;
-        max-width: {container_width};
+        padding-top: 1.4rem;
+        max-width: 1180px;
     }}
 
-    /* Keep Streamlit header visible enough so sidebar arrow can come back after collapse */
+    /* Hide unnecessary Streamlit decoration boxes */
+    [data-testid="stDecoration"],
     #MainMenu,
     footer,
-    [data-testid="stDecoration"] {{
+    header {{
         visibility: hidden;
         height: 0;
     }}
 
-    header {{
-        background: transparent !important;
-    }}
-
-    [data-testid="collapsedControl"] {{
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        z-index: 999999 !important;
-    }}
-
+    /* Sidebar */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
-        backdrop-filter: blur(22px);
+        backdrop-filter: blur(24px);
     }}
-
     [data-testid="stSidebar"] * {{
         color: {text_primary} !important;
     }}
 
+    /* Clean professional panels */
     .glass,
     .metric-card,
     .profile-info-card,
@@ -278,249 +266,88 @@ def apply_css():
         padding: 28px;
     }}
 
-    /* New welcome page */
-    .welcome-shell {{
-        min-height: 88vh;
-        padding: 1.2rem 1rem 1rem;
-        position: relative;
-    }}
-
-    .welcome-top {{
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }}
-
-    .brand-row {{
+    /* Welcome page: photo background only, no heavy box */
+    .hero {{
+        min-height: 82vh;
         display: flex;
         align-items: center;
-        gap: 1.2rem;
-    }}
-
-    .brand-logo {{
-        font-size: 4.4rem;
-        line-height: 1;
-        filter: drop-shadow(0 0 18px rgba(0,180,216,.65));
-    }}
-
-    .brand-title {{
-        margin: 0;
-        font-size: clamp(2.8rem, 5vw, 5.4rem);
-        line-height: .95;
-        font-weight: 900;
-        letter-spacing: -2px;
-        color: {text_primary};
-        text-shadow: 0 6px 30px rgba(0,0,0,.35);
-    }}
-
-    .brand-title span {{
-        background: linear-gradient(135deg,#00b4d8,#90e0ef);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }}
-
-    .brand-subtitle {{
-        margin-top: .55rem;
-        color: {text_secondary};
-        font-size: 1.15rem;
-        font-weight: 800;
-        text-shadow: 0 4px 20px rgba(0,0,0,.25);
-    }}
-
-    .mode-pill {{
-        padding: .75rem 1.1rem;
-        border: 1px solid {border_color};
-        border-radius: 999px;
-        background: {card_bg};
-        color: {text_primary};
-        font-weight: 900;
-        box-shadow: {shadow};
-        backdrop-filter: blur(18px);
-        white-space: nowrap;
-    }}
-
-    .feature-grid {{
-        display: grid;
-        grid-template-columns: repeat(3, minmax(250px, 1fr));
-        gap: 2.1rem;
-        margin: 2rem auto 1.8rem;
-        max-width: 1280px;
-    }}
-
-    .feature-card {{
-        min-height: 330px;
-        padding: 2rem 1.7rem 1.7rem;
-        border-radius: 24px;
-        background: {card_bg};
-        border: 2px solid var(--card-border);
-        box-shadow: 0 0 35px var(--card-glow);
-        backdrop-filter: blur(20px);
-        color: {text_primary};
-        text-align: center;
-        transition: .25s ease;
-    }}
-
-    .feature-card:hover {{
-        transform: translateY(-8px);
-        box-shadow: 0 0 52px var(--card-glow);
-    }}
-
-    .feature-icon {{
-        width: 92px;
-        height: 92px;
-        border-radius: 50%;
-        margin: 0 auto 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
-        background: rgba(255,255,255,.12);
-        border: 1px solid var(--card-border);
-        box-shadow: inset 0 0 25px rgba(255,255,255,.08);
-    }}
-
-    .feature-card h3 {{
-        margin: .5rem 0 .55rem;
-        color: {text_primary};
-        font-size: 1.55rem;
-        font-weight: 900;
-    }}
-
-    .mini-line {{
-        width: 60px;
-        height: 4px;
-        border-radius: 999px;
-        margin: 0 auto 1.15rem;
-        background: var(--card-border);
-    }}
-
-    .feature-card ul {{
-        margin: 0 auto 1.5rem;
-        padding-left: 1.2rem;
-        max-width: 245px;
+        justify-content: flex-start;
         text-align: left;
-        color: {text_primary};
-        font-weight: 700;
-        line-height: 1.9;
+        padding: 5vh 3vw;
     }}
-
-    .feature-card li::marker {{
-        color: var(--card-border);
+    .hero-box {{
+        max-width: 760px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 20px 8px;
+        animation: fadeInUp 0.8s ease;
     }}
-
-    .fake-card-btn {{
+    @keyframes fadeInUp {{
+        from {{ opacity: 0; transform: translateY(34px); }}
+        to   {{ opacity: 1; transform: translateY(0); }}
+    }}
+    .app-logo {{
+        font-size: 4.2rem;
         display: block;
-        padding: .82rem 1rem;
-        border-radius: 12px;
-        background: var(--btn-bg);
-        color: white !important;
+        margin-bottom: 8px;
+        filter: drop-shadow(0 8px 22px rgba(0,0,0,0.35));
+    }}
+    .app-title {{
+        font-size: clamp(3rem, 6vw, 5.4rem);
         font-weight: 900;
-        text-decoration: none;
-        box-shadow: 0 12px 25px rgba(0,0,0,.25);
+        line-height: 0.98;
+        margin: 0 0 12px 0;
+        color: white;
+        text-shadow: 0 6px 28px rgba(0,0,0,0.42);
+        letter-spacing: -2px;
     }}
-
-    .used-title {{
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        justify-content: center;
-        margin: 2rem auto 1rem;
-        color: {text_primary};
-        font-size: 1.5rem;
-        font-weight: 900;
+    .tagline {{
+        font-size: 1.22rem;
+        color: #f7fbff;
+        margin: 0 0 28px 0;
+        font-weight: 600;
+        max-width: 560px;
+        text-shadow: 0 3px 16px rgba(0,0,0,0.42);
     }}
-
-    .used-title::before,
-    .used-title::after {{
-        content: "";
-        width: 220px;
-        height: 1px;
-        background: {border_color};
-    }}
-
-    .used-row {{
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: .75rem;
-        max-width: 1160px;
-        margin: 0 auto;
-        color: {text_primary};
-        text-align: center;
-    }}
-
-    .used-box {{
-        padding: 1rem .5rem;
-        border-right: 1px solid {border_color};
-        font-weight: 900;
-    }}
-
-    .used-box:last-child {{
-        border-right: 0;
-    }}
-
-    .used-icon {{
-        font-size: 2.1rem;
-        margin-bottom: .25rem;
-    }}
-
-    .used-box small {{
-        color: {text_secondary};
-        font-weight: 700;
-    }}
-
-    .stat-panel {{
-        max-width: 1240px;
-        margin: 1.7rem auto 0;
-        padding: 1rem 1.4rem;
-        border-radius: 18px;
-        background: {card_bg};
-        border: 1px solid {border_color};
-        box-shadow: {shadow};
-        backdrop-filter: blur(20px);
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-    }}
-
-    .stat-box {{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: .9rem;
-        color: {text_primary};
+    .feature-mini {{
+        display: inline-block;
+        margin: 6px 8px 6px 0;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.20);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.32);
         font-weight: 800;
-        border-right: 1px solid {border_color};
-        min-height: 62px;
+        font-size: 0.86rem;
+        backdrop-filter: blur(10px);
     }}
-
-    .stat-box:last-child {{
-        border-right: 0;
+    .stats-row {{
+        display: flex;
+        gap: 16px;
+        margin-top: 28px;
+        flex-wrap: wrap;
     }}
-
-    .stat-ico {{
-        font-size: 2rem;
-    }}
-
-    .stat-num {{
-        font-size: 1.55rem;
-        font-weight: 900;
-        color: {text_primary};
-        line-height: 1;
-    }}
-
-    .stat-label {{
-        color: {text_secondary};
-        font-size: .92rem;
-        margin-top: .25rem;
-    }}
-
-    .footer-line {{
+    .stat-item {{
+        min-width: 112px;
+        padding: 12px 16px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.18);
+        border: 1px solid rgba(255,255,255,0.28);
+        backdrop-filter: blur(12px);
         text-align: center;
-        margin-top: 1rem;
-        color: {text_secondary};
+    }}
+    .stat-num {{
+        font-size: 1.7rem;
+        font-weight: 900;
+        color: white;
+    }}
+    .stat-label {{
+        font-size: 0.72rem;
+        color: #e9fbff;
         font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }}
 
     .page-title {{
@@ -531,12 +358,11 @@ def apply_css():
         letter-spacing: -0.8px;
         text-shadow: 0 4px 20px rgba(0,0,0,0.12);
     }}
-
     .subtext {{
         color: {text_secondary};
         font-size: 0.98rem;
         margin-bottom: 14px;
-        font-weight: 700;
+        font-weight: 600;
     }}
 
     .metric-card {{
@@ -545,18 +371,15 @@ def apply_css():
         text-align: center;
         transition: 0.22s ease;
     }}
-
     .metric-card:hover {{
         transform: translateY(-4px);
         background: {soft_card_bg};
     }}
-
     .metric-value {{
         font-size: 2.25rem;
         font-weight: 900;
         color: {accent1};
     }}
-
     .metric-label {{
         font-size: 0.78rem;
         color: {text_muted};
@@ -580,7 +403,6 @@ def apply_css():
         font-size: 2.2rem;
         box-shadow: 0 12px 34px rgba(0,0,0,0.22);
     }}
-
     .avatar-circle img {{
         width: 100%;
         height: 100%;
@@ -601,7 +423,6 @@ def apply_css():
         transition: all 0.22s ease !important;
         letter-spacing: 0.2px !important;
     }}
-
     .stButton > button:hover,
     [data-testid="stDownloadButton"] button:hover,
     .stFormSubmitButton > button:hover {{
@@ -614,7 +435,6 @@ def apply_css():
     input, textarea, [data-baseweb="select"] > div {{
         border-radius: 15px !important;
     }}
-
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -623,36 +443,46 @@ def apply_css():
         background: {input_bg} !important;
         color: {input_text} !important;
         border: 1px solid {border_color} !important;
-        font-weight: 700 !important;
+        font-weight: 650 !important;
     }}
-
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
         border: 1px solid {border_color} !important;
     }}
-
-    label, p, span, div {{
-        color: inherit;
+    label, p {{
+        color: {text_primary} !important;
+    }}
+    .stTextInput label, .stNumberInput label, .stSelectbox label,
+    .stDateInput label, .stRadio label, .stCheckbox label,
+    [data-baseweb="form-control"] label,
+    .stSlider label {{
+        color: {text_primary} !important;
+        font-weight: 700 !important;
+    }}
+    /* Input typed text */
+    .stTextInput input, .stNumberInput input, .stPasswordInput input {{
+        color: {input_text} !important;
+        caret-color: {input_text} !important;
+    }}
+    .stSelectbox [data-baseweb="select"] span {{
+        color: {input_text} !important;
     }}
 
     [data-baseweb="tab-list"] {{
         background: transparent !important;
         border-bottom: 1px solid {border_color} !important;
     }}
-
     [data-baseweb="tab"] {{
         color: {text_muted} !important;
         font-weight: 800 !important;
     }}
-
     [aria-selected="true"][data-baseweb="tab"] {{
         color: {accent1} !important;
         border-bottom: 3px solid {accent1} !important;
     }}
 
-    .whatsapp-btn,
-    .email-btn {{
+    .whatsapp-btn {{
         display: inline-block;
         border-radius: 999px;
         padding: 11px 22px;
@@ -662,21 +492,13 @@ def apply_css():
         margin: 6px 4px;
         font-size: 0.92rem;
         box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }}
-
-    .whatsapp-btn {{
         background: linear-gradient(135deg,#25D366,#128C7E);
-    }}
-
-    .email-btn {{
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
     }}
 
     .profile-info-card {{
         border-radius: 22px;
         padding: 24px;
     }}
-
     .profile-field {{
         display: flex;
         justify-content: space-between;
@@ -685,16 +507,13 @@ def apply_css():
         border-bottom: 1px solid {border_color};
         font-size: 0.95rem;
     }}
-
     .profile-field:last-child {{
         border-bottom: none;
     }}
-
     .pf-label {{
         color: {text_muted};
         font-weight: 800;
     }}
-
     .pf-value {{
         color: {text_primary};
         font-weight: 900;
@@ -713,37 +532,12 @@ def apply_css():
     hr {{
         border-color: {border_color} !important;
     }}
-
     .stAlert {{
         border-radius: 18px !important;
     }}
-
     .stDataFrame {{
         border-radius: 18px;
         overflow: hidden;
-    }}
-
-    @media(max-width: 1000px) {{
-        .feature-grid,
-        .used-row,
-        .stat-panel {{
-            grid-template-columns: 1fr;
-        }}
-
-        .used-box,
-        .stat-box {{
-            border-right: 0;
-            border-bottom: 1px solid {border_color};
-        }}
-
-        .used-title::before,
-        .used-title::after {{
-            width: 70px;
-        }}
-
-        .welcome-top {{
-            flex-direction: column;
-        }}
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -822,41 +616,141 @@ def simple_pdf_graph(scores):
 
 def generate_pdf(username, user_data, score, inputs, recs):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=.45*inch, bottomMargin=.45*inch)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.6*inch, bottomMargin=0.6*inch, leftMargin=0.7*inch, rightMargin=0.7*inch)
     styles = getSampleStyleSheet()
-    title  = ParagraphStyle("TitleX",  parent=styles["Heading1"], alignment=1, fontSize=22, textColor=colors.HexColor("#168aad"), spaceAfter=16)
-    head   = ParagraphStyle("HeadX",   parent=styles["Heading2"], fontSize=14, textColor=colors.HexColor("#184e77"), spaceAfter=8)
-    normal = ParagraphStyle("NormX",   parent=styles["Normal"], fontSize=10, leading=14)
-    story  = []
-    story.append(Paragraph(f"{APP_NAME} — Official Prediction Report", title))
-    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}", normal))
+
+    title_style = ParagraphStyle("TitleX", parent=styles["Heading1"],
+        alignment=1, fontSize=22, textColor=colors.HexColor("#168aad"),
+        spaceAfter=4, fontName="Helvetica-Bold")
+    subtitle_style = ParagraphStyle("SubX", parent=styles["Normal"],
+        alignment=1, fontSize=10, textColor=colors.HexColor("#1a759f"),
+        spaceAfter=14, fontName="Helvetica")
+    head_style = ParagraphStyle("HeadX", parent=styles["Heading2"],
+        fontSize=13, textColor=colors.white, spaceAfter=0,
+        fontName="Helvetica-Bold", backColor=colors.HexColor("#184e77"),
+        borderPadding=(8,10,8,10))
+    normal_style = ParagraphStyle("NormX", parent=styles["Normal"],
+        fontSize=10, leading=15, textColor=colors.HexColor("#03045e"))
+    rec_style = ParagraphStyle("RecX", parent=styles["Normal"],
+        fontSize=10, leading=15, textColor=colors.HexColor("#184e77"),
+        leftIndent=10)
+
+    story = []
+
+    # ── Header ──
+    story.append(Paragraph(f"🎓 {APP_NAME}", title_style))
+    story.append(Paragraph("Official Student Performance Prediction Report", subtitle_style))
+    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d %B %Y  |  %I:%M %p')}", subtitle_style))
+
+    # Divider
+    story.append(Table([[""]], colWidths=[6.6*inch],
+        style=[("LINEBELOW",(0,0),(-1,-1),1.2,colors.HexColor("#168aad")),("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+
     story.append(Spacer(1, 10))
+
+    # ── Student / User Details ──
     student_name = user_data.get("full_name") or user_data.get("child_name") or username
-    info = [["Name", student_name], ["Username", username], ["Email", user_data.get("email","N/A")], ["Role", user_data.get("role","N/A").title()]]
-    story.append(Paragraph("Student / User Details", head))
-    t = Table(info, colWidths=[2.1*inch, 4.2*inch])
-    t.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(0,-1),colors.HexColor('#d9ed92')),('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),8)]))
-    story.append(t); story.append(Spacer(1, 12))
-    result = [["Predicted Score", f"{score}/100"], ["Status", "Excellent" if score>=85 else "Good" if score>=70 else "Needs Improvement"]]
-    story.append(Paragraph("Prediction Result", head))
-    rt = Table(result, colWidths=[2.1*inch, 4.2*inch])
-    rt.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#168aad')),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),8)]))
-    story.append(rt); story.append(Spacer(1, 12))
-    story.append(Paragraph("Input Details", head))
-    input_rows = [["Field", "Value"]] + [[k.replace('_',' '), str(v)] for k, v in inputs.items()]
-    it = Table(input_rows, colWidths=[2.7*inch, 3.6*inch])
-    it.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#184e77')),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),7)]))
-    story.append(it); story.append(Spacer(1, 12))
-    scores = [r.get("score",0) for r in user_history(username)] + [score]
-    story.append(simple_pdf_graph(scores[-10:]))
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("Recommendations", head))
-    if recs:
-        for r in recs: story.append(Paragraph("• " + r, normal))
+    story.append(Paragraph("  👤  Student / User Details", head_style))
+    story.append(Spacer(1, 4))
+
+    info_rows = [
+        ["Full Name",  student_name],
+        ["Username",   username],
+        ["Email",      user_data.get("email","N/A")],
+        ["Role",       user_data.get("role","N/A").title()],
+    ]
+    if user_data.get("role") == "student":
+        info_rows += [
+            ["Grade / Class", user_data.get("grade","N/A")],
+            ["School",        user_data.get("school","N/A")],
+            ["Date of Birth", user_data.get("dob","N/A")],
+        ]
     else:
-        story.append(Paragraph("Your current academic inputs are strong. Maintain consistency.", normal))
+        info_rows += [
+            ["Child Name",  user_data.get("child_name","N/A")],
+            ["Child Grade", user_data.get("child_grade","N/A")],
+            ["Relation",    user_data.get("relation","N/A")],
+        ]
+
+    t_info = Table([[Paragraph(f"<b>{r[0]}</b>",normal_style), Paragraph(r[1],normal_style)] for r in info_rows],
+        colWidths=[2.2*inch, 4.4*inch])
+    t_info.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#e8f8fc")),
+        ("ROWBACKGROUNDS",(0,0),(-1,-1),[colors.white, colors.HexColor("#f0faff")]),
+        ("PADDING",(0,0),(-1,-1),8),
+        ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold"),
+        ("FONTNAME",(1,0),(1,-1),"Helvetica"),
+    ]))
+    story.append(t_info)
+    story.append(Spacer(1, 14))
+
+    # ── Prediction Result ──
+    story.append(Paragraph("  📊  Prediction Result", head_style))
+    story.append(Spacer(1, 4))
+
+    status_label = "🌟 Excellent!" if score >= 85 else ("👍 Good" if score >= 70 else "📈 Needs Improvement")
+    score_color  = colors.HexColor("#168aad") if score >= 70 else colors.HexColor("#e85d04")
+    result_rows  = [["Predicted Score", f"{score} / 100"],["Performance Status", status_label]]
+    t_result = Table([[Paragraph(f"<b>{r[0]}</b>",normal_style), Paragraph(r[1],normal_style)] for r in result_rows],
+        colWidths=[2.2*inch, 4.4*inch])
+    t_result.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#e8f8fc")),
+        ("BACKGROUND",(1,0),(1,0),colors.HexColor("#caf0f8")),
+        ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold"),
+        ("FONTSIZE",(1,0),(1,0),13),
+        ("TEXTCOLOR",(1,0),(1,0),score_color),
+        ("PADDING",(0,0),(-1,-1),9),
+    ]))
+    story.append(t_result)
+    story.append(Spacer(1, 14))
+
+    # ── Input Details ──
+    story.append(Paragraph("  📋  Academic Input Details", head_style))
+    story.append(Spacer(1, 4))
+
+    input_header = [
+        [Paragraph("<b>Factor</b>", normal_style), Paragraph("<b>Value Provided</b>", normal_style)]
+    ]
+    input_data   = [[Paragraph(k.replace("_"," "), normal_style), Paragraph(str(v), normal_style)] for k,v in inputs.items()]
+    t_inputs = Table(input_header + input_data, colWidths=[2.9*inch, 3.7*inch])
+    t_inputs.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#184e77")),
+        ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+        ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+        ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white, colors.HexColor("#f0faff")]),
+        ("PADDING",(0,0),(-1,-1),8),
+    ]))
+    story.append(t_inputs)
+    story.append(Spacer(1, 14))
+
+    # ── Score History Graph ──
+    scores = [r.get("score",0) for r in user_history(username)] + [score]
+    if len(scores) > 1:
+        story.append(Paragraph("  📈  Score History Graph", head_style))
+        story.append(Spacer(1, 6))
+        story.append(simple_pdf_graph(scores[-10:]))
+        story.append(Spacer(1, 14))
+
+    # ── Recommendations ──
+    story.append(Paragraph("  💡  Personalized Recommendations", head_style))
+    story.append(Spacer(1, 6))
+    if recs:
+        for r in recs:
+            story.append(Paragraph("• " + r.lstrip("📚🏫😴🎯📖💡🤝 ").strip(), rec_style))
+            story.append(Spacer(1, 3))
+    else:
+        story.append(Paragraph("✅ Your current academic inputs are strong. Keep up the great work and maintain consistency!", rec_style))
+
     story.append(Spacer(1, 20))
-    story.append(Paragraph(f"Generated by {APP_NAME}. This report is for academic guidance only.", normal))
+
+    # Footer
+    story.append(Table([[""]], colWidths=[6.6*inch],
+        style=[("LINEABOVE",(0,0),(-1,-1),.8,colors.HexColor("#ade8f4")),("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+    story.append(Paragraph(f"Generated by {APP_NAME}  •  {datetime.now().strftime('%d-%m-%Y')}  •  This report is for academic guidance only.", subtitle_style))
+
     doc.build(story)
     buffer.seek(0)
     return buffer.read()
@@ -978,89 +872,238 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
+    # Theme toggle top-right
+    c1,c2,c3 = st.columns([1,8,1])
+    with c3: toggle_theme_button("theme_welcome")
+
+    dark = st.session_state.theme == "dark"
+    hero_text   = "white" if dark else "#03045e"
+    hero_sub    = "#caf0f8" if dark else "#0077b6"
+    card_border = "rgba(255,255,255,0.28)" if dark else "rgba(2,62,138,0.20)"
+    card_bg_1   = "rgba(255,255,255,0.13)" if dark else "rgba(255,255,255,0.72)"
+    card_title  = "white" if dark else "#03045e"
+    card_desc   = "#caf0f8" if dark else "#0077b6"
+    used_icon_c = "#caf0f8" if dark else "#023e8a"
+    btn_bg      = "linear-gradient(135deg,#0077b6,#00b4d8)" if dark else "linear-gradient(135deg,#03045e,#0077b6)"
+    stat_text   = "white" if dark else "#03045e"
+    stat_sub    = "#caf0f8" if dark else "#0096c7"
+    divider_c   = "rgba(255,255,255,0.30)" if dark else "rgba(2,62,138,0.18)"
+    btn_line_c  = "rgba(255,255,255,0.50)" if dark else "rgba(2,62,138,0.35)"
+
     st.markdown(f"""
-    <div class="welcome-shell">
-        <div class="welcome-top">
-            <div class="brand-row">
-                <div class="brand-logo">🎓</div>
-                <div>
-                    <h1 class="brand-title">ScoreWise <span>AI</span></h1>
-                    <div class="brand-subtitle">Smart Student Performance Predictor ✨</div>
-                </div>
-            </div>
-            <div class="mode-pill">☀️ / 🌙</div>
+    <style>
+    .welcome-wrap {{ padding: 2vh 1vw 0 1vw; }}
+    .hero-header {{
+        text-align: center;
+        padding: 36px 10px 20px 10px;
+    }}
+    .hero-logo {{ font-size: 3.6rem; display:block; margin-bottom:6px; }}
+    .hero-title {{
+        font-size: clamp(2.6rem,5.5vw,4.6rem);
+        font-weight: 900;
+        color: {hero_text};
+        margin: 0 0 10px 0;
+        letter-spacing: -1.5px;
+        text-shadow: 0 4px 22px rgba(0,0,0,0.35);
+    }}
+    .hero-tagline {{
+        font-size: 1.14rem;
+        color: {hero_sub};
+        font-weight: 600;
+        margin-bottom: 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.28);
+    }}
+    .welcome-divider {{
+        border: 0;
+        height: 1px;
+        background: {divider_c};
+        margin: 22px auto;
+        max-width: 640px;
+    }}
+    .feature-cards-row {{
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0 0 28px 0;
+    }}
+    .feat-card {{
+        flex: 1 1 220px;
+        max-width: 270px;
+        background: {card_bg_1};
+        border: 1px solid {card_border};
+        border-radius: 22px;
+        padding: 28px 22px 22px 22px;
+        text-align: center;
+        backdrop-filter: blur(18px);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.16);
+        transition: transform 0.22s ease;
+    }}
+    .feat-card:hover {{ transform: translateY(-5px); }}
+    .feat-icon {{ font-size: 2.5rem; display:block; margin-bottom:10px; }}
+    .feat-title {{
+        font-size: 1.12rem;
+        font-weight: 900;
+        color: {card_title};
+        margin: 0 0 6px 0;
+    }}
+    .feat-sep {{
+        width: 40px; height: 3px;
+        background: linear-gradient(90deg,#00b4d8,#90e0ef);
+        border-radius: 99px;
+        margin: 0 auto 10px auto;
+    }}
+    .feat-desc {{
+        font-size: 0.82rem;
+        color: {card_desc};
+        font-weight: 600;
+        line-height: 1.6;
+    }}
+    .feat-btn {{
+        display: inline-block;
+        margin-top: 14px;
+        padding: 9px 22px;
+        border-radius: 999px;
+        background: {btn_bg};
+        color: white !important;
+        font-weight: 800;
+        font-size: 0.84rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 6px 18px rgba(0,119,182,0.30);
+    }}
+    .used-for-row {{
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0 0 10px 0;
+    }}
+    .used-item {{
+        text-align: center;
+        padding: 6px 10px;
+    }}
+    .used-icon {{ font-size: 1.6rem; display:block; margin-bottom:2px; }}
+    .used-label {{
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: {used_icon_c};
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }}
+    .stats-strip {{
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 18px 10px;
+        border-top: 1px solid {divider_c};
+        border-bottom: 1px solid {divider_c};
+        margin: 18px 0 24px 0;
+    }}
+    .stat-chip {{
+        display: flex; align-items: center; gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(0,180,216,0.14);
+        border: 1px solid rgba(0,180,216,0.25);
+    }}
+    .stat-chip-num {{ font-size: 1.2rem; font-weight:900; color:{stat_text}; }}
+    .stat-chip-lbl {{ font-size: 0.75rem; font-weight:700; color:{stat_sub}; text-transform:uppercase; letter-spacing:0.8px; }}
+    .welcome-footer {{
+        text-align: center;
+        font-size: 0.82rem;
+        color: {card_desc};
+        padding-bottom: 18px;
+        font-weight: 600;
+    }}
+    .get-started-wrap {{
+        display: flex;
+        justify-content: center;
+        margin: 8px 0 22px 0;
+    }}
+    .get-started-link {{
+        padding: 13px 48px;
+        border-radius: 999px;
+        background: {btn_bg};
+        color: white !important;
+        font-weight: 900;
+        font-size: 1.08rem;
+        border: 1.5px solid {btn_line_c};
+        box-shadow: 0 12px 34px rgba(0,119,182,0.36);
+        text-decoration: none;
+        transition: all 0.22s;
+    }}
+    </style>
+
+    <div class='welcome-wrap'>
+      <div class='hero-header'>
+        <span class='hero-logo'>🎓</span>
+        <h1 class='hero-title'>{APP_NAME}</h1>
+        <p class='hero-tagline'>{TAGLINE} ✨</p>
+      </div>
+      <hr class='welcome-divider'/>
+
+      <div class='feature-cards-row'>
+        <div class='feat-card'>
+          <span class='feat-icon'>📊</span>
+          <div class='feat-title'>Smart Graph</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • Visualize academic trends<br>
+            • Subject-wise performance<br>
+            • Interactive &amp; insightful
+          </div>
         </div>
-
-        <div class="feature-grid">
-            <div class="feature-card" style="--card-border:#00b4d8;--card-glow:rgba(0,180,216,.35);--btn-bg:linear-gradient(135deg,#0077b6,#00b4d8);">
-                <div class="feature-icon">📊</div>
-                <h3>Smart Graph</h3>
-                <div class="mini-line"></div>
-                <ul>
-                    <li>Visualize academic trends</li>
-                    <li>Subject-wise performance</li>
-                    <li>Interactive & insightful</li>
-                </ul>
-                <div class="fake-card-btn">View Graph →</div>
-            </div>
-
-            <div class="feature-card" style="--card-border:#52ff82;--card-glow:rgba(82,255,130,.30);--btn-bg:linear-gradient(135deg,#00b894,#52ff82);">
-                <div class="feature-icon">🔮</div>
-                <h3>Prediction</h3>
-                <div class="mini-line"></div>
-                <ul>
-                    <li>AI score prediction</li>
-                    <li>Simple result</li>
-                    <li>Quick & accurate</li>
-                </ul>
-                <div class="fake-card-btn">View Prediction →</div>
-            </div>
-
-            <div class="feature-card" style="--card-border:#a855f7;--card-glow:rgba(168,85,247,.35);--btn-bg:linear-gradient(135deg,#7c3aed,#c026d3);">
-                <div class="feature-icon">📄</div>
-                <h3>PDF Report</h3>
-                <div class="mini-line"></div>
-                <ul>
-                    <li>Downloadable report</li>
-                    <li>Share with anyone</li>
-                    <li>Professional format</li>
-                </ul>
-                <div class="fake-card-btn">View Report →</div>
-            </div>
+        <div class='feat-card'>
+          <span class='feat-icon'>🔮</span>
+          <div class='feat-title'>Prediction</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • AI score prediction<br>
+            • Simple result<br>
+            • Quick &amp; accurate
+          </div>
         </div>
-
-        <div class="used-title">Used For</div>
-
-        <div class="used-row">
-            <div class="used-box"><div class="used-icon">🎓</div>Students<br><small>Track & improve performance</small></div>
-            <div class="used-box"><div class="used-icon">👨‍👩‍👧</div>Parents<br><small>Monitor child progress</small></div>
-            <div class="used-box"><div class="used-icon">📚</div>Teachers<br><small>Analyze & support students</small></div>
-            <div class="used-box"><div class="used-icon">🏫</div>Schools<br><small>Improve academic outcomes</small></div>
-            <div class="used-box"><div class="used-icon">💼</div>Counselors<br><small>Guide future decisions</small></div>
+        <div class='feat-card'>
+          <span class='feat-icon'>📄</span>
+          <div class='feat-title'>PDF Report</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • Downloadable report<br>
+            • Share on WhatsApp<br>
+            • Professional format
+          </div>
         </div>
+      </div>
 
-        <div class="stat-panel">
-            <div class="stat-box"><div class="stat-ico">👥</div><div><div class="stat-num">5000+</div><div class="stat-label">Students Helped</div></div></div>
-            <div class="stat-box"><div class="stat-ico">📊</div><div><div class="stat-num">25K+</div><div class="stat-label">Predictions Made</div></div></div>
-            <div class="stat-box"><div class="stat-ico">📄</div><div><div class="stat-num">10K+</div><div class="stat-label">Reports Generated</div></div></div>
-            <div class="stat-box"><div class="stat-ico">🛡️</div><div><div class="stat-num">99%</div><div class="stat-label">Accuracy Rate</div></div></div>
-        </div>
+      <div style='text-align:center;margin-bottom:10px;font-size:0.85rem;font-weight:700;color:{card_desc};letter-spacing:1.5px;text-transform:uppercase;'>─── Used For ───</div>
+      <div class='used-for-row'>
+        <div class='used-item'><span class='used-icon'>🎓</span><div class='used-label'>Students</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Track &amp; improve</div></div>
+        <div class='used-item'><span class='used-icon'>👨‍👩‍👧</span><div class='used-label'>Parents</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Monitor child</div></div>
+        <div class='used-item'><span class='used-icon'>📖</span><div class='used-label'>Teachers</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Analyze &amp; support</div></div>
+        <div class='used-item'><span class='used-icon'>🏫</span><div class='used-label'>Schools</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Improve outcomes</div></div>
+        <div class='used-item'><span class='used-icon'>🧑‍💼</span><div class='used-label'>Counselors</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Guide decisions</div></div>
+      </div>
 
-        <div class="footer-line">Made with ❤️ for Students &nbsp; | &nbsp; Empowering Education with AI</div>
+      <div class='stats-strip'>
+        <div class='stat-chip'><span class='stat-chip-num'>5000+</span><span class='stat-chip-lbl'>Students Helped</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>25K+</span><span class='stat-chip-lbl'>Predictions Made</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>10K+</span><span class='stat-chip-lbl'>Reports Generated</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>99%</span><span class='stat-chip-lbl'>Accuracy Rate</span></div>
+      </div>
     </div>
     """, unsafe_allow_html=True)
 
-    c0, c1, c2, c3, c4 = st.columns([2.1, 1, 1, 1, 2.1])
-    with c1:
-        if st.button("📊 Smart Graph", use_container_width=True):
-            st.session_state.auth_page = "login"
-            st.rerun()
-    with c2:
+    # Centered Get Started button
+    col1, col2, col3 = st.columns([1.8, 1, 1.8])
+    with col2:
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
-    with c3:
-        toggle_theme_button("theme_welcome")
+
+    st.markdown(f"<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
 # AUTH PAGE
@@ -1301,11 +1344,9 @@ def report_page(user):
 
     share_text = f"{APP_NAME} Report%0APredicted Score: {score}/100%0AHours Studied: {inputs.get('Hours_Studied')}%0AAttendance: {inputs.get('Attendance')}%25"
     wa_url    = "https://wa.me/?text=" + share_text
-    email_url = "mailto:?subject=" + urllib.parse.quote(f"{APP_NAME} Prediction Report") + "&body=" + share_text
     st.markdown(f"""
     <div style='text-align:center;margin:16px 0'>
       <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
-      <a class='email-btn' href='{email_url}'>✉️ Share via Email</a>
     </div>
     """, unsafe_allow_html=True)
     st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
