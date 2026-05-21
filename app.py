@@ -223,39 +223,42 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Sidebar collapse/open arrow — fixed visible button ── */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapseButton"] {{
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+    /* ── Sidebar collapse/open arrow ── */
+    [data-testid="collapsedControl"] {
         position: fixed !important;
-        top: 50% !important;
-        left: 0 !important;
-        transform: translateY(-50%) !important;
-        width: 40px !important;
-        height: 60px !important;
+        top: 14px !important;
+        left: 270px !important;
         z-index: 999999 !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        border: none !important;
-        border-radius: 0 14px 14px 0 !important;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.95) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+        display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        backdrop-filter: blur(16px) !important;
-        cursor: pointer !important;
-    }}
-    [data-testid="collapsedControl"]:hover,
-    [data-testid="stSidebarCollapseButton"]:hover {{
-        transform: translateY(-50%) scale(1.05) !important;
-    }}
-    [data-testid="collapsedControl"] svg,
-    [data-testid="stSidebarCollapseButton"] svg {{
-        color: white !important;
+        backdrop-filter: blur(12px) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+    }
+
+    /* Hover effect */
+    [data-testid="collapsedControl"]:hover {
+        transform: scale(1.06) !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+    }
+
+    /* Arrow icon */
+    [data-testid="collapsedControl"] svg {
+        width: 18px !important;
+        height: 18px !important;
         fill: white !important;
-        width: 20px !important;
-        height: 20px !important;
-    }}
+        color: white !important;
+    }
+
+    /* Sidebar collapsed hone par */
+    [data-testid="collapsedControl"][aria-expanded="false"] {
+        left: 10px !important;
+    }
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
