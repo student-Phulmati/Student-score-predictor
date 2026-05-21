@@ -953,30 +953,314 @@ def auth_page():
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# SIDEBAR
+# MODERN SIDEBAR
 # =====================================================
 def sidebar(user):
-    with st.sidebar:
-        icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
-        st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
-        st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
-        st.markdown("---")
+    """Professional collapsible sidebar like the reference design."""
+    dark = st.session_state.theme == "dark"
 
-        pages  = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-        labels = [p.split(" ",1)[1] for p in pages]
+    sidebar_bg = "linear-gradient(180deg,#071326 0%, #102a55 100%)" if dark else "linear-gradient(180deg,#f7fbff 0%, #dff5ff 100%)"
+    sidebar_text = "#ffffff" if dark else "#03045e"
+    sidebar_muted = "rgba(255,255,255,0.62)" if dark else "#0077b6"
+    sidebar_line = "rgba(255,255,255,0.10)" if dark else "rgba(2,62,138,0.16)"
+    hover_bg = "rgba(255,255,255,0.08)" if dark else "rgba(0,119,182,0.08)"
+    active_bg = "rgba(56,189,248,0.18)" if dark else "rgba(0,180,216,0.20)"
+
+    st.markdown(f"""
+    <style>
+    /* Keep Streamlit sidebar collapse/expand working */
+    [data-testid="stSidebar"] {{
+        background: {sidebar_bg} !important;
+        border-right: 1px solid {sidebar_line} !important;
+        box-shadow: 8px 0 30px rgba(0,0,0,0.20) !important;
+    }}
+
+    [data-testid="stSidebar"] > div:first-child {{
+        padding: 1.15rem 1.05rem 1rem 1.05rem !important;
+    }}
+
+    [data-testid="stSidebar"] * {{
+        color: {sidebar_text} !important;
+    }}
+
+    /* Sidebar collapse button inside sidebar */
+    [data-testid="stSidebarCollapseButton"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        width: 38px !important;
+        height: 38px !important;
+        border-radius: 12px !important;
+        background: rgba(255,255,255,0.09) !important;
+        border: 1px solid {sidebar_line} !important;
+        z-index: 999999 !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] svg {{
+        color: {sidebar_text} !important;
+        fill: {sidebar_text} !important;
+    }}
+
+    /* Expand button when sidebar is hidden */
+    [data-testid="collapsedControl"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 72px !important;
+        left: 12px !important;
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+        background: linear-gradient(135deg,#0ea5e9,#2dd4bf) !important;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
+        border: 1px solid rgba(255,255,255,0.18) !important;
+        z-index: 999999 !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }}
+
+    [data-testid="collapsedControl"] svg {{
+        color: white !important;
+        fill: white !important;
+        width: 20px !important;
+        height: 20px !important;
+    }}
+
+    .sw-logo-box {{
+        padding: 54px 0 18px 0;
+        border-bottom: 1px solid {sidebar_line};
+        margin-bottom: 18px;
+    }}
+
+    .sw-logo-title {{
+        font-size: 1.75rem;
+        font-weight: 900;
+        letter-spacing: -0.8px;
+        color: {sidebar_text};
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }}
+
+    .sw-logo-icon {{
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#0ea5e9,#2dd4bf);
+        box-shadow: 0 10px 25px rgba(14,165,233,0.30);
+        font-size: 1.35rem;
+    }}
+
+    .sw-logo-sub {{
+        margin-top: 8px;
+        color: {sidebar_muted} !important;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }}
+
+    .sw-nav-title {{
+        color: {sidebar_muted} !important;
+        font-size: 0.92rem;
+        font-weight: 800;
+        margin: 10px 0 10px 0;
+    }}
+
+    /* Hide default radio label spacing */
+    [data-testid="stSidebar"] .stRadio > label {{
+        display: none !important;
+    }}
+
+    [data-testid="stSidebar"] div[role="radiogroup"] {{
+        gap: 8px !important;
+    }}
+
+    [data-testid="stSidebar"] div[role="radiogroup"] > label {{
+        padding: 12px 12px !important;
+        margin: 0 0 8px 0 !important;
+        border-radius: 15px !important;
+        border: 1px solid transparent !important;
+        background: transparent !important;
+        transition: all 0.20s ease !important;
+        min-height: 46px !important;
+    }}
+
+    [data-testid="stSidebar"] div[role="radiogroup"] > label:hover {{
+        background: {hover_bg} !important;
+        border-color: {sidebar_line} !important;
+        transform: translateX(2px);
+    }}
+
+    [data-testid="stSidebar"] div[role="radiogroup"] > label[data-baseweb="radio"] {{
+        cursor: pointer !important;
+    }}
+
+    [data-testid="stSidebar"] div[role="radiogroup"] p {{
+        color: {sidebar_text} !important;
+        font-weight: 750 !important;
+        font-size: 1rem !important;
+    }}
+
+    /* Radio dot */
+    [data-testid="stSidebar"] [data-baseweb="radio"] > div:first-child {{
+        background: rgba(255,255,255,0.92) !important;
+        border: 0 !important;
+        width: 18px !important;
+        height: 18px !important;
+        margin-right: 10px !important;
+    }}
+
+    [data-testid="stSidebar"] [data-baseweb="radio"] > div:first-child > div {{
+        background: #ff4d5a !important;
+    }}
+
+    .sw-bottom {{
+        border-top: 1px solid {sidebar_line};
+        margin-top: 28px;
+        padding-top: 18px;
+    }}
+
+    .sw-user-card {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: {active_bg};
+        border: 1px solid {sidebar_line};
+        padding: 12px;
+        border-radius: 18px;
+        margin-bottom: 18px;
+    }}
+
+    .sw-user-avatar {{
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg,#0ea5e9,#2dd4bf);
+        border: 2px solid rgba(255,255,255,0.25);
+        font-size: 1.35rem;
+        flex: none;
+    }}
+
+    .sw-user-avatar img {{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }}
+
+    .sw-user-name {{
+        font-weight: 900;
+        color: {sidebar_text};
+        font-size: 0.98rem;
+        line-height: 1.2;
+        word-break: break-word;
+    }}
+
+    .sw-user-role {{
+        color: {sidebar_muted} !important;
+        font-size: 0.78rem;
+        font-weight: 700;
+        margin-top: 3px;
+    }}
+
+    [data-testid="stSidebar"] .stCheckbox label p {{
+        color: {sidebar_text} !important;
+        font-weight: 750 !important;
+    }}
+
+    [data-testid="stSidebar"] .stButton > button {{
+        width: 100% !important;
+        height: 50px !important;
+        border-radius: 18px !important;
+        background: linear-gradient(90deg,#38bdf8,#2dd4bf) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 900 !important;
+        box-shadow: 0 10px 24px rgba(14,165,233,0.28) !important;
+    }}
+
+    [data-testid="stSidebar"] .stButton > button:hover {{
+        transform: translateY(-2px) !important;
+        box-shadow: 0 14px 32px rgba(45,212,191,0.32) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+    with st.sidebar:
+        app_short = "SCOREWISE"
+        role_text = user.get("role", "student").title()
+        icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+        name = user.get("full_name", st.session_state.username) or st.session_state.username
+
+        st.markdown(f"""
+        <div class="sw-logo-box">
+            <div class="sw-logo-title">
+                <span class="sw-logo-icon">🎓</span>
+                <span>{app_short}</span>
+            </div>
+            <div class="sw-logo-sub">Smart Student Dashboard</div>
+        </div>
+
+        <div class="sw-user-card">
+            <div class="sw-user-avatar">{profile_pic_html(st.session_state.username, icon)}</div>
+            <div>
+                <div class="sw-user-name">{name}</div>
+                <div class="sw-user-role">{role_text} Account</div>
+            </div>
+        </div>
+
+        <div class="sw-nav-title">Navigation</div>
+        """, unsafe_allow_html=True)
+
+        pages = [
+            "🏠 Home",
+            "🔮 Prediction",
+            "📄 Report & Share",
+            "📚 History",
+            "👤 Profile"
+        ]
+
+        labels = [p.split(" ", 1)[1] for p in pages]
         sel_idx = 0
         for i, label in enumerate(labels):
             if st.session_state.active_page == label:
                 sel_idx = i
-        selected = st.radio("Navigation", pages, index=sel_idx)
-        st.session_state.active_page = selected.split(" ",1)[1]
 
-        st.markdown("---")
-        if st.button("🚪 Sign Out", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
+        selected = st.radio(
+            "Navigation",
+            pages,
+            index=sel_idx,
+            label_visibility="collapsed"
+        )
+        st.session_state.active_page = selected.split(" ", 1)[1]
+
+        st.markdown('<div class="sw-bottom"></div>', unsafe_allow_html=True)
+
+        dark_checked = st.checkbox("🌙 Dark Mode", value=(st.session_state.theme == "dark"))
+        new_theme = "dark" if dark_checked else "light"
+        if new_theme != st.session_state.theme:
+            st.session_state.theme = new_theme
+            st.rerun()
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        if st.button("Logout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.role = ""
+            st.session_state.auth_page = "welcome"
+            st.session_state.active_page = "Home"
             st.rerun()
 
 # =====================================================
@@ -1238,9 +1522,6 @@ def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
-
-    # Dashboard ke andar se Login page par wapas jane ka option
-    back_to_login_button("dashboard_back_login")
 
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
