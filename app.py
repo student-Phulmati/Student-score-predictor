@@ -336,13 +336,22 @@ def apply_css():
     /* ── Theme toggle button RIGHT SIDE ── */
     .theme-row {{
         position: fixed !important;
-        top: 94px !important;
-        right: 28px !important;
+        top: 18px !important;
+        right: 18px !important;
+        left: auto !important;
         z-index: 999999 !important;
-        width: 64px !important;
+        width: 70px !important;
         height: 44px !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
     }}
     .theme-row .stButton {{
+        position: fixed !important;
+        top: 18px !important;
+        right: 18px !important;
+        left: auto !important;
+        z-index: 999999 !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
