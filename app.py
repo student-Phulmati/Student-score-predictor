@@ -334,23 +334,14 @@ def apply_css():
     }}
 
     /* ── Theme toggle fixed TOP-RIGHT ── */
-    
-    .theme-btn-wrap {
+    .theme-btn-wrap {{
         position: fixed !important;
-        top: 12px !important;
-        right: 18px !important;
-        left: unset !important;
+        top: 16px !important;
+        right: 24px !important;
+        left: auto !important;
         z-index: 999999 !important;
-        width: auto !important;
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
-    }
-}
-    
-    .theme-btn-wrap button {
-        margin-left: auto !important;
-{
+    }}
+    .theme-btn-wrap button {{
         width: 40px !important;
         height: 40px !important;
         border-radius: 50% !important;
