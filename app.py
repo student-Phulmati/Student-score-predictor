@@ -192,7 +192,7 @@ def apply_css():
     /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
-        height: 3rem !important;
+        height: 0rem !important;
         display: block !important;
         z-index: 99999 !important;
     }}
@@ -224,98 +224,182 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
 
-    /* ── PERFECT sidebar arrows ── */
+    /* ─────────────────────────────────────────────
+       FINAL WORKING SIDEBAR TOGGLE ARROW FIX
+       - Sidebar open  : shows « at sidebar top-right
+       - Sidebar closed: shows » at top-left
+       - Raw keyboard_double_arrow text hidden
+       ───────────────────────────────────────────── */
 
-    /* Hide all raw text/icons */
-    [data-testid="collapsedControl"] *,
-    [data-testid="stSidebarCollapseButton"] * {{
-        font-size: 0 !important;
-        color: transparent !important;
-        text-indent: -9999px !important;
+    /* Keep Streamlit header available for sidebar control, but visually clean */
+    header[data-testid="stHeader"] {{
+        background: transparent !important;
+        height: 0px !important;
     }}
 
-    /* INSIDE SIDEBAR COLLAPSE BUTTON */
+    /* Hide Streamlit's raw material icon text everywhere inside toggle controls */
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="stSidebarCollapseButton"] *,
+    button[title="Close sidebar"],
+    button[title="Open sidebar"],
+    button[aria-label="Close sidebar"],
+    button[aria-label="Open sidebar"] {{
+        font-size: 0px !important;
+        line-height: 0px !important;
+        color: transparent !important;
+        text-indent: -99999px !important;
+        overflow: hidden !important;
+    }}
+
+    /* OPEN SIDEBAR: close button position */
     [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
         top: 14px !important;
         right: 14px !important;
+        z-index: 999999 !important;
         width: 36px !important;
         height: 36px !important;
-        z-index: 999999 !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
         border-radius: 10px !important;
         background: rgba(8,15,60,0.96) !important;
-        border: 1px solid rgba(255,255,255,0.14) !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
-        overflow: hidden !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button {{
-        width: 100% !important;
-        height: 100% !important;
-        padding: 0 !important;
-        border: none !important;
-        background: transparent !important;
-        position: relative !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button::after {{
-        content: "«" !important;
-        position: absolute !important;
-        inset: 0 !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 22px !important;
-        font-weight: 900 !important;
-        color: white !important;
-        text-indent: 0 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        cursor: pointer !important;
     }}
 
-    /* OUTSIDE EXPAND BUTTON */
+    [data-testid="stSidebarCollapseButton"] button {{
+        position: relative !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        padding: 0px !important;
+        margin: 0px !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }}
+
+    /* OPEN SIDEBAR: our clean arrow */
+    [data-testid="stSidebarCollapseButton"] button::after {{
+        content: "«" !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 25px !important;
+        line-height: 36px !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
+        text-indent: 0px !important;
+        z-index: 1000000 !important;
+        pointer-events: none !important;
+    }}
+
+    /* CLOSED SIDEBAR: open button position */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
         top: 14px !important;
         left: 14px !important;
+        z-index: 999999 !important;
         width: 36px !important;
         height: 36px !important;
-        z-index: 999999 !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
         border-radius: 10px !important;
         background: rgba(8,15,60,0.96) !important;
-        border: 1px solid rgba(255,255,255,0.14) !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
-        overflow: hidden !important;
-    }}
-
-    /* FORCE SHOW EXPAND ARROW */
-    [data-testid="collapsedControl"]::after {{
-        content: "»" !important;
-        position: absolute !important;
-        inset: 0 !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        font-size: 22px !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        cursor: pointer !important;
+    }}
+
+    [data-testid="collapsedControl"] button {{
+        position: relative !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        padding: 0px !important;
+        margin: 0px !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        cursor: pointer !important;
+    }}
+
+    /* CLOSED SIDEBAR: our clean arrow */
+    [data-testid="collapsedControl"]::after,
+    [data-testid="collapsedControl"] button::after {{
+        content: "»" !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 25px !important;
+        line-height: 36px !important;
         font-weight: 900 !important;
-        color: white !important;
-        z-index: 999999 !important;
-        text-indent: 0 !important;
+        color: #ffffff !important;
+        text-indent: 0px !important;
+        z-index: 1000000 !important;
         pointer-events: none !important;
     }}
 
-    /* Hover */
+    /* Hide original svg/material icon */
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="collapsedControl"] span,
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="collapsedControl"] p,
+    [data-testid="stSidebarCollapseButton"] p {{
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
+        font-size: 0px !important;
+        color: transparent !important;
+    }}
+
     [data-testid="collapsedControl"]:hover,
     [data-testid="stSidebarCollapseButton"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.04) !important;
     }}
 
-    /* Hide SVG icons completely */
-    [data-testid="collapsedControl"] svg,
-    [data-testid="stSidebarCollapseButton"] svg {{
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }}
+
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
         position: fixed;
