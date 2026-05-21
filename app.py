@@ -674,7 +674,7 @@ def apply_css():
         display: flex !important;
         align-items: flex-start !important;
         justify-content: flex-start !important;
-        padding-top: 32px !important;  /* icon ko title se thoda niche rakhta hai */
+        padding-top: 26px !important;  /* icon ko title se thoda niche rakhta hai */
     }}
     div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {{
         align-items: flex-start !important;
@@ -693,6 +693,88 @@ def apply_css():
         width: 58px !important;
         height: 46px !important;
     }}
+
+
+    /* ===== EXTRA FINAL UPDATE: same title-side mode button on all pages + no bottom blank ===== */
+    .main .block-container {{
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+        margin-top: 0rem !important;
+    }}
+    .page-header-grid {{
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        align-items: start !important;
+        gap: 14px !important;
+        width: 100% !important;
+        margin: 0 0 14px 0 !important;
+        padding: 0 !important;
+    }}
+    .page-header-titlebox {{
+        min-width: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }}
+    .page-title {{
+        margin: 0 !important;
+        line-height: 1.08 !important;
+    }}
+    .page-header-titlebox .subtext {{
+        margin: 5px 0 0 0 !important;
+    }}
+    .page-mode-holder {{
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-end !important;
+        padding-top: 8px !important;
+        margin-right: -4px !important;
+        min-width: 62px !important;
+    }}
+    .page-theme-row {{
+        position: relative !important;
+        width: 58px !important;
+        height: 46px !important;
+        z-index: 20 !important;
+        transform: none !important;
+    }}
+    .page-theme-row .stButton {{
+        position: relative !important;
+        width: 58px !important;
+        height: 46px !important;
+    }}
+    .page-theme-row button,
+    .page-theme-row .stButton > button {{
+        width: 58px !important;
+        height: 46px !important;
+        min-width: 58px !important;
+        border-radius: 14px !important;
+        padding: 0 !important;
+        font-size: 1.25rem !important;
+        background: rgba(7,14,35,0.62) !important;
+        border: 1.4px solid rgba(255,255,255,0.34) !important;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        cursor: pointer !important;
+        color: white !important;
+    }}
+    .page-theme-row button:hover,
+    .page-theme-row .stButton > button:hover {{
+        transform: translateY(-1px) scale(1.05) !important;
+        border-color: #00b4d8 !important;
+        box-shadow: 0 12px 28px rgba(0,180,216,0.30) !important;
+    }}
+    .welcome-divider {{ margin: 8px auto 12px auto !important; }}
+    .feature-cards-row {{ margin-bottom: 12px !important; }}
+    .stats-strip {{ margin: 8px 0 10px 0 !important; padding: 10px 8px !important; }}
+    .welcome-footer {{ padding-bottom: 0px !important; margin-bottom: 0px !important; }}
+    div[data-testid="stVerticalBlock"] {{ gap: 0.45rem !important; }}
+    @media (max-width: 700px) {{
+        .page-header-grid {{ grid-template-columns: 1fr auto !important; gap: 8px !important; }}
+        .page-title {{ font-size: 1.55rem !important; }}
+        .page-mode-holder {{ margin-right: 0 !important; padding-top: 4px !important; }}
+    }}
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -711,12 +793,28 @@ def inject_theme_toggle():
 def theme_toggle_button(page_key="", welcome=False):
     """Render light/dark mode button. Welcome page me icon title ke right side me rahega."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    wrap_class = "welcome-theme-row" if welcome else "theme-row"
+    wrap_class = "welcome-theme-row" if welcome else ("page-theme-row" if str(page_key).startswith("page_") else "theme-row")
     st.markdown(f'<div class="{wrap_class}">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
+
+def page_header(title, subtitle, key_name):
+    """All inner pages: title left and mode icon right side, same row."""
+    left_col, right_col = st.columns([10, 1])
+    with left_col:
+        st.markdown(f"""
+        <div class='page-header-titlebox'>
+            <div class='page-title'>{title}</div>
+            <p class='subtext'>{subtitle}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    with right_col:
+        st.markdown('<div class="page-mode-holder">', unsafe_allow_html=True)
+        theme_toggle_button(f"page_{key_name}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 def back_to_login_button(key_name="back_login"):
@@ -994,7 +1092,7 @@ def welcome_page():
     card_desc = "#b8e0f7" if dark else "#0077b6"
 
     # Title aur moon/sun icon ek hi row me: icon title ke right side me thoda niche
-    left_space, title_col, mode_col, right_space = st.columns([1.15, 4.6, 0.75, 1.15])
+    left_space, title_col, mode_col, right_space = st.columns([1.05, 4.8, 0.55, 0.85])
 
     with title_col:
         st.markdown(f"""
@@ -1178,11 +1276,9 @@ def sidebar(user):
 # INNER PAGES
 # =====================================================
 def home_page(user):
-    theme_toggle_button("home")
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
-    st.markdown(f"<div class='page-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
+    page_header(f"👋 Welcome, {name}!", "Your academic performance dashboard — all insights in one place.", "home")
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -1199,9 +1295,7 @@ def home_page(user):
 
 
 def prediction_page(user):
-    theme_toggle_button("pred")
-    st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
+    page_header("🔮 Score Prediction", "Enter academic details and get an AI-based predicted score.", "pred")
 
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
@@ -1267,9 +1361,7 @@ def prediction_page(user):
 
 
 def report_page(user):
-    theme_toggle_button("report")
-    st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
+    page_header("📄 Report & Share", "Download the PDF report and share it through WhatsApp or email.", "report")
 
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
@@ -1310,9 +1402,7 @@ def report_page(user):
 
 
 def history_page(user):
-    theme_toggle_button("hist")
-    st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
+    page_header("📚 Prediction History", "View all your predictions in one place.", "hist")
     records = user_history(st.session_state.username)
     if not records:
         st.info("No prediction history yet.")
@@ -1329,9 +1419,7 @@ def history_page(user):
 
 
 def profile_page(user):
-    theme_toggle_button("prof")
-    st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
+    page_header("👤 My Profile", "Edit your profile details and update your profile picture.", "prof")
 
     users = load_json(USER_DB_FILE, {})
     uname = st.session_state.username
