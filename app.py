@@ -24,7 +24,7 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-APP_NAME   = "🎓 ScoreWise AI"
+APP_NAME   = "<span class='app-cap'>🎓</span> ScoreWise AI"
 TAGLINE    = "Smart Student Performance Predictor"
 USER_DB_FILE   = "users.json"
 HISTORY_FILE   = "prediction_history.json"
@@ -333,33 +333,38 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle fixed TOP-RIGHT ── */
-    .theme-btn-wrap {{
+    /* ── Theme toggle button RIGHT SIDE ── */
+    .theme-row {{
         position: fixed !important;
-        top: 16px !important;
-        right: 24px !important;
-        left: auto !important;
+        top: 94px !important;
+        right: 28px !important;
         z-index: 999999 !important;
+        width: 64px !important;
+        height: 44px !important;
     }}
-    .theme-btn-wrap button {{
-        width: 40px !important;
+    .theme-row .stButton {{
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+    }}
+    .theme-row button,
+    .theme-row .stButton > button {{
+        width: 54px !important;
         height: 40px !important;
-        border-radius: 50% !important;
+        min-width: 54px !important;
+        border-radius: 999px !important;
         padding: 0 !important;
-        font-size: 1.2rem !important;
+        font-size: 1.15rem !important;
         background: {card_bg} !important;
         border: 1.5px solid {border_color} !important;
         box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
         backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: all 0.2s ease !important;
         color: {text_primary} !important;
     }}
-    .theme-btn-wrap button:hover {{
-        transform: scale(1.1) !important;
+    .theme-row button:hover,
+    .theme-row .stButton > button:hover {{
+        transform: scale(1.07) !important;
         box-shadow: 0 6px 22px rgba(0,0,0,0.28) !important;
     }}
 
@@ -539,14 +544,14 @@ def apply_css():
 
     /* ── Welcome page styles ── */
     .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
-    .hero-logo {{ display:none !important; }}
-    .app-title-cap {{
-        font-size: clamp(3.2rem,6vw,5.2rem);
-        vertical-align: -0.08em;
-        margin-right: 10px;
+    .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
+    .app-cap {{
+        font-size: 3.8rem;
+        vertical-align: middle;
+        margin-right: 8px;
         display: inline-block;
-        filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
     }}
+
     .hero-title {{
         font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
         color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
@@ -599,9 +604,9 @@ def apply_css():
 
 apply_css()
 
-# ── JS to inject theme toggle button at top-right (pure HTML/JS, not Streamlit widget) ──
+# ── JS to inject theme toggle button at top-left (pure HTML/JS, not Streamlit widget) ──
 def inject_theme_toggle():
-    """Inject a real fixed-position theme button via HTML — always top-right, always visible."""
+    """Inject a real fixed-position theme button via HTML — always top-left, always visible."""
     dark = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
     # We use a form POST trick via JS to trigger Streamlit rerun
@@ -610,13 +615,14 @@ def inject_theme_toggle():
     pass  # handled via CSS .theme-btn-wrap below
 
 def theme_toggle_button(page_key=""):
-    """Render theme toggle — CSS positions it fixed top-right."""
+    """Render light/dark mode button on the RIGHT side. Do not delete it."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
+    st.markdown('<div class="theme-row">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 def back_to_login_button(key_name="back_login"):
     """Show a small back button inside the dashboard to return to login page."""
@@ -895,7 +901,7 @@ def welcome_page():
 
     st.markdown(f"""
     <div class='hero-header'>
-      <h1 class='hero-title'><span class='app-title-cap'>🎓</span>ScoreWise AI</h1>
+      <h1 class='hero-title'>{APP_NAME}</h1>
       <p class='hero-tagline'>{TAGLINE} ✨</p>
     </div>
     <hr class='welcome-divider'/>
