@@ -24,7 +24,7 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-APP_NAME   = "ScoreWise AI"
+APP_NAME   = "🎓 ScoreWise AI"
 TAGLINE    = "Smart Student Performance Predictor"
 USER_DB_FILE   = "users.json"
 HISTORY_FILE   = "prediction_history.json"
