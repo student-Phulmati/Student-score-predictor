@@ -766,7 +766,138 @@ def apply_css():
         .page-mode-holder {{ padding-top: 4px !important; }}
     }}
 
-    </style>
+    
+
+    /* ================= SIDEBAR RESTORE FIX FOR STREAMLIT 1.57 ================= */
+    /* Header ko hide mat karo, warna sidebar ka open/collapse arrow bhi chup jata hai */
+    .stApp > header,
+    [data-testid="stHeader"] {{
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: 2.35rem !important;
+        min-height: 2.35rem !important;
+        background: transparent !important;
+        pointer-events: auto !important;
+        z-index: 999999 !important;
+    }}
+
+    /* Top gap ko phir bhi kam rakho */
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {{
+        padding-top: 0.15rem !important;
+        padding-bottom: 0.2rem !important;
+        padding-left: 0.9rem !important;
+        padding-right: 0.9rem !important;
+        max-width: 100% !important;
+    }}
+
+    /* Sidebar ko force visible/usable rakho */
+    section[data-testid="stSidebar"],
+    [data-testid="stSidebar"] {{
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 999998 !important;
+    }}
+
+    [data-testid="stSidebarContent"] {{
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }}
+
+    /* Sidebar collapsed hone par wapas lane wala button */
+    [data-testid="collapsedControl"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 10px !important;
+        left: 10px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 12px !important;
+        background: rgba(8,15,60,0.96) !important;
+        border: 1px solid rgba(255,255,255,0.22) !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 1000000 !important;
+        cursor: pointer !important;
+        color: transparent !important;
+        font-size: 0 !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
+    }}
+
+    [data-testid="collapsedControl"]::before {{
+        content: "☰" !important;
+        font-size: 21px !important;
+        font-weight: 900 !important;
+        color: white !important;
+        line-height: 1 !important;
+    }}
+
+    /* Sidebar ke andar close button */
+    [data-testid="stSidebarCollapseButton"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 12px !important;
+        background: rgba(8,15,60,0.96) !important;
+        border: 1px solid rgba(255,255,255,0.22) !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 1000000 !important;
+        cursor: pointer !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.25) !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button {{
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        color: transparent !important;
+        font-size: 0 !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button::before {{
+        content: "×" !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        color: white !important;
+        line-height: 1 !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="collapsedControl"] span {{
+        display: none !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="collapsedControl"]:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.04) !important;
+    }}
+</style>
     """, unsafe_allow_html=True)
 
 apply_css()
