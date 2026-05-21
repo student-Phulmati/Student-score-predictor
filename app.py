@@ -189,7 +189,7 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Keep Streamlit header available so sidebar arrow works ── */
+    /* ── Keep Streamlit header minimal ── */
     .stApp > header {{
         background: transparent !important;
         height: 0rem !important;
@@ -198,6 +198,7 @@ def apply_css():
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
     #MainMenu, footer {{ visibility: hidden; height: 0; }}
+    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
 
     /* ── Background ── */
     .stApp {{
@@ -209,9 +210,10 @@ def apply_css():
         min-height: 100vh;
     }}
     .main .block-container {{
-        padding-top: 0rem !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
+        margin-top: 0 !important;
     }}
 
     /* ── Sidebar ── */
@@ -223,105 +225,19 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Working sidebar IN / OUT arrow - no raw keyboard text ── */
+    /* ══════════════════════════════════════════
+       SIDEBAR ARROWS — FIX 3
+       Sidebar open  → « collapse button (inside sidebar, top-right)
+       Sidebar closed → » expand button (fixed, top-left)
+    ══════════════════════════════════════════ */
 
-    /* Hide Streamlit raw material icon text */
+    /* Hide raw text / SVG from Streamlit buttons */
     [data-testid="stSidebarCollapseButton"] button,
     [data-testid="collapsedControl"] {{
         font-size: 0 !important;
         color: transparent !important;
         overflow: hidden !important;
     }}
-
-    /* Sidebar open: collapse button inside sidebar top-right */
-    [data-testid="stSidebarCollapseButton"] {{
-        position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button {{
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        border-radius: 10px !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-    }}
-
-    /* Create clean collapse arrow */
-    [data-testid="stSidebarCollapseButton"] button::before {{
-        content: "«" !important;
-        font-size: 24px !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-        color: white !important;
-        display: block !important;
-    }}
-
-    /* Sidebar closed: expand button outside */
-    [data-testid="collapsedControl"] {{
-        position: fixed !important;
-        top: 14px !important;
-        left: 14px !important;
-        z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
-    }}
-
-    /* Create clean expand arrow */
-    [data-testid="collapsedControl"]::before {{
-        content: "»" !important;
-        font-size: 24px !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-        color: white !important;
-        display: block !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover,
-    [data-testid="collapsedControl"]:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.04) !important;
-    }}
-
-    /* Hide original SVG/icon if Streamlit renders it */
     [data-testid="stSidebarCollapseButton"] svg,
     [data-testid="collapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] span,
@@ -333,85 +249,193 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle button: dashboard/auth pages top-right ── */
+    /* Sidebar open: collapse «  */
+    [data-testid="stSidebarCollapseButton"] {{
+        position: absolute !important;
+        top: 14px !important;
+        right: 14px !important;
+        z-index: 999999 !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.90) !important;
+        border: 1.5px solid rgba(255,255,255,0.20) !important;
+        display: flex !important; visibility: visible !important; opacity: 1 !important;
+        align-items: center !important; justify-content: center !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        cursor: pointer !important;
+        transition: all 0.18s ease !important;
+    }}
+    [data-testid="stSidebarCollapseButton"] button {{
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        padding: 0 !important; margin: 0 !important;
+        border: none !important; border-radius: 10px !important;
+        background: transparent !important; box-shadow: none !important;
+        display: flex !important; align-items: center !important;
+        justify-content: center !important; cursor: pointer !important;
+    }}
+    /* « arrow via pseudo-element */
+    [data-testid="stSidebarCollapseButton"] button::before {{
+        content: "«" !important;
+        font-size: 22px !important; line-height: 1 !important;
+        font-weight: 900 !important; color: white !important;
+        display: block !important;
+    }}
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="stSidebarCollapseButton"] button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.06) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+    }}
+
+    /* Sidebar closed: expand »  */
+    [data-testid="collapsedControl"] {{
+        position: fixed !important;
+        top: 14px !important; left: 14px !important;
+        z-index: 999999 !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.90) !important;
+        border: 1.5px solid rgba(255,255,255,0.20) !important;
+        display: flex !important; visibility: visible !important; opacity: 1 !important;
+        align-items: center !important; justify-content: center !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        cursor: pointer !important;
+        transition: all 0.18s ease !important;
+    }}
+    /* » arrow via pseudo-element */
+    [data-testid="collapsedControl"]::before {{
+        content: "»" !important;
+        font-size: 22px !important; line-height: 1 !important;
+        font-weight: 900 !important; color: white !important;
+        display: block !important;
+    }}
+    [data-testid="collapsedControl"]:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.06) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+    }}
+
+    /* ══════════════════════════════════════════
+       THEME TOGGLE — dashboard/inner pages (fixed top-right)
+    ══════════════════════════════════════════ */
     .theme-row {{
         position: fixed !important;
-        top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        top: 14px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
-        width: 70px !important;
-        height: 44px !important;
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
+        width: 58px !important; height: 46px !important;
+        display: flex !important; justify-content: flex-end !important; align-items: center !important;
     }}
     .theme-row .stButton {{
         position: fixed !important;
-        top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        top: 14px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
-        display: flex !important;
-        justify-content: flex-end !important;
-        align-items: center !important;
     }}
     .theme-row button,
-    .theme-row .stButton > button,
-    .welcome-theme-row button,
-    .welcome-theme-row .stButton > button {{
-        width: 58px !important;
-        height: 46px !important;
-        min-width: 58px !important;
-        border-radius: 14px !important;
-        padding: 0 !important;
-        font-size: 1.25rem !important;
-        background: rgba(7,14,35,0.62) !important;
-        border: 1.4px solid rgba(255,255,255,0.34) !important;
-        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        cursor: pointer !important;
-        color: {text_primary} !important;
+    .theme-row .stButton > button {{
+        width: 50px !important; height: 40px !important;
+        min-width: 50px !important; border-radius: 12px !important;
+        padding: 0 !important; font-size: 1.2rem !important;
+        background: rgba(8,15,60,0.85) !important;
+        border: 1.4px solid rgba(255,255,255,0.28) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        backdrop-filter: blur(14px) !important;
+        cursor: pointer !important; color: {text_primary} !important;
+        transition: all 0.18s ease !important;
     }}
     .theme-row button:hover,
-    .theme-row .stButton > button:hover,
-    .welcome-theme-row button:hover,
-    .welcome-theme-row .stButton > button:hover {{
-        transform: translateY(-1px) scale(1.05) !important;
+    .theme-row .stButton > button:hover {{
+        transform: scale(1.06) !important;
         border-color: #00b4d8 !important;
-        box-shadow: 0 12px 28px rgba(0,180,216,0.30) !important;
+        box-shadow: 0 10px 26px rgba(0,180,216,0.32) !important;
     }}
 
-    /* Welcome page: moon/sun icon beside title, right side, little down */
-    .welcome-title-grid {{
-        display: grid !important;
-        grid-template-columns: 1fr auto 1fr !important;
+    /* ══════════════════════════════════════════
+       AUTH PAGE: back button + theme icon same horizontal line — FIX 3
+       Uses a flex row wrapper
+    ══════════════════════════════════════════ */
+    .auth-topbar {{
+        display: flex !important;
         align-items: center !important;
+        justify-content: space-between !important;
+        padding: 10px 4px 6px 4px !important;
+        margin-bottom: 6px !important;
         width: 100% !important;
-        max-width: 980px !important;
-        margin: 0 auto !important;
-        column-gap: 22px !important;
     }}
-    .welcome-title-center {{
-        grid-column: 2 !important;
+    .auth-topbar-left .stButton > button {{
+        background: {card_bg} !important;
+        border: 1.5px solid {border_color} !important;
+        color: {text_primary} !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important;
+        padding: 0.38rem 1.1rem !important;
+        font-size: 0.88rem !important;
+        border-radius: 999px !important;
+    }}
+    .auth-topbar-left .stButton > button:hover {{
+        background: {soft_card_bg} !important;
+        transform: translateX(-2px) !important;
+    }}
+    .auth-topbar-right .stButton > button {{
+        width: 50px !important; height: 40px !important;
+        min-width: 50px !important; border-radius: 12px !important;
+        padding: 0 !important; font-size: 1.2rem !important;
+        background: rgba(8,15,60,0.85) !important;
+        border: 1.4px solid rgba(255,255,255,0.28) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        backdrop-filter: blur(14px) !important;
+        cursor: pointer !important; color: {text_primary} !important;
+    }}
+    .auth-topbar-right .stButton > button:hover {{
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
+    }}
+
+    /* ══════════════════════════════════════════
+       WELCOME PAGE — FIX 1 & 2
+       Icon far right, tight vertical spacing
+    ══════════════════════════════════════════ */
+
+    /* Remove ALL default Streamlit top padding on welcome */
+    .welcome-outer {{
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }}
+
+    /* Title row: title center, icon extreme right */
+    .welcome-toprow {{
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 18px !important;
+        position: relative !important;
+        padding: 12px 0 6px 0 !important;
+        margin: 0 !important;
     }}
-    .welcome-theme-row {{
-        grid-column: 3 !important;
-        justify-self: start !important;
-        align-self: center !important;
-        transform: translateY(9px) !important;
-        width: 58px !important;
-        height: 46px !important;
-        z-index: 20 !important;
+    .welcome-title-block {{
+        text-align: center !important;
     }}
-    .welcome-theme-row .stButton {{
-        width: 58px !important;
-        height: 46px !important;
+    /* Theme icon: absolute right edge of welcome top row */
+    .welcome-icon-abs {{
+        position: absolute !important;
+        right: 0px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }}
+    .welcome-icon-abs .stButton > button {{
+        width: 50px !important; height: 40px !important;
+        min-width: 50px !important; border-radius: 12px !important;
+        padding: 0 !important; font-size: 1.2rem !important;
+        background: rgba(8,15,60,0.85) !important;
+        border: 1.4px solid rgba(255,255,255,0.28) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        backdrop-filter: blur(14px) !important;
+        cursor: pointer !important; color: {text_primary} !important;
+    }}
+    .welcome-icon-abs .stButton > button:hover {{
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
+        box-shadow: 0 10px 26px rgba(0,180,216,0.32) !important;
     }}
 
     /* ── Back button style ── */
@@ -491,7 +515,7 @@ def apply_css():
         color: white !important;
     }}
 
-    /* ── Inputs — dark mode: white bg, black text ── */
+    /* ── Inputs ── */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -508,7 +532,6 @@ def apply_css():
     .stPasswordInput input::placeholder {{
         color: rgba(10,15,60,0.45) !important;
     }}
-    /* Selectbox */
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
@@ -530,7 +553,6 @@ def apply_css():
     [data-baseweb="menu"] li:hover {{
         background: rgba(0,150,220,0.14) !important;
     }}
-    /* Number input value text */
     [data-testid="stNumberInputField"] input {{
         color: {input_text} !important;
         background: {input_bg} !important;
@@ -589,138 +611,85 @@ def apply_css():
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ── Welcome page styles ── */
-    .hero-header {{ text-align: center; padding: 4px 10px 12px 10px; }}
-    .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
     .app-cap {{
-        font-size: 3.8rem;
+        font-size: 3.2rem;
         vertical-align: middle;
-        margin-right: 8px;
+        margin-right: 6px;
         display: inline-block;
     }}
-
     .hero-title {{
-        font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
+        font-size: clamp(2.2rem,4.5vw,3.6rem); font-weight: 900;
         color: {'white' if dark else '#03045e'}; margin: 0;
-        letter-spacing: -1.2px; text-shadow: 0 3px 18px rgba(0,0,0,0.30);
+        letter-spacing: -1px; text-shadow: 0 3px 18px rgba(0,0,0,0.25);
+        line-height: 1.05;
     }}
     .hero-tagline {{
-        font-size: 1.06rem; color: {'#b8e0f7' if dark else '#0077b6'};
-        font-weight: 600; margin: 8px 0 0 0;
+        font-size: 1.02rem; color: {'#b8e0f7' if dark else '#0077b6'};
+        font-weight: 600; margin: 6px 0 0 0;
     }}
     .welcome-divider {{
         border: 0; height: 1px;
         background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
-        margin: 12px auto 16px auto; max-width: 600px;
+        margin: 10px auto 14px auto; max-width: 600px;
     }}
-    .feature-cards-row {{ display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px 0; }}
+    .feature-cards-row {{ display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 0 0 18px 0; }}
     .feat-card {{
-        flex: 1 1 210px; max-width: 260px;
+        flex: 1 1 200px; max-width: 250px;
         background: {'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};
         border: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};
-        border-radius: 20px; padding: 24px 20px 20px 20px;
+        border-radius: 18px; padding: 20px 16px 16px 16px;
         text-align: center; backdrop-filter: blur(16px);
         box-shadow: 0 10px 30px rgba(0,0,0,0.14); transition: transform 0.20s ease;
     }}
     .feat-card:hover {{ transform: translateY(-4px); }}
-    .feat-icon {{ font-size: 2.2rem; display:block; margin-bottom:8px; }}
-    .feat-title {{ font-size: 1.06rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 5px 0; }}
-    .feat-sep {{ width: 36px; height: 3px; background: linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius: 99px; margin: 0 auto 9px auto; }}
-    .feat-desc {{ font-size: 0.79rem; color: {'#b8e0f7' if dark else '#0077b6'}; font-weight: 600; line-height: 1.6; }}
-    .used-for-row {{ display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 0 0 8px 0; }}
-    .used-item {{ text-align: center; padding: 5px 10px; }}
-    .used-icon {{ font-size: 1.5rem; display:block; margin-bottom:2px; }}
-    .used-label {{ font-size: 0.69rem; font-weight: 800; color: {'#b8e0f7' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
+    .feat-icon {{ font-size: 2rem; display:block; margin-bottom:7px; }}
+    .feat-title {{ font-size: 1rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 4px 0; }}
+    .feat-sep {{ width: 32px; height: 3px; background: linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius: 99px; margin: 0 auto 8px auto; }}
+    .feat-desc {{ font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; font-weight: 600; line-height: 1.55; }}
+    .used-for-row {{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 6px 0; }}
+    .used-item {{ text-align: center; padding: 4px 8px; }}
+    .used-icon {{ font-size: 1.4rem; display:block; margin-bottom:2px; }}
+    .used-label {{ font-size: 0.67rem; font-weight: 800; color: {'#b8e0f7' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
     .stats-strip {{
-        display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-        padding: 14px 10px;
+        display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        padding: 12px 10px;
         border-top: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
         border-bottom: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
-        margin: 14px 0 20px 0;
+        margin: 12px 0 16px 0;
     }}
     .stat-chip {{
-        display: flex; align-items: center; gap: 7px; padding: 7px 14px;
+        display: flex; align-items: center; gap: 6px; padding: 6px 12px;
         border-radius: 999px; background: rgba(0,180,216,0.12);
         border: 1px solid rgba(0,180,216,0.22);
     }}
-    .stat-chip-num {{ font-size: 1.12rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
-    .stat-chip-lbl {{ font-size: 0.72rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
-    .welcome-footer {{ text-align: center; font-size: 0.79rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding-bottom: 14px; font-weight: 600; }}
-
-
-    /* ===== FINAL FIX: Welcome title + theme icon same row ===== */
-    .main .block-container {{
-        padding-top: 0rem !important;
-        margin-top: 0rem !important;
-    }}
-    [data-testid="stToolbar"] {{
-        visibility: hidden !important;
-        height: 0px !important;
-        position: fixed !important;
-    }}
-    .hero-header {{
-        text-align: center !important;
-        padding: 0px 10px 8px 10px !important;
-        margin-top: -8px !important;
-    }}
-    .hero-title {{
-        margin: 0 !important;
-        line-height: 1.05 !important;
-    }}
-    .hero-tagline {{
-        margin-top: 8px !important;
-    }}
-    .welcome-mode-holder {{
-        height: 100% !important;
-        display: flex !important;
-        align-items: flex-start !important;
-        justify-content: flex-start !important;
-        padding-top: 32px !important;  /* icon ko title se thoda niche rakhta hai */
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {{
-        align-items: flex-start !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }}
-    .welcome-theme-row {{
-        position: relative !important;
-        transform: none !important;
-        width: 58px !important;
-        height: 46px !important;
-        z-index: 20 !important;
-    }}
-    .welcome-theme-row .stButton {{
-        position: relative !important;
-        width: 58px !important;
-        height: 46px !important;
-    }}
+    .stat-chip-num {{ font-size: 1.08rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
+    .stat-chip-lbl {{ font-size: 0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
+    .welcome-footer {{ text-align: center; font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding: 6px 0 10px 0; font-weight: 600; }}
     </style>
     """, unsafe_allow_html=True)
 
 apply_css()
 
-# ── JS to inject theme toggle button at top-left (pure HTML/JS, not Streamlit widget) ──
-def inject_theme_toggle():
-    """Inject a real fixed-position theme button via HTML — always top-left, always visible."""
-    dark = st.session_state.theme == "dark"
-    emoji = "☀️" if dark else "🌙"
-    # We use a form POST trick via JS to trigger Streamlit rerun
-    # Instead, we use st.button inside a fixed div using CSS injection + JS click relay
-    # Best approach: render the button normally but use CSS to move it
-    pass  # handled via CSS .theme-btn-wrap below
 
 def theme_toggle_button(page_key="", welcome=False):
-    """Render light/dark mode button. Welcome page me icon title ke right side me rahega."""
+    """Render light/dark mode button."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    wrap_class = "welcome-theme-row" if welcome else "theme-row"
-    st.markdown(f'<div class="{wrap_class}">', unsafe_allow_html=True)
-    if st.button(emoji, key=f"theme_{page_key}"):
-        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    if welcome:
+        # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
+        st.markdown('<div class="welcome-icon-abs">', unsafe_allow_html=True)
+        if st.button(emoji, key=f"theme_{page_key}"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="theme-row">', unsafe_allow_html=True)
+        if st.button(emoji, key=f"theme_{page_key}"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
 def back_to_login_button(key_name="back_login"):
-    """Show a small back button inside the dashboard to return to login page."""
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
     if st.button("← Back to Login", key=key_name):
         st.session_state.logged_in = False
@@ -987,28 +956,34 @@ def factor_bar_chart(inputs):
     return fig
 
 # =====================================================
-# WELCOME PAGE
+# WELCOME PAGE  — FIX 1 & 2
 # =====================================================
 def welcome_page():
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
+    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # Title aur moon/sun icon ek hi row me: icon title ke right side me thoda niche
-    left_space, title_col, mode_col, right_space = st.columns([1.15, 4.6, 0.75, 1.15])
+    # ── Title row: relative container so theme icon can be absolute-right ──
+    # We use a single st.columns([1, auto, tiny]) where tiny col holds the icon
+    title_col, icon_col = st.columns([15, 1])
 
     with title_col:
         st.markdown(f"""
-        <div class='hero-header'>
+        <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
           <h1 class='hero-title'>{APP_NAME}</h1>
           <p class='hero-tagline'>{TAGLINE} ✨</p>
         </div>
         """, unsafe_allow_html=True)
 
-    with mode_col:
-        st.markdown("<div class='welcome-mode-holder'>", unsafe_allow_html=True)
-        theme_toggle_button("welcome", welcome=True)
+    with icon_col:
+        # Minimal vertical centering — push button down to align with title center
+        st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
+        if st.button(emoji, key="theme_welcome"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # ── Content: no extra top/bottom gaps ──
     st.markdown(f"""
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
@@ -1031,7 +1006,7 @@ def welcome_page():
         <div class='feat-desc'>• Downloadable report<br>• Share on WhatsApp<br>• Professional format</div>
       </div>
     </div>
-    <div style='text-align:center;margin-bottom:8px;font-size:0.82rem;font-weight:700;color:{card_desc};letter-spacing:1.4px;text-transform:uppercase;'>─── Used For ───</div>
+    <div style='text-align:center;margin-bottom:7px;font-size:0.80rem;font-weight:700;color:{card_desc};letter-spacing:1.3px;text-transform:uppercase;'>─── Used For ───</div>
     <div class='used-for-row'>
       <div class='used-item'><span class='used-icon'>🎓</span><div class='used-label'>Students</div></div>
       <div class='used-item'><span class='used-icon'>👨‍👩‍👧</span><div class='used-label'>Parents</div></div>
@@ -1052,23 +1027,36 @@ def welcome_page():
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
+
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  — with proper Back button
+# AUTH PAGE  — FIX 3: Back button + theme icon same horizontal line
+#              FIX 4: Remove the empty box at top
 # =====================================================
 def auth_page():
-    theme_toggle_button("auth")
-
-    # ── Back button — styled, not raw code ──
-    st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
-    if st.button("← Back to Home", key="auth_back"):
-        st.session_state.auth_page = "welcome"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
     users = load_json(USER_DB_FILE, {})
 
+    # ── Top bar: Back button LEFT, theme icon RIGHT — same row ──
+    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
+
+    left_col, spacer_col, right_col = st.columns([2, 8, 1])
+
+    with left_col:
+        st.markdown('<div class="auth-topbar-left">', unsafe_allow_html=True)
+        if st.button("← Back to Home", key="auth_back"):
+            st.session_state.auth_page = "welcome"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with right_col:
+        st.markdown('<div class="auth-topbar-right">', unsafe_allow_html=True)
+        if st.button(emoji, key="theme_auth"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Login / Signup card ──
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
@@ -1434,7 +1422,6 @@ def main_app():
     user  = users.get(st.session_state.username, {})
     sidebar(user)
 
-    # Dashboard ke andar se Login page par wapas jane ka option
     back_to_login_button("dashboard_back_login")
 
     page = st.session_state.active_page
