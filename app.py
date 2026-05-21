@@ -192,7 +192,7 @@ def apply_css():
     /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
-        height: 0rem !important;
+        height: 3rem !important;
         display: block !important;
         z-index: 99999 !important;
     }}
@@ -223,116 +223,99 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Working sidebar IN / OUT arrow - no raw keyboard text ── */
 
-    /* Hide Streamlit raw material icon text */
-    [data-testid="stSidebarCollapseButton"] button,
-    [data-testid="collapsedControl"] {{
+    /* ── PERFECT sidebar arrows ── */
+
+    /* Hide all raw text/icons */
+    [data-testid="collapsedControl"] *,
+    [data-testid="stSidebarCollapseButton"] * {{
         font-size: 0 !important;
         color: transparent !important;
-        overflow: hidden !important;
+        text-indent: -9999px !important;
     }}
 
-    /* Sidebar open: collapse button inside sidebar top-right */
+    /* INSIDE SIDEBAR COLLAPSE BUTTON */
     [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
         top: 14px !important;
         right: 14px !important;
+        width: 36px !important;
+        height: 36px !important;
         z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
         border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
+        background: rgba(8,15,60,0.96) !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+        overflow: hidden !important;
     }}
 
     [data-testid="stSidebarCollapseButton"] button {{
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
+        width: 100% !important;
+        height: 100% !important;
         padding: 0 !important;
-        margin: 0 !important;
         border: none !important;
-        border-radius: 10px !important;
         background: transparent !important;
-        box-shadow: none !important;
+        position: relative !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button::after {{
+        content: "«" !important;
+        position: absolute !important;
+        inset: 0 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        cursor: pointer !important;
-    }}
-
-    /* Create clean collapse arrow */
-    [data-testid="stSidebarCollapseButton"] button::before {{
-        content: "«" !important;
-        font-size: 24px !important;
-        line-height: 1 !important;
+        font-size: 22px !important;
         font-weight: 900 !important;
         color: white !important;
-        display: block !important;
+        text-indent: 0 !important;
     }}
 
-    /* Sidebar closed: expand button outside */
+    /* OUTSIDE EXPAND BUTTON */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
         top: 14px !important;
         left: 14px !important;
+        width: 36px !important;
+        height: 36px !important;
         z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
         border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
+        background: rgba(8,15,60,0.96) !important;
+        border: 1px solid rgba(255,255,255,0.14) !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+        overflow: hidden !important;
+    }}
+
+    /* FORCE SHOW EXPAND ARROW */
+    [data-testid="collapsedControl"]::after {{
+        content: "»" !important;
+        position: absolute !important;
+        inset: 0 !important;
         display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
         align-items: center !important;
         justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
-    }}
-
-    /* Create clean expand arrow */
-    [data-testid="collapsedControl"]::before {{
-        content: "»" !important;
-        font-size: 24px !important;
-        line-height: 1 !important;
+        font-size: 22px !important;
         font-weight: 900 !important;
         color: white !important;
-        display: block !important;
+        z-index: 999999 !important;
+        text-indent: 0 !important;
+        pointer-events: none !important;
     }}
 
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover,
-    [data-testid="collapsedControl"]:hover {{
+    /* Hover */
+    [data-testid="collapsedControl"]:hover,
+    [data-testid="stSidebarCollapseButton"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.04) !important;
     }}
 
-    /* Hide original SVG/icon if Streamlit renders it */
-    [data-testid="stSidebarCollapseButton"] svg,
+    /* Hide SVG icons completely */
     [data-testid="collapsedControl"] svg,
-    [data-testid="stSidebarCollapseButton"] span,
-    [data-testid="collapsedControl"] span {{
+    [data-testid="stSidebarCollapseButton"] svg {{
         display: none !important;
-        visibility: hidden !important;
         opacity: 0 !important;
-        font-size: 0 !important;
-        color: transparent !important;
+        visibility: hidden !important;
     }}
-
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
         position: fixed;
