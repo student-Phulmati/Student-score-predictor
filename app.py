@@ -138,6 +138,7 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
+        "nav_open":          True,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -192,7 +193,7 @@ def apply_css():
     /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
-        height: 0rem !important;
+        height: 3rem !important;
         display: block !important;
         z-index: 99999 !important;
     }}
@@ -223,95 +224,58 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Working sidebar IN / OUT arrow like top-corner example ── */
 
-    /* Sidebar ke andar wala collapse arrow */
-    [data-testid="stSidebarCollapseButton"] {
-        position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
-    }
+    /* ── Hide Streamlit default sidebar arrow to avoid keyboard_double_arrow text ── */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    header[data-testid="stHeader"] button:first-of-type,
+    .stApp > header button:first-of-type {{
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }}
 
-    [data-testid="stSidebarCollapseButton"] button {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
+    /* ── Custom sidebar open/close arrow buttons ── */
+    .custom-nav-arrow .stButton > button {{
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
         padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
         border-radius: 10px !important;
-        background: transparent !important;
-        box-shadow: none !important;
+        background: rgba(8,15,60,0.96) !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        color: #ffffff !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-    }
+    }}
 
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover {
+    .custom-nav-arrow .stButton > button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.04) !important;
-    }
-
-    [data-testid="stSidebarCollapseButton"] svg {
-        width: 18px !important;
-        height: 18px !important;
+        transform: scale(1.05) !important;
         color: white !important;
-        fill: white !important;
-        stroke: white !important;
-    }
+    }}
 
-    /* Sidebar band hone ke baad bahar wala expand arrow */
-    [data-testid="collapsedControl"] {
+    .open-nav-arrow {{
         position: fixed !important;
         top: 14px !important;
         left: 14px !important;
         z-index: 999999 !important;
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        min-height: 34px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.15) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        cursor: pointer !important;
-    }
+    }}
 
-    [data-testid="collapsedControl"]:hover {
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.04) !important;
-    }
+    .close-nav-arrow {{
+        position: absolute !important;
+        top: 14px !important;
+        right: 14px !important;
+        z-index: 999999 !important;
+    }}
 
-    [data-testid="collapsedControl"] svg {
-        width: 18px !important;
-        height: 18px !important;
-        color: white !important;
-        fill: white !important;
-        stroke: white !important;
-    }
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
@@ -1008,11 +972,25 @@ def auth_page():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
+
+def open_sidebar_button():
+    st.markdown('<div class="custom-nav-arrow open-nav-arrow">', unsafe_allow_html=True)
+    if st.button("»", key="open_custom_nav"):
+        st.session_state.nav_open = True
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # =====================================================
 # SIDEBAR
 # =====================================================
 def sidebar(user):
     with st.sidebar:
+        st.markdown('<div class="custom-nav-arrow close-nav-arrow">', unsafe_allow_html=True)
+        if st.button("«", key="close_custom_nav"):
+            st.session_state.nav_open = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
@@ -1293,7 +1271,11 @@ def profile_page(user):
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
-    sidebar(user)
+
+    if st.session_state.nav_open:
+        sidebar(user)
+    else:
+        open_sidebar_button()
 
     # Dashboard ke andar se Login page par wapas jane ka option
     back_to_login_button("dashboard_back_login")
