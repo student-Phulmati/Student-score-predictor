@@ -648,51 +648,51 @@ def apply_css():
 
 
     /* ===== FINAL FIX: Welcome title + theme icon same row ===== */
-    .main .block-container {
+    .main .block-container {{
         padding-top: 0rem !important;
         margin-top: 0rem !important;
-    }
-    [data-testid="stToolbar"] {
+    }}
+    [data-testid="stToolbar"] {{
         visibility: hidden !important;
         height: 0px !important;
         position: fixed !important;
-    }
-    .hero-header {
+    }}
+    .hero-header {{
         text-align: center !important;
         padding: 0px 10px 8px 10px !important;
         margin-top: -8px !important;
-    }
-    .hero-title {
+    }}
+    .hero-title {{
         margin: 0 !important;
         line-height: 1.05 !important;
-    }
-    .hero-tagline {
+    }}
+    .hero-tagline {{
         margin-top: 8px !important;
-    }
-    .welcome-mode-holder {
+    }}
+    .welcome-mode-holder {{
         height: 100% !important;
         display: flex !important;
         align-items: flex-start !important;
         justify-content: flex-start !important;
         padding-top: 32px !important;  /* icon ko title se thoda niche rakhta hai */
-    }
-    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {{
         align-items: flex-start !important;
         margin-top: 0 !important;
         margin-bottom: 0 !important;
-    }
-    .welcome-theme-row {
+    }}
+    .welcome-theme-row {{
         position: relative !important;
         transform: none !important;
         width: 58px !important;
         height: 46px !important;
         z-index: 20 !important;
-    }
-    .welcome-theme-row .stButton {
+    }}
+    .welcome-theme-row .stButton {{
         position: relative !important;
         width: 58px !important;
         height: 46px !important;
-    }
+    }}
     </style>
     """, unsafe_allow_html=True)
 
