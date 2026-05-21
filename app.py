@@ -145,6 +145,176 @@ def init_state():
 
 init_state()
 
+# =====================================================
+# INJECT CUSTOM SIDEBAR TOGGLE BUTTON VIA JS
+# =====================================================
+def inject_sidebar_toggle():
+    """
+    Injects a floating » button (top-right corner) that appears when sidebar
+    is collapsed, and a « button inside the sidebar when it is open.
+    This uses a MutationObserver to reliably detect sidebar state changes.
+    """
+    st.markdown("""
+    <style>
+    /* Hide Streamlit's default sidebar toggle buttons completely */
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="collapsedControl"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+
+    /* Our custom floating toggle button */
+    #custom-sidebar-btn {
+        position: fixed;
+        top: 14px;
+        z-index: 9999999;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        border: 1.5px solid rgba(255,255,255,0.25);
+        background: rgba(8, 15, 60, 0.92);
+        color: white;
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: all 0.20s ease;
+        user-select: none;
+    }
+    #custom-sidebar-btn:hover {
+        background: linear-gradient(135deg, #0077b6, #00b4d8);
+        transform: scale(1.08);
+        box-shadow: 0 8px 28px rgba(0,180,216,0.40);
+        border-color: #00b4d8;
+    }
+    </style>
+
+    <div id="custom-sidebar-btn" title="Toggle Sidebar">»</div>
+
+    <script>
+    (function() {
+        var btn = document.getElementById('custom-sidebar-btn');
+        if (!btn) return;
+
+        function getSidebar() {
+            return document.querySelector('[data-testid="stSidebar"]');
+        }
+
+        function isCollapsed() {
+            var sb = getSidebar();
+            if (!sb) return true;
+            // Streamlit adds aria-expanded="false" or width ~0 when collapsed
+            var style = window.getComputedStyle(sb);
+            var w = parseFloat(style.width);
+            // Also check aria-expanded on the section tag inside
+            var section = sb.querySelector('section');
+            if (section) {
+                var expanded = section.getAttribute('aria-expanded');
+                if (expanded === 'false') return true;
+                if (expanded === 'true') return false;
+            }
+            return (w < 50);
+        }
+
+        function updateBtn() {
+            var sb = getSidebar();
+            if (!sb) {
+                btn.style.left = '14px';
+                btn.style.right = 'auto';
+                btn.innerHTML = '»';
+                return;
+            }
+            var style = window.getComputedStyle(sb);
+            var w = parseFloat(style.width);
+            var section = sb.querySelector('section');
+            var expanded = section ? section.getAttribute('aria-expanded') : null;
+            var collapsed = (expanded === 'false') || (w < 50);
+
+            if (collapsed) {
+                // Sidebar hidden → show » at top-LEFT so user can open it
+                btn.style.left = '14px';
+                btn.style.right = 'auto';
+                btn.innerHTML = '»';
+            } else {
+                // Sidebar visible → show « at top-RIGHT of viewport
+                btn.style.left = 'auto';
+                btn.style.right = '14px';
+                btn.innerHTML = '«';
+            }
+        }
+
+        function clickStreamlitToggle() {
+            // Try the collapse button inside sidebar first
+            var collapseBtn = document.querySelector('[data-testid="stSidebarCollapseButton"] button');
+            if (collapseBtn) { collapseBtn.click(); return; }
+            // Try collapsed control
+            var expandBtn = document.querySelector('[data-testid="collapsedControl"]');
+            if (expandBtn) { expandBtn.click(); return; }
+            // Fallback: toggle aria-expanded manually
+            var sb = getSidebar();
+            if (sb) {
+                var section = sb.querySelector('section');
+                if (section) {
+                    var cur = section.getAttribute('aria-expanded');
+                    section.setAttribute('aria-expanded', cur === 'false' ? 'true' : 'false');
+                }
+            }
+        }
+
+        btn.addEventListener('click', function() {
+            // Temporarily show Streamlit's buttons so we can click them
+            var style = document.createElement('style');
+            style.id = '__tmp_show';
+            style.textContent = '[data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] { display: flex !important; visibility: visible !important; opacity: 1 !important; pointer-events: auto !important; width: auto !important; height: auto !important; }';
+            document.head.appendChild(style);
+
+            setTimeout(function() {
+                clickStreamlitToggle();
+                var tmp = document.getElementById('__tmp_show');
+                if (tmp) tmp.remove();
+                setTimeout(updateBtn, 400);
+            }, 30);
+        });
+
+        // Watch for sidebar DOM/style changes
+        var observer = new MutationObserver(function() {
+            updateBtn();
+        });
+
+        function startObserving() {
+            var sb = getSidebar();
+            if (sb) {
+                observer.observe(sb, { attributes: true, childList: true, subtree: true, attributeFilter: ['style', 'class', 'aria-expanded'] });
+                var section = sb.querySelector('section');
+                if (section) observer.observe(section, { attributes: true, attributeFilter: ['aria-expanded'] });
+            }
+            observer.observe(document.body, { childList: true, subtree: false });
+            updateBtn();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() { setTimeout(startObserving, 500); });
+        } else {
+            setTimeout(startObserving, 500);
+        }
+
+        // Periodic fallback update
+        setInterval(updateBtn, 1200);
+    })();
+    </script>
+    """, unsafe_allow_html=True)
+
+
 def apply_css():
     dark       = st.session_state.theme == "dark"
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
@@ -225,97 +395,15 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ══════════════════════════════════════════
-       SIDEBAR ARROWS — FIX 3
-       Sidebar open  → « collapse button (inside sidebar, top-right)
-       Sidebar closed → » expand button (fixed, top-left)
-    ══════════════════════════════════════════ */
-
-    /* Hide raw text / SVG from Streamlit buttons */
-    [data-testid="stSidebarCollapseButton"] button,
+    /* ── HIDE default Streamlit sidebar arrows completely ── */
+    [data-testid="stSidebarCollapseButton"],
     [data-testid="collapsedControl"] {{
-        font-size: 0 !important;
-        color: transparent !important;
-        overflow: hidden !important;
-    }}
-    [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="collapsedControl"] svg,
-    [data-testid="stSidebarCollapseButton"] span,
-    [data-testid="collapsedControl"] span {{
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
-        font-size: 0 !important;
-        color: transparent !important;
-    }}
-
-    /* Sidebar open: collapse «  */
-    [data-testid="stSidebarCollapseButton"] {{
-        position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
-        cursor: pointer !important;
-        transition: all 0.18s ease !important;
-    }}
-    [data-testid="stSidebarCollapseButton"] button {{
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        padding: 0 !important; margin: 0 !important;
-        border: none !important; border-radius: 10px !important;
-        background: transparent !important; box-shadow: none !important;
-        display: flex !important; align-items: center !important;
-        justify-content: center !important; cursor: pointer !important;
-    }}
-    /* « arrow via pseudo-element */
-    [data-testid="stSidebarCollapseButton"] button::before {{
-        content: "«" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
-        display: block !important;
-    }}
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
-    }}
-
-    /* Sidebar closed: expand »  */
-    [data-testid="collapsedControl"] {{
-        position: fixed !important;
-        top: 14px !important; left: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
-        cursor: pointer !important;
-        transition: all 0.18s ease !important;
-    }}
-    /* » arrow via pseudo-element */
-    [data-testid="collapsedControl"]::before {{
-        content: "»" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
-        display: block !important;
-    }}
-    [data-testid="collapsedControl"]:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+        pointer-events: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }}
 
     /* ══════════════════════════════════════════
@@ -323,14 +411,14 @@ def apply_css():
     ══════════════════════════════════════════ */
     .theme-row {{
         position: fixed !important;
-        top: 14px !important; right: 18px !important; left: auto !important;
+        top: 14px !important; right: 70px !important; left: auto !important;
         z-index: 999999 !important;
         width: 58px !important; height: 46px !important;
         display: flex !important; justify-content: flex-end !important; align-items: center !important;
     }}
     .theme-row .stButton {{
         position: fixed !important;
-        top: 14px !important; right: 18px !important; left: auto !important;
+        top: 14px !important; right: 70px !important; left: auto !important;
         z-index: 999999 !important;
     }}
     .theme-row button,
@@ -353,8 +441,7 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       AUTH PAGE: back button + theme icon same horizontal line — FIX 3
-       Uses a flex row wrapper
+       AUTH PAGE: back button + theme icon same horizontal line
     ══════════════════════════════════════════ */
     .auth-topbar {{
         display: flex !important;
@@ -390,52 +477,6 @@ def apply_css():
     .auth-topbar-right .stButton > button:hover {{
         transform: scale(1.06) !important;
         border-color: #00b4d8 !important;
-    }}
-
-    /* ══════════════════════════════════════════
-       WELCOME PAGE — FIX 1 & 2
-       Icon far right, tight vertical spacing
-    ══════════════════════════════════════════ */
-
-    /* Remove ALL default Streamlit top padding on welcome */
-    .welcome-outer {{
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }}
-
-    /* Title row: title center, icon extreme right */
-    .welcome-toprow {{
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        position: relative !important;
-        padding: 12px 0 6px 0 !important;
-        margin: 0 !important;
-    }}
-    .welcome-title-block {{
-        text-align: center !important;
-    }}
-    /* Theme icon: absolute right edge of welcome top row */
-    .welcome-icon-abs {{
-        position: absolute !important;
-        right: 0px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-    }}
-    .welcome-icon-abs .stButton > button {{
-        width: 50px !important; height: 40px !important;
-        min-width: 50px !important; border-radius: 12px !important;
-        padding: 0 !important; font-size: 1.2rem !important;
-        background: rgba(8,15,60,0.85) !important;
-        border: 1.4px solid rgba(255,255,255,0.28) !important;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-        backdrop-filter: blur(14px) !important;
-        cursor: pointer !important; color: {text_primary} !important;
-    }}
-    .welcome-icon-abs .stButton > button:hover {{
-        transform: scale(1.06) !important;
-        border-color: #00b4d8 !important;
-        box-shadow: 0 10px 26px rgba(0,180,216,0.32) !important;
     }}
 
     /* ── Back button style ── */
@@ -669,18 +710,20 @@ def apply_css():
     """, unsafe_allow_html=True)
 
 apply_css()
+inject_sidebar_toggle()
 
 
 def theme_toggle_button(page_key="", welcome=False):
     """Render light/dark mode button."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     if welcome:
-        # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
-        st.markdown('<div class="welcome-icon-abs">', unsafe_allow_html=True)
-        if st.button(emoji, key=f"theme_{page_key}"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        col_t1, col_t2 = st.columns([15, 1])
+        with col_t2:
+            st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
+            if st.button(emoji, key=f"theme_{page_key}"):
+                st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+                st.rerun()
+            st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.markdown('<div class="theme-row">', unsafe_allow_html=True)
         if st.button(emoji, key=f"theme_{page_key}"):
@@ -956,15 +999,13 @@ def factor_bar_chart(inputs):
     return fig
 
 # =====================================================
-# WELCOME PAGE  — FIX 1 & 2
+# WELCOME PAGE
 # =====================================================
 def welcome_page():
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # ── Title row: relative container so theme icon can be absolute-right ──
-    # We use a single st.columns([1, auto, tiny]) where tiny col holds the icon
     title_col, icon_col = st.columns([15, 1])
 
     with title_col:
@@ -976,14 +1017,12 @@ def welcome_page():
         """, unsafe_allow_html=True)
 
     with icon_col:
-        # Minimal vertical centering — push button down to align with title center
         st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
         if st.button(emoji, key="theme_welcome"):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Content: no extra top/bottom gaps ──
     st.markdown(f"""
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
@@ -1031,13 +1070,11 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  — FIX 3: Back button + theme icon same horizontal line
-#              FIX 4: Remove the empty box at top
+# AUTH PAGE
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
 
-    # ── Top bar: Back button LEFT, theme icon RIGHT — same row ──
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
@@ -1056,7 +1093,6 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Login / Signup card ──
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
