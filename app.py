@@ -337,8 +337,8 @@ def apply_css():
     .theme-row {{
         position: fixed !important;
         top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        left: 18px !important;
+        right: auto !important;
         z-index: 999999 !important;
         width: 70px !important;
         height: 44px !important;
@@ -349,8 +349,8 @@ def apply_css():
     .theme-row .stButton {{
         position: fixed !important;
         top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        left: 18px !important;
+        right: auto !important;
         z-index: 999999 !important;
         display: flex !important;
         justify-content: flex-end !important;
