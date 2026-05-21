@@ -225,18 +225,67 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
 
-    /* ── Hide Streamlit default sidebar arrow to avoid keyboard_double_arrow text ── */
+    /* ── Hide Streamlit default sidebar controls only ── */
     [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapseButton"],
-    header[data-testid="stHeader"] button:first-of-type,
-    .stApp > header button:first-of-type {{
+    [data-testid="stSidebarCollapseButton"] {{
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
     }}
 
-    /* ── Custom sidebar open/close arrow buttons ── */
-    .custom-nav-arrow .stButton > button {{
+    /* ── Custom sidebar panel ── */
+    .custom-sidebar-panel {{
+        min-height: calc(100vh - 20px);
+        padding: 22px 18px;
+        border-radius: 0 26px 26px 0;
+        background: rgba(5,10,50,0.88);
+        border-right: 1px solid rgba(140,200,240,0.18);
+        box-shadow: 8px 0 34px rgba(0,0,0,0.28);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        position: sticky;
+        top: 0;
+    }}
+
+    .custom-sidebar-panel h3,
+    .custom-sidebar-panel p,
+    .custom-sidebar-panel label {{
+        color: #eaf4ff !important;
+    }}
+
+    .custom-nav-title {{
+        font-size: 0.86rem;
+        font-weight: 800;
+        color: #b8d8f0;
+        margin: 18px 0 10px 0;
+    }}
+
+    .custom-sidebar-panel .stButton > button {{
+        width: 100% !important;
+        justify-content: flex-start !important;
+        border-radius: 14px !important;
+        padding: 0.62rem 0.9rem !important;
+        margin-bottom: 5px !important;
+        font-size: 0.92rem !important;
+        background: transparent !important;
+        color: #eaf4ff !important;
+        box-shadow: none !important;
+        border: 1px solid transparent !important;
+    }}
+
+    .custom-sidebar-panel .stButton > button:hover {{
+        background: rgba(0,180,216,0.16) !important;
+        border: 1px solid rgba(0,180,216,0.22) !important;
+        transform: translateX(3px) !important;
+    }}
+
+    .custom-nav-active .stButton > button {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
+        box-shadow: 0 8px 22px rgba(0,119,182,0.28) !important;
+    }}
+
+    .custom-toggle-btn .stButton > button {{
         width: 38px !important;
         height: 38px !important;
         min-width: 38px !important;
@@ -248,7 +297,6 @@ def apply_css():
         color: #ffffff !important;
         font-size: 24px !important;
         font-weight: 900 !important;
-        line-height: 1 !important;
         box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
         display: flex !important;
         align-items: center !important;
@@ -256,24 +304,28 @@ def apply_css():
         cursor: pointer !important;
     }}
 
-    .custom-nav-arrow .stButton > button:hover {{
+    .custom-toggle-btn .stButton > button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.05) !important;
-        color: white !important;
     }}
 
-    .open-nav-arrow {{
-        position: fixed !important;
-        top: 14px !important;
-        left: 14px !important;
-        z-index: 999999 !important;
+    .sidebar-close-wrap {{
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 99;
     }}
 
-    .close-nav-arrow {{
-        position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
+    .sidebar-open-wrap {{
+        position: sticky;
+        top: 12px;
+        z-index: 99;
+        padding-top: 12px;
+    }}
+
+    .main .block-container {{
+        padding-left: 0rem !important;
+        padding-right: 0.8rem !important;
     }}
 
 
@@ -972,46 +1024,61 @@ def auth_page():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-
-def open_sidebar_button():
-    st.markdown('<div class="custom-nav-arrow open-nav-arrow">', unsafe_allow_html=True)
-    if st.button("»", key="open_custom_nav"):
-        st.session_state.nav_open = True
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # =====================================================
 # SIDEBAR
 # =====================================================
-def sidebar(user):
-    with st.sidebar:
-        st.markdown('<div class="custom-nav-arrow close-nav-arrow">', unsafe_allow_html=True)
-        if st.button("«", key="close_custom_nav"):
-            st.session_state.nav_open = False
+
+def custom_sidebar(user):
+    st.markdown('<div class="custom-sidebar-panel">', unsafe_allow_html=True)
+
+    st.markdown('<div class="custom-toggle-btn sidebar-close-wrap">', unsafe_allow_html=True)
+    if st.button("«", key="custom_close_nav"):
+        st.session_state.nav_open = False
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+    st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px;color:#eaf4ff'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
+    st.markdown(f"<p style='text-align:center;margin-bottom:12px;color:#b8d8f0;font-weight:700'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<div class='custom-nav-title'>Navigation</div>", unsafe_allow_html=True)
+
+    pages = [
+        ("🏠 Home", "Home"),
+        ("🔮 Prediction", "Prediction"),
+        ("📄 Report & Share", "Report & Share"),
+        ("📚 History", "History"),
+        ("👤 Profile", "Profile"),
+    ]
+
+    for shown, page_name in pages:
+        active = st.session_state.active_page == page_name
+        if active:
+            st.markdown('<div class="custom-nav-active">', unsafe_allow_html=True)
+        if st.button(shown, key=f"nav_{page_name.replace(' ', '_').replace('&', 'and')}", use_container_width=True):
+            st.session_state.active_page = page_name
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        if active:
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
-        st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
-        st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
-        st.markdown("---")
+    st.markdown("<hr>", unsafe_allow_html=True)
+    if st.button("🚪 Sign Out", key="custom_signout", use_container_width=True):
+        st.session_state.logged_in  = False
+        st.session_state.username   = ""
+        st.session_state.auth_page  = "welcome"
+        st.session_state.nav_open   = True
+        st.rerun()
 
-        pages  = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-        labels = [p.split(" ",1)[1] for p in pages]
-        sel_idx = 0
-        for i, label in enumerate(labels):
-            if st.session_state.active_page == label:
-                sel_idx = i
-        selected = st.radio("Navigation", pages, index=sel_idx)
-        st.session_state.active_page = selected.split(" ",1)[1]
+    st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("---")
-        if st.button("🚪 Sign Out", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
-            st.rerun()
+
+def open_sidebar_button():
+    st.markdown('<div class="custom-toggle-btn sidebar-open-wrap">', unsafe_allow_html=True)
+    if st.button("»", key="custom_open_nav"):
+        st.session_state.nav_open = True
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
@@ -1268,24 +1335,35 @@ def profile_page(user):
 # =====================================================
 # MAIN APP SHELL
 # =====================================================
+
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
 
     if st.session_state.nav_open:
-        sidebar(user)
+        nav_col, page_col = st.columns([0.22, 0.78], gap="large")
+        with nav_col:
+            custom_sidebar(user)
+        with page_col:
+            back_to_login_button("dashboard_back_login")
+            page = st.session_state.active_page
+            if   page == "Home":           home_page(user)
+            elif page == "Prediction":     prediction_page(user)
+            elif page == "Report & Share": report_page(user)
+            elif page == "History":        history_page(user)
+            elif page == "Profile":        profile_page(user)
     else:
-        open_sidebar_button()
-
-    # Dashboard ke andar se Login page par wapas jane ka option
-    back_to_login_button("dashboard_back_login")
-
-    page = st.session_state.active_page
-    if   page == "Home":           home_page(user)
-    elif page == "Prediction":     prediction_page(user)
-    elif page == "Report & Share": report_page(user)
-    elif page == "History":        history_page(user)
-    elif page == "Profile":        profile_page(user)
+        arrow_col, page_col = st.columns([0.045, 0.955], gap="small")
+        with arrow_col:
+            open_sidebar_button()
+        with page_col:
+            back_to_login_button("dashboard_back_login")
+            page = st.session_state.active_page
+            if   page == "Home":           home_page(user)
+            elif page == "Prediction":     prediction_page(user)
+            elif page == "Report & Share": report_page(user)
+            elif page == "History":        history_page(user)
+            elif page == "Profile":        profile_page(user)
 
 # =====================================================
 # ROUTER
