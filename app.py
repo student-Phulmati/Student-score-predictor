@@ -189,20 +189,16 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── FIX 4: Remove top header space completely ── */
+    /* ── Keep Streamlit header clickable but remove top blank gap ── */
     .stApp > header {{
+        background: transparent !important;
         height: 0 !important;
-        display: none !important;
+        min-height: 0 !important;
+        display: block !important;
+        z-index: 99999 !important;
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
     #MainMenu, footer {{ visibility: hidden; height: 0; }}
-
-    /* ── FIX 4: Remove top padding gap in main container ── */
-    .main .block-container {{
-        padding-top: 0rem !important;
-        padding-bottom: 1rem !important;
-        max-width: 1180px;
-    }}
 
     /* ── Background ── */
     .stApp {{
@@ -213,6 +209,11 @@ def apply_css():
         color: {text_primary};
         min-height: 100vh;
     }}
+    .main .block-container {{
+        padding-top: 0rem !important;
+        padding-bottom: 1rem !important;
+        max-width: 1180px;
+    }}
 
     /* ── Sidebar ── */
     [data-testid="stSidebar"] {{
@@ -222,9 +223,8 @@ def apply_css():
         -webkit-backdrop-filter: blur(28px);
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
-    section[data-testid="stSidebarContent"] {{ padding-top: 1rem !important; }}
 
-    /* ── FIX 3: Hide Streamlit's broken sidebar arrow text, show clean button ── */
+    /* ── Sidebar collapse/open arrow — clean working arrow like ChatGPT sidebar ── */
     [data-testid="collapsedControl"] {{
         display: none !important;
     }}
@@ -234,41 +234,43 @@ def apply_css():
         left: 0 !important;
         transform: translateY(-50%) !important;
         z-index: 999999 !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+    }}
+    [data-testid="stSidebarCollapseButton"] button {{
+        width: 38px !important;
+        height: 58px !important;
+        min-width: 38px !important;
+        padding: 0 !important;
         border: none !important;
-        border-radius: 0 14px 14px 0 !important;
+        border-radius: 0 16px 16px 0 !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
         box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
-        width: 36px !important;
-        height: 56px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-        visibility: visible !important;
-        opacity: 1 !important;
+        transition: all 0.2s ease !important;
     }}
-    [data-testid="stSidebarCollapseButton"]:hover {{
-        transform: translateY(-50%) scale(1.06) !important;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.45) !important;
+    [data-testid="stSidebarCollapseButton"] button:hover {{
+        transform: scale(1.06) !important;
+        background: linear-gradient(135deg,#023e8a,#00b4d8) !important;
     }}
-    [data-testid="stSidebarCollapseButton"] button {{
-        background: transparent !important;
-        border: none !important;
-        width: 100% !important;
-        height: 100% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0 !important;
+    [data-testid="stSidebarCollapseButton"] button p,
+    [data-testid="stSidebarCollapseButton"] button span {{
+        font-size: 0 !important;
+        color: transparent !important;
     }}
-    [data-testid="stSidebarCollapseButton"] svg {{
+    [data-testid="stSidebarCollapseButton"] button svg {{
         color: white !important;
         fill: white !important;
-        width: 18px !important;
-        height: 18px !important;
+        width: 20px !important;
+        height: 20px !important;
+    }}
+    section[data-testid="stSidebarContent"] {{
+        padding-top: 1rem !important;
     }}
 
-    /* ── FIX 1: Theme toggle fixed TOP-RIGHT for ALL pages ── */
+    /* ── Theme toggle fixed TOP-RIGHT ── */
     .theme-btn-wrap {{
         position: fixed;
         top: 10px;
@@ -526,12 +528,34 @@ def apply_css():
 
 apply_css()
 
+# ── Theme toggle button fixed at top-right (pure HTML/JS, not Streamlit widget) ──
+def inject_theme_toggle():
+    """Theme button is positioned fixed top-right through CSS."""
+    dark = st.session_state.theme == "dark"
+    emoji = "☀️" if dark else "🌙"
+    # We use a form POST trick via JS to trigger Streamlit rerun
+    # Instead, we use st.button inside a fixed div using CSS injection + JS click relay
+    # Best approach: render the button normally but use CSS to move it
+    pass  # handled via CSS .theme-btn-wrap below
+
 def theme_toggle_button(page_key=""):
     """Render theme toggle — CSS positions it fixed top-right."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def back_to_login_button(key_name="back_login"):
+    """Show a small back button inside the dashboard to return to login page."""
+    st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
+    if st.button("← Back to Login", key=key_name):
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.session_state.role = ""
+        st.session_state.auth_page = "login"
+        st.session_state.active_page = "Home"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -849,11 +873,12 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE
+# AUTH PAGE  — with proper Back button
 # =====================================================
 def auth_page():
     theme_toggle_button("auth")
 
+    # ── Back button — styled, not raw code ──
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
     if st.button("← Back to Home", key="auth_back"):
         st.session_state.auth_page = "welcome"
@@ -941,7 +966,7 @@ def auth_page():
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# SIDEBAR — FIX 2: Back to Login moved here, removed from main_app()
+# SIDEBAR
 # =====================================================
 def sidebar(user):
     with st.sidebar:
@@ -961,16 +986,6 @@ def sidebar(user):
         st.session_state.active_page = selected.split(" ",1)[1]
 
         st.markdown("---")
-
-        # FIX 2: Back to Login button in sidebar
-        if st.button("← Back to Login", key="sidebar_back_login", use_container_width=True):
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.session_state.role = ""
-            st.session_state.auth_page = "login"
-            st.session_state.active_page = "Home"
-            st.rerun()
-
         if st.button("🚪 Sign Out", use_container_width=True):
             st.session_state.logged_in  = False
             st.session_state.username   = ""
@@ -1230,7 +1245,7 @@ def profile_page(user):
                 st.rerun()
 
 # =====================================================
-# MAIN APP SHELL — FIX 2: back_to_login_button removed from here
+# MAIN APP SHELL
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
