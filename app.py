@@ -209,7 +209,7 @@ def apply_css():
         min-height: 100vh;
     }}
     .main .block-container {{
-        padding-top: 0rem !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
     }}
@@ -333,12 +333,12 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle button: dashboard/auth pages top-right ── */
+    /* ── Theme toggle button RIGHT SIDE ── */
     .theme-row {{
         position: fixed !important;
         top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        left: 18px !important;
+        right: auto !important;
         z-index: 999999 !important;
         width: 70px !important;
         height: 44px !important;
@@ -349,69 +349,32 @@ def apply_css():
     .theme-row .stButton {{
         position: fixed !important;
         top: 18px !important;
-        right: 18px !important;
-        left: auto !important;
+        left: 18px !important;
+        right: auto !important;
         z-index: 999999 !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
     }}
     .theme-row button,
-    .theme-row .stButton > button,
-    .welcome-theme-row button,
-    .welcome-theme-row .stButton > button {{
-        width: 58px !important;
-        height: 46px !important;
-        min-width: 58px !important;
-        border-radius: 14px !important;
+    .theme-row .stButton > button {{
+        width: 54px !important;
+        height: 40px !important;
+        min-width: 54px !important;
+        border-radius: 999px !important;
         padding: 0 !important;
-        font-size: 1.25rem !important;
-        background: rgba(7,14,35,0.62) !important;
-        border: 1.4px solid rgba(255,255,255,0.34) !important;
-        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
+        font-size: 1.15rem !important;
+        background: {card_bg} !important;
+        border: 1.5px solid {border_color} !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
         backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
         color: {text_primary} !important;
     }}
     .theme-row button:hover,
-    .theme-row .stButton > button:hover,
-    .welcome-theme-row button:hover,
-    .welcome-theme-row .stButton > button:hover {{
-        transform: translateY(-1px) scale(1.05) !important;
-        border-color: #00b4d8 !important;
-        box-shadow: 0 12px 28px rgba(0,180,216,0.30) !important;
-    }}
-
-    /* Welcome page: moon/sun icon beside title, right side, little down */
-    .welcome-title-grid {{
-        display: grid !important;
-        grid-template-columns: 1fr auto 1fr !important;
-        align-items: center !important;
-        width: 100% !important;
-        max-width: 980px !important;
-        margin: 0 auto !important;
-        column-gap: 22px !important;
-    }}
-    .welcome-title-center {{
-        grid-column: 2 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 18px !important;
-    }}
-    .welcome-theme-row {{
-        grid-column: 3 !important;
-        justify-self: start !important;
-        align-self: center !important;
-        transform: translateY(9px) !important;
-        width: 58px !important;
-        height: 46px !important;
-        z-index: 20 !important;
-    }}
-    .welcome-theme-row .stButton {{
-        width: 58px !important;
-        height: 46px !important;
+    .theme-row .stButton > button:hover {{
+        transform: scale(1.07) !important;
+        box-shadow: 0 6px 22px rgba(0,0,0,0.28) !important;
     }}
 
     /* ── Back button style ── */
@@ -589,7 +552,7 @@ def apply_css():
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ── Welcome page styles ── */
-    .hero-header {{ text-align: center; padding: 4px 10px 12px 10px; }}
+    .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
     .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
     .app-cap {{
         font-size: 3.8rem;
@@ -600,17 +563,17 @@ def apply_css():
 
     .hero-title {{
         font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
-        color: {'white' if dark else '#03045e'}; margin: 0;
+        color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
         letter-spacing: -1.2px; text-shadow: 0 3px 18px rgba(0,0,0,0.30);
     }}
     .hero-tagline {{
         font-size: 1.06rem; color: {'#b8e0f7' if dark else '#0077b6'};
-        font-weight: 600; margin: 8px 0 0 0;
+        font-weight: 600; margin-bottom: 0;
     }}
     .welcome-divider {{
         border: 0; height: 1px;
         background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
-        margin: 12px auto 16px auto; max-width: 600px;
+        margin: 16px auto; max-width: 600px;
     }}
     .feature-cards-row {{ display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px 0; }}
     .feat-card {{
@@ -645,136 +608,6 @@ def apply_css():
     .stat-chip-num {{ font-size: 1.12rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
     .stat-chip-lbl {{ font-size: 0.72rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
     .welcome-footer {{ text-align: center; font-size: 0.79rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding-bottom: 14px; font-weight: 600; }}
-
-
-    /* ===== FINAL FIX: Welcome title + theme icon same row ===== */
-    .main .block-container {{
-        padding-top: 0rem !important;
-        margin-top: 0rem !important;
-    }}
-    [data-testid="stToolbar"] {{
-        visibility: hidden !important;
-        height: 0px !important;
-        position: fixed !important;
-    }}
-    .hero-header {{
-        text-align: center !important;
-        padding: 0px 10px 8px 10px !important;
-        margin-top: -8px !important;
-    }}
-    .hero-title {{
-        margin: 0 !important;
-        line-height: 1.05 !important;
-    }}
-    .hero-tagline {{
-        margin-top: 8px !important;
-    }}
-    .welcome-mode-holder {{
-        height: 100% !important;
-        display: flex !important;
-        align-items: flex-start !important;
-        justify-content: flex-start !important;
-        padding-top: 26px !important;  /* icon ko title se thoda niche rakhta hai */
-    }}
-    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {{
-        align-items: flex-start !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }}
-    .welcome-theme-row {{
-        position: relative !important;
-        transform: none !important;
-        width: 58px !important;
-        height: 46px !important;
-        z-index: 20 !important;
-    }}
-    .welcome-theme-row .stButton {{
-        position: relative !important;
-        width: 58px !important;
-        height: 46px !important;
-    }}
-
-
-    /* ===== EXTRA FINAL UPDATE: same title-side mode button on all pages + no bottom blank ===== */
-    .main .block-container {{
-        padding-top: 0rem !important;
-        padding-bottom: 0rem !important;
-        margin-top: 0rem !important;
-    }}
-    .page-header-grid {{
-        display: grid !important;
-        grid-template-columns: minmax(0, 1fr) auto !important;
-        align-items: start !important;
-        gap: 14px !important;
-        width: 100% !important;
-        margin: 0 0 14px 0 !important;
-        padding: 0 !important;
-    }}
-    .page-header-titlebox {{
-        min-width: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }}
-    .page-title {{
-        margin: 0 !important;
-        line-height: 1.08 !important;
-    }}
-    .page-header-titlebox .subtext {{
-        margin: 5px 0 0 0 !important;
-    }}
-    .page-mode-holder {{
-        display: flex !important;
-        align-items: flex-start !important;
-        justify-content: flex-end !important;
-        padding-top: 8px !important;
-        margin-right: -4px !important;
-        min-width: 62px !important;
-    }}
-    .page-theme-row {{
-        position: relative !important;
-        width: 58px !important;
-        height: 46px !important;
-        z-index: 20 !important;
-        transform: none !important;
-    }}
-    .page-theme-row .stButton {{
-        position: relative !important;
-        width: 58px !important;
-        height: 46px !important;
-    }}
-    .page-theme-row button,
-    .page-theme-row .stButton > button {{
-        width: 58px !important;
-        height: 46px !important;
-        min-width: 58px !important;
-        border-radius: 14px !important;
-        padding: 0 !important;
-        font-size: 1.25rem !important;
-        background: rgba(7,14,35,0.62) !important;
-        border: 1.4px solid rgba(255,255,255,0.34) !important;
-        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
-        backdrop-filter: blur(16px) !important;
-        -webkit-backdrop-filter: blur(16px) !important;
-        cursor: pointer !important;
-        color: white !important;
-    }}
-    .page-theme-row button:hover,
-    .page-theme-row .stButton > button:hover {{
-        transform: translateY(-1px) scale(1.05) !important;
-        border-color: #00b4d8 !important;
-        box-shadow: 0 12px 28px rgba(0,180,216,0.30) !important;
-    }}
-    .welcome-divider {{ margin: 8px auto 12px auto !important; }}
-    .feature-cards-row {{ margin-bottom: 12px !important; }}
-    .stats-strip {{ margin: 8px 0 10px 0 !important; padding: 10px 8px !important; }}
-    .welcome-footer {{ padding-bottom: 0px !important; margin-bottom: 0px !important; }}
-    div[data-testid="stVerticalBlock"] {{ gap: 0.45rem !important; }}
-    @media (max-width: 700px) {{
-        .page-header-grid {{ grid-template-columns: 1fr auto !important; gap: 8px !important; }}
-        .page-title {{ font-size: 1.55rem !important; }}
-        .page-mode-holder {{ margin-right: 0 !important; padding-top: 4px !important; }}
-    }}
-
     </style>
     """, unsafe_allow_html=True)
 
@@ -790,31 +623,14 @@ def inject_theme_toggle():
     # Best approach: render the button normally but use CSS to move it
     pass  # handled via CSS .theme-btn-wrap below
 
-def theme_toggle_button(page_key="", welcome=False):
-    """Render light/dark mode button. Welcome page me icon title ke right side me rahega."""
+def theme_toggle_button(page_key=""):
+    """Render light/dark mode button on the RIGHT side. Do not delete it."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    wrap_class = "welcome-theme-row" if welcome else ("page-theme-row" if str(page_key).startswith("page_") else "theme-row")
-    st.markdown(f'<div class="{wrap_class}">', unsafe_allow_html=True)
+    st.markdown('<div class="theme-row">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
-
-
-def page_header(title, subtitle, key_name):
-    """All inner pages: title left and mode icon right side, same row."""
-    left_col, right_col = st.columns([10, 1])
-    with left_col:
-        st.markdown(f"""
-        <div class='page-header-titlebox'>
-            <div class='page-title'>{title}</div>
-            <p class='subtext'>{subtitle}</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with right_col:
-        st.markdown('<div class="page-mode-holder">', unsafe_allow_html=True)
-        theme_toggle_button(f"page_{key_name}")
-        st.markdown('</div>', unsafe_allow_html=True)
 
 
 def back_to_login_button(key_name="back_login"):
@@ -1088,26 +904,15 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
+    theme_toggle_button("welcome")
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
 
-    # Title aur moon/sun icon ek hi row me: icon title ke right side me thoda niche
-    left_space, title_col, mode_col, right_space = st.columns([1.05, 4.8, 0.55, 0.85])
-
-    with title_col:
-        st.markdown(f"""
-        <div class='hero-header'>
-          <h1 class='hero-title'>{APP_NAME}</h1>
-          <p class='hero-tagline'>{TAGLINE} ✨</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with mode_col:
-        st.markdown("<div class='welcome-mode-holder'>", unsafe_allow_html=True)
-        theme_toggle_button("welcome", welcome=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
     st.markdown(f"""
+    <div class='hero-header'>
+      <h1 class='hero-title'>{APP_NAME}</h1>
+      <p class='hero-tagline'>{TAGLINE} ✨</p>
+    </div>
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
       <div class='feat-card'>
@@ -1276,9 +1081,11 @@ def sidebar(user):
 # INNER PAGES
 # =====================================================
 def home_page(user):
+    theme_toggle_button("home")
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
-    page_header(f"👋 Welcome, {name}!", "Your academic performance dashboard — all insights in one place.", "home")
+    st.markdown(f"<div class='page-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -1295,7 +1102,9 @@ def home_page(user):
 
 
 def prediction_page(user):
-    page_header("🔮 Score Prediction", "Enter academic details and get an AI-based predicted score.", "pred")
+    theme_toggle_button("pred")
+    st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
 
     with st.form("prediction_form"):
         col1, col2 = st.columns(2)
@@ -1361,7 +1170,9 @@ def prediction_page(user):
 
 
 def report_page(user):
-    page_header("📄 Report & Share", "Download the PDF report and share it through WhatsApp or email.", "report")
+    theme_toggle_button("report")
+    st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
 
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
@@ -1402,7 +1213,9 @@ def report_page(user):
 
 
 def history_page(user):
-    page_header("📚 Prediction History", "View all your predictions in one place.", "hist")
+    theme_toggle_button("hist")
+    st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
     if not records:
         st.info("No prediction history yet.")
@@ -1419,7 +1232,9 @@ def history_page(user):
 
 
 def profile_page(user):
-    page_header("👤 My Profile", "Edit your profile details and update your profile picture.", "prof")
+    theme_toggle_button("prof")
+    st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
 
     users = load_json(USER_DB_FILE, {})
     uname = st.session_state.username
