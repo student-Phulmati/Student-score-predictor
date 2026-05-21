@@ -23,7 +23,11 @@ from reportlab.graphics.shapes import Drawing, Line, String
 
 import plotly.graph_objects as go
 import plotly.express as px
-
+st.set_page_config(
+    page_title="Diabetes Prediction App",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 # =====================================================
 # APP CONFIG
 # =====================================================
