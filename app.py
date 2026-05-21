@@ -223,8 +223,8 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Sidebar collapse/open arrow ── */
-    [data-testid="collapsedControl"] {
+    /* ── Sidebar collapse/open arrow like top-corner example ── */
+    [data-testid="collapsedControl"] {{
         position: fixed !important;
         top: 14px !important;
         left: 270px !important;
@@ -235,30 +235,34 @@ def apply_css():
         background: rgba(8,15,60,0.95) !important;
         border: 1px solid rgba(255,255,255,0.12) !important;
         display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         align-items: center !important;
         justify-content: center !important;
         backdrop-filter: blur(12px) !important;
         box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
-    }
+        cursor: pointer !important;
+    }}
 
-    /* Hover effect */
-    [data-testid="collapsedControl"]:hover {
+    [data-testid="collapsedControl"]:hover {{
         transform: scale(1.06) !important;
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-    }
+    }}
 
-    /* Arrow icon */
-    [data-testid="collapsedControl"] svg {
+    [data-testid="collapsedControl"] svg {{
         width: 18px !important;
         height: 18px !important;
         fill: white !important;
         color: white !important;
-    }
+    }}
 
-    /* Sidebar collapsed hone par */
-    [data-testid="collapsedControl"][aria-expanded="false"] {
+    [data-testid="collapsedControl"][aria-expanded="false"] {{
         left: 10px !important;
-    }
+    }}
+
+    [data-testid="stSidebarCollapseButton"] {{
+        display: none !important;
+    }}
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
