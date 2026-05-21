@@ -138,6 +138,7 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
+        "nav_open":          True,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -224,199 +225,55 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
 
-    /* ─────────────────────────────────────────────
-       SIDEBAR TOGGLE ARROW FIX
-       Open sidebar  : «
-       Closed sidebar: »
-       Removes keyboard_double_arrow text
-       ───────────────────────────────────────────── */
-
-    /* Remove Streamlit header visual gap, but keep controls active */
-    header[data-testid="stHeader"],
-    .stApp > header {{
-        background: transparent !important;
-        height: 0px !important;
-        min-height: 0px !important;
+    /* ── Hide Streamlit default sidebar arrow to avoid keyboard_double_arrow text ── */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapseButton"],
+    header[data-testid="stHeader"] button:first-of-type,
+    .stApp > header button:first-of-type {{
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }}
 
-    /* Hide raw material text in Streamlit header sidebar button */
-    header[data-testid="stHeader"] button:first-of-type,
-    .stApp > header button:first-of-type,
-    button[title="Open sidebar"],
-    button[aria-label="Open sidebar"],
-    button[title="Close sidebar"],
-    button[aria-label="Close sidebar"] {{
-        font-size: 0px !important;
-        line-height: 0px !important;
-        color: transparent !important;
-        text-indent: -999999px !important;
-        overflow: hidden !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
-        padding: 0px !important;
-        margin: 0px !important;
+    /* ── Custom sidebar open/close arrow buttons ── */
+    .custom-nav-arrow .stButton > button {{
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
         border-radius: 10px !important;
         background: rgba(8,15,60,0.96) !important;
         border: 1px solid rgba(255,255,255,0.16) !important;
+        color: #ffffff !important;
+        font-size: 24px !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
         box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
-        position: fixed !important;
-        top: 14px !important;
-        left: 14px !important;
-        z-index: 999999 !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
     }}
 
-    /* Closed sidebar: force clean right arrow */
-    header[data-testid="stHeader"] button:first-of-type::after,
-    .stApp > header button:first-of-type::after,
-    button[title="Open sidebar"]::after,
-    button[aria-label="Open sidebar"]::after {{
-        content: "»" !important;
-        position: absolute !important;
-        inset: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 25px !important;
-        line-height: 36px !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        text-indent: 0px !important;
-        z-index: 1000000 !important;
-        pointer-events: none !important;
+    .custom-nav-arrow .stButton > button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.05) !important;
+        color: white !important;
     }}
 
-    /* Sidebar open: collapse button inside sidebar top-right */
-    [data-testid="stSidebarCollapseButton"] {{
+    .open-nav-arrow {{
+        position: fixed !important;
+        top: 14px !important;
+        left: 14px !important;
+        z-index: 999999 !important;
+    }}
+
+    .close-nav-arrow {{
         position: absolute !important;
         top: 14px !important;
         right: 14px !important;
         z-index: 999999 !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.96) !important;
-        border: 1px solid rgba(255,255,255,0.16) !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
-        overflow: hidden !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        cursor: pointer !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button {{
-        position: relative !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
-        padding: 0px !important;
-        margin: 0px !important;
-        border: none !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        font-size: 0px !important;
-        line-height: 0px !important;
-        color: transparent !important;
-        text-indent: -999999px !important;
-        overflow: hidden !important;
-        cursor: pointer !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button::after {{
-        content: "«" !important;
-        position: absolute !important;
-        inset: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 25px !important;
-        line-height: 36px !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        text-indent: 0px !important;
-        z-index: 1000000 !important;
-        pointer-events: none !important;
-    }}
-
-    /* Extra fallback for collapsedControl */
-    [data-testid="collapsedControl"] {{
-        position: fixed !important;
-        top: 14px !important;
-        left: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        max-width: 36px !important;
-        max-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.96) !important;
-        border: 1px solid rgba(255,255,255,0.16) !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
-        overflow: hidden !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 0px !important;
-        line-height: 0px !important;
-        color: transparent !important;
-        text-indent: -999999px !important;
-        cursor: pointer !important;
-    }}
-
-    [data-testid="collapsedControl"]::after {{
-        content: "»" !important;
-        position: absolute !important;
-        inset: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 25px !important;
-        line-height: 36px !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        text-indent: 0px !important;
-        z-index: 1000000 !important;
-        pointer-events: none !important;
-    }}
-
-    /* Hide original icons/text */
-    [data-testid="collapsedControl"] *,
-    [data-testid="stSidebarCollapseButton"] *,
-    header[data-testid="stHeader"] button:first-of-type *,
-    .stApp > header button:first-of-type * {{
-        font-size: 0px !important;
-        line-height: 0px !important;
-        color: transparent !important;
-        text-indent: -999999px !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }}
-
-    [data-testid="collapsedControl"]:hover,
-    [data-testid="stSidebarCollapseButton"]:hover,
-    header[data-testid="stHeader"] button:first-of-type:hover,
-    .stApp > header button:first-of-type:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.04) !important;
     }}
 
 
@@ -1115,11 +972,25 @@ def auth_page():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
+
+def open_sidebar_button():
+    st.markdown('<div class="custom-nav-arrow open-nav-arrow">', unsafe_allow_html=True)
+    if st.button("»", key="open_custom_nav"):
+        st.session_state.nav_open = True
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # =====================================================
 # SIDEBAR
 # =====================================================
 def sidebar(user):
     with st.sidebar:
+        st.markdown('<div class="custom-nav-arrow close-nav-arrow">', unsafe_allow_html=True)
+        if st.button("«", key="close_custom_nav"):
+            st.session_state.nav_open = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
@@ -1400,7 +1271,11 @@ def profile_page(user):
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
-    sidebar(user)
+
+    if st.session_state.nav_open:
+        sidebar(user)
+    else:
+        open_sidebar_button()
 
     # Dashboard ke andar se Login page par wapas jane ka option
     back_to_login_button("dashboard_back_login")
