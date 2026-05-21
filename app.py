@@ -189,8 +189,13 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Hide Streamlit chrome ── */
-    .stApp > header {{ display: none !important; height: 0 !important; }}
+    /* ── Keep Streamlit header available so sidebar arrow works ── */
+    .stApp > header {{
+        background: transparent !important;
+        height: 3rem !important;
+        display: block !important;
+        z-index: 99999 !important;
+    }}
     [data-testid="stDecoration"] {{ display: none !important; }}
     #MainMenu, footer {{ visibility: hidden; height: 0; }}
 
@@ -218,36 +223,46 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Sidebar collapse arrow — style Streamlit's built-in button ── */
-    [data-testid="collapsedControl"] {{
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        width: 28px !important;
-        height: 56px !important;
-        background: {sidebar_bg} !important;
-        border: 1px solid {border_color} !important;
-        border-left: none !important;
-        border-radius: 0 12px 12px 0 !important;
-        box-shadow: 4px 0 18px rgba(0,0,0,0.18) !important;
+    /* ── Sidebar collapse/open arrow — fixed visible button ── */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapseButton"] {{
         display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 0 !important;
+        transform: translateY(-50%) !important;
+        width: 40px !important;
+        height: 60px !important;
+        z-index: 999999 !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        border: none !important;
+        border-radius: 0 14px 14px 0 !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
         align-items: center !important;
         justify-content: center !important;
         backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
     }}
-    [data-testid="collapsedControl"] svg {{
-        color: {accent1} !important;
-        fill: {accent1} !important;
-        width: 18px !important;
-        height: 18px !important;
+    [data-testid="collapsedControl"]:hover,
+    [data-testid="stSidebarCollapseButton"]:hover {{
+        transform: translateY(-50%) scale(1.05) !important;
+    }}
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg {{
+        color: white !important;
+        fill: white !important;
+        width: 20px !important;
+        height: 20px !important;
     }}
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
         position: fixed;
-        top: 12px;
-        left: 12px;
-        z-index: 99999;
+        top: 10px;
+        left: 55px;
+        z-index: 999998;
     }}
     .theme-btn-wrap button {{
         width: 40px !important;
@@ -516,6 +531,18 @@ def theme_toggle_button(page_key=""):
     st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
+
+def back_to_login_button(key_name="back_login"):
+    """Show a small back button inside the dashboard to return to login page."""
+    st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
+    if st.button("← Back to Login", key=key_name):
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.session_state.role = ""
+        st.session_state.auth_page = "login"
+        st.session_state.active_page = "Home"
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1211,6 +1238,10 @@ def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
+
+    # Dashboard ke andar se Login page par wapas jane ka option
+    back_to_login_button("dashboard_back_login")
+
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
     elif page == "Prediction":     prediction_page(user)
