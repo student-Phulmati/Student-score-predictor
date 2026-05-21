@@ -23,7 +23,11 @@ from reportlab.graphics.shapes import Drawing, Line, String
 
 import plotly.graph_objects as go
 import plotly.express as px
-
+st.set_page_config(
+    page_title="Diabetes Prediction App",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 # =====================================================
 # APP CONFIG
 # =====================================================
@@ -231,48 +235,23 @@ def apply_css():
         max-width: 1180px;
     }}
 
-    /* Streamlit top area clean - header ko hide mat karo, warna sidebar arrow gayab ho jata hai */
+    /* Hide unnecessary Streamlit decoration boxes */
     [data-testid="stDecoration"],
     #MainMenu,
-    footer {{
+    footer,
+    header {{
         visibility: hidden;
         height: 0;
     }}
 
-    header {{
-        background: transparent !important;
-        visibility: visible !important;
-        height: auto !important;
-    }}
-
-    /* Sidebar FIX */
-    section[data-testid="stSidebar"] {{
-        display: block !important;
-        visibility: visible !important;
-        background: {sidebar_bg} !important;
-        border-right: 1px solid {border_color};
-        backdrop-filter: blur(24px);
-        z-index: 999999 !important;
-    }}
-
+    /* Sidebar */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
         backdrop-filter: blur(24px);
     }}
-
     [data-testid="stSidebar"] * {{
         color: {text_primary} !important;
-    }}
-
-    /* Sidebar collapse/expand arrow visible */
-    [data-testid="collapsedControl"],
-    button[kind="header"] {{
-        display: flex !important;
-        opacity: 1 !important;
-        visibility: visible !important;
-        pointer-events: auto !important;
-        z-index: 1000000 !important;
     }}
 
     /* Clean professional panels */
@@ -475,8 +454,23 @@ def apply_css():
         color: {input_text} !important;
         border: 1px solid {border_color} !important;
     }}
-    label, p, span, div {{
-        color: {text_primary};
+    label, p {{
+        color: {text_primary} !important;
+    }}
+    .stTextInput label, .stNumberInput label, .stSelectbox label,
+    .stDateInput label, .stRadio label, .stCheckbox label,
+    [data-baseweb="form-control"] label,
+    .stSlider label {{
+        color: {text_primary} !important;
+        font-weight: 700 !important;
+    }}
+    /* Input typed text */
+    .stTextInput input, .stNumberInput input, .stPasswordInput input {{
+        color: {input_text} !important;
+        caret-color: {input_text} !important;
+    }}
+    .stSelectbox [data-baseweb="select"] span {{
+        color: {input_text} !important;
     }}
 
     [data-baseweb="tab-list"] {{
@@ -492,8 +486,7 @@ def apply_css():
         border-bottom: 3px solid {accent1} !important;
     }}
 
-    .whatsapp-btn,
-    .email-btn {{
+    .whatsapp-btn {{
         display: inline-block;
         border-radius: 999px;
         padding: 11px 22px;
@@ -503,12 +496,7 @@ def apply_css():
         margin: 6px 4px;
         font-size: 0.92rem;
         box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-    }}
-    .whatsapp-btn {{
         background: linear-gradient(135deg,#25D366,#128C7E);
-    }}
-    .email-btn {{
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8);
     }}
 
     .profile-info-card {{
@@ -632,41 +620,141 @@ def simple_pdf_graph(scores):
 
 def generate_pdf(username, user_data, score, inputs, recs):
     buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=.45*inch, bottomMargin=.45*inch)
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.6*inch, bottomMargin=0.6*inch, leftMargin=0.7*inch, rightMargin=0.7*inch)
     styles = getSampleStyleSheet()
-    title  = ParagraphStyle("TitleX",  parent=styles["Heading1"], alignment=1, fontSize=22, textColor=colors.HexColor("#168aad"), spaceAfter=16)
-    head   = ParagraphStyle("HeadX",   parent=styles["Heading2"], fontSize=14, textColor=colors.HexColor("#184e77"), spaceAfter=8)
-    normal = ParagraphStyle("NormX",   parent=styles["Normal"], fontSize=10, leading=14)
-    story  = []
-    story.append(Paragraph(f"{APP_NAME} — Official Prediction Report", title))
-    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d-%m-%Y %I:%M %p')}", normal))
+
+    title_style = ParagraphStyle("TitleX", parent=styles["Heading1"],
+        alignment=1, fontSize=22, textColor=colors.HexColor("#168aad"),
+        spaceAfter=4, fontName="Helvetica-Bold")
+    subtitle_style = ParagraphStyle("SubX", parent=styles["Normal"],
+        alignment=1, fontSize=10, textColor=colors.HexColor("#1a759f"),
+        spaceAfter=14, fontName="Helvetica")
+    head_style = ParagraphStyle("HeadX", parent=styles["Heading2"],
+        fontSize=13, textColor=colors.white, spaceAfter=0,
+        fontName="Helvetica-Bold", backColor=colors.HexColor("#184e77"),
+        borderPadding=(8,10,8,10))
+    normal_style = ParagraphStyle("NormX", parent=styles["Normal"],
+        fontSize=10, leading=15, textColor=colors.HexColor("#03045e"))
+    rec_style = ParagraphStyle("RecX", parent=styles["Normal"],
+        fontSize=10, leading=15, textColor=colors.HexColor("#184e77"),
+        leftIndent=10)
+
+    story = []
+
+    # ── Header ──
+    story.append(Paragraph(f"🎓 {APP_NAME}", title_style))
+    story.append(Paragraph("Official Student Performance Prediction Report", subtitle_style))
+    story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d %B %Y  |  %I:%M %p')}", subtitle_style))
+
+    # Divider
+    story.append(Table([[""]], colWidths=[6.6*inch],
+        style=[("LINEBELOW",(0,0),(-1,-1),1.2,colors.HexColor("#168aad")),("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+
     story.append(Spacer(1, 10))
+
+    # ── Student / User Details ──
     student_name = user_data.get("full_name") or user_data.get("child_name") or username
-    info = [["Name", student_name], ["Username", username], ["Email", user_data.get("email","N/A")], ["Role", user_data.get("role","N/A").title()]]
-    story.append(Paragraph("Student / User Details", head))
-    t = Table(info, colWidths=[2.1*inch, 4.2*inch])
-    t.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(0,-1),colors.HexColor('#d9ed92')),('FONTNAME',(0,0),(0,-1),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),8)]))
-    story.append(t); story.append(Spacer(1, 12))
-    result = [["Predicted Score", f"{score}/100"], ["Status", "Excellent" if score>=85 else "Good" if score>=70 else "Needs Improvement"]]
-    story.append(Paragraph("Prediction Result", head))
-    rt = Table(result, colWidths=[2.1*inch, 4.2*inch])
-    rt.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#168aad')),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),8)]))
-    story.append(rt); story.append(Spacer(1, 12))
-    story.append(Paragraph("Input Details", head))
-    input_rows = [["Field", "Value"]] + [[k.replace('_',' '), str(v)] for k, v in inputs.items()]
-    it = Table(input_rows, colWidths=[2.7*inch, 3.6*inch])
-    it.setStyle(TableStyle([('GRID',(0,0),(-1,-1),.5,colors.lightgrey),('BACKGROUND',(0,0),(-1,0),colors.HexColor('#184e77')),('TEXTCOLOR',(0,0),(-1,0),colors.white),('FONTNAME',(0,0),(-1,0),'Helvetica-Bold'),('PADDING',(0,0),(-1,-1),7)]))
-    story.append(it); story.append(Spacer(1, 12))
-    scores = [r.get("score",0) for r in user_history(username)] + [score]
-    story.append(simple_pdf_graph(scores[-10:]))
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("Recommendations", head))
-    if recs:
-        for r in recs: story.append(Paragraph("• " + r, normal))
+    story.append(Paragraph("  👤  Student / User Details", head_style))
+    story.append(Spacer(1, 4))
+
+    info_rows = [
+        ["Full Name",  student_name],
+        ["Username",   username],
+        ["Email",      user_data.get("email","N/A")],
+        ["Role",       user_data.get("role","N/A").title()],
+    ]
+    if user_data.get("role") == "student":
+        info_rows += [
+            ["Grade / Class", user_data.get("grade","N/A")],
+            ["School",        user_data.get("school","N/A")],
+            ["Date of Birth", user_data.get("dob","N/A")],
+        ]
     else:
-        story.append(Paragraph("Your current academic inputs are strong. Maintain consistency.", normal))
+        info_rows += [
+            ["Child Name",  user_data.get("child_name","N/A")],
+            ["Child Grade", user_data.get("child_grade","N/A")],
+            ["Relation",    user_data.get("relation","N/A")],
+        ]
+
+    t_info = Table([[Paragraph(f"<b>{r[0]}</b>",normal_style), Paragraph(r[1],normal_style)] for r in info_rows],
+        colWidths=[2.2*inch, 4.4*inch])
+    t_info.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#e8f8fc")),
+        ("ROWBACKGROUNDS",(0,0),(-1,-1),[colors.white, colors.HexColor("#f0faff")]),
+        ("PADDING",(0,0),(-1,-1),8),
+        ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold"),
+        ("FONTNAME",(1,0),(1,-1),"Helvetica"),
+    ]))
+    story.append(t_info)
+    story.append(Spacer(1, 14))
+
+    # ── Prediction Result ──
+    story.append(Paragraph("  📊  Prediction Result", head_style))
+    story.append(Spacer(1, 4))
+
+    status_label = "🌟 Excellent!" if score >= 85 else ("👍 Good" if score >= 70 else "📈 Needs Improvement")
+    score_color  = colors.HexColor("#168aad") if score >= 70 else colors.HexColor("#e85d04")
+    result_rows  = [["Predicted Score", f"{score} / 100"],["Performance Status", status_label]]
+    t_result = Table([[Paragraph(f"<b>{r[0]}</b>",normal_style), Paragraph(r[1],normal_style)] for r in result_rows],
+        colWidths=[2.2*inch, 4.4*inch])
+    t_result.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#e8f8fc")),
+        ("BACKGROUND",(1,0),(1,0),colors.HexColor("#caf0f8")),
+        ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold"),
+        ("FONTSIZE",(1,0),(1,0),13),
+        ("TEXTCOLOR",(1,0),(1,0),score_color),
+        ("PADDING",(0,0),(-1,-1),9),
+    ]))
+    story.append(t_result)
+    story.append(Spacer(1, 14))
+
+    # ── Input Details ──
+    story.append(Paragraph("  📋  Academic Input Details", head_style))
+    story.append(Spacer(1, 4))
+
+    input_header = [
+        [Paragraph("<b>Factor</b>", normal_style), Paragraph("<b>Value Provided</b>", normal_style)]
+    ]
+    input_data   = [[Paragraph(k.replace("_"," "), normal_style), Paragraph(str(v), normal_style)] for k,v in inputs.items()]
+    t_inputs = Table(input_header + input_data, colWidths=[2.9*inch, 3.7*inch])
+    t_inputs.setStyle(TableStyle([
+        ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+        ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#184e77")),
+        ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+        ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+        ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white, colors.HexColor("#f0faff")]),
+        ("PADDING",(0,0),(-1,-1),8),
+    ]))
+    story.append(t_inputs)
+    story.append(Spacer(1, 14))
+
+    # ── Score History Graph ──
+    scores = [r.get("score",0) for r in user_history(username)] + [score]
+    if len(scores) > 1:
+        story.append(Paragraph("  📈  Score History Graph", head_style))
+        story.append(Spacer(1, 6))
+        story.append(simple_pdf_graph(scores[-10:]))
+        story.append(Spacer(1, 14))
+
+    # ── Recommendations ──
+    story.append(Paragraph("  💡  Personalized Recommendations", head_style))
+    story.append(Spacer(1, 6))
+    if recs:
+        for r in recs:
+            story.append(Paragraph("• " + r.lstrip("📚🏫😴🎯📖💡🤝 ").strip(), rec_style))
+            story.append(Spacer(1, 3))
+    else:
+        story.append(Paragraph("✅ Your current academic inputs are strong. Keep up the great work and maintain consistency!", rec_style))
+
     story.append(Spacer(1, 20))
-    story.append(Paragraph(f"Generated by {APP_NAME}. This report is for academic guidance only.", normal))
+
+    # Footer
+    story.append(Table([[""]], colWidths=[6.6*inch],
+        style=[("LINEABOVE",(0,0),(-1,-1),.8,colors.HexColor("#ade8f4")),("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
+    story.append(Paragraph(f"Generated by {APP_NAME}  •  {datetime.now().strftime('%d-%m-%Y')}  •  This report is for academic guidance only.", subtitle_style))
+
     doc.build(story)
     buffer.seek(0)
     return buffer.read()
@@ -792,26 +880,222 @@ def welcome_page():
     c1,c2,c3 = st.columns([1,8,1])
     with c3: toggle_theme_button("theme_welcome")
 
+    dark = st.session_state.theme == "dark"
+    hero_text   = "white" if dark else "#03045e"
+    hero_sub    = "#caf0f8" if dark else "#0077b6"
+    card_border = "rgba(255,255,255,0.28)" if dark else "rgba(2,62,138,0.20)"
+    card_bg_1   = "rgba(255,255,255,0.13)" if dark else "rgba(255,255,255,0.72)"
+    card_title  = "white" if dark else "#03045e"
+    card_desc   = "#caf0f8" if dark else "#0077b6"
+    used_icon_c = "#caf0f8" if dark else "#023e8a"
+    btn_bg      = "linear-gradient(135deg,#0077b6,#00b4d8)" if dark else "linear-gradient(135deg,#03045e,#0077b6)"
+    stat_text   = "white" if dark else "#03045e"
+    stat_sub    = "#caf0f8" if dark else "#0096c7"
+    divider_c   = "rgba(255,255,255,0.30)" if dark else "rgba(2,62,138,0.18)"
+    btn_line_c  = "rgba(255,255,255,0.50)" if dark else "rgba(2,62,138,0.35)"
+
     st.markdown(f"""
-    <div class='hero'>
-      <div class='hero-box'>
-        <span class='app-logo'>🎓</span>
-        <h1 class='app-title'>{APP_NAME}</h1>
-        <p class='tagline'>{TAGLINE}</p>
-        <div style='margin-bottom:28px'>
-          <span class='feature-mini'>🔐 OTP Signup</span>
-          <span class='feature-mini'>📊 AI Prediction</span>
-          <span class='feature-mini'>📄 PDF Report</span>
-          <span class='feature-mini'>📱 WhatsApp Share</span>
-          <span class='feature-mini'>🌙 Dark / Light</span>
-          <span class='feature-mini'>📈 Smart Graphs</span>
+    <style>
+    .welcome-wrap {{ padding: 2vh 1vw 0 1vw; }}
+    .hero-header {{
+        text-align: center;
+        padding: 36px 10px 20px 10px;
+    }}
+    .hero-logo {{ font-size: 3.6rem; display:block; margin-bottom:6px; }}
+    .hero-title {{
+        font-size: clamp(2.6rem,5.5vw,4.6rem);
+        font-weight: 900;
+        color: {hero_text};
+        margin: 0 0 10px 0;
+        letter-spacing: -1.5px;
+        text-shadow: 0 4px 22px rgba(0,0,0,0.35);
+    }}
+    .hero-tagline {{
+        font-size: 1.14rem;
+        color: {hero_sub};
+        font-weight: 600;
+        margin-bottom: 0;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.28);
+    }}
+    .welcome-divider {{
+        border: 0;
+        height: 1px;
+        background: {divider_c};
+        margin: 22px auto;
+        max-width: 640px;
+    }}
+    .feature-cards-row {{
+        display: flex;
+        gap: 18px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0 0 28px 0;
+    }}
+    .feat-card {{
+        flex: 1 1 220px;
+        max-width: 270px;
+        background: {card_bg_1};
+        border: 1px solid {card_border};
+        border-radius: 22px;
+        padding: 28px 22px 22px 22px;
+        text-align: center;
+        backdrop-filter: blur(18px);
+        box-shadow: 0 12px 36px rgba(0,0,0,0.16);
+        transition: transform 0.22s ease;
+    }}
+    .feat-card:hover {{ transform: translateY(-5px); }}
+    .feat-icon {{ font-size: 2.5rem; display:block; margin-bottom:10px; }}
+    .feat-title {{
+        font-size: 1.12rem;
+        font-weight: 900;
+        color: {card_title};
+        margin: 0 0 6px 0;
+    }}
+    .feat-sep {{
+        width: 40px; height: 3px;
+        background: linear-gradient(90deg,#00b4d8,#90e0ef);
+        border-radius: 99px;
+        margin: 0 auto 10px auto;
+    }}
+    .feat-desc {{
+        font-size: 0.82rem;
+        color: {card_desc};
+        font-weight: 600;
+        line-height: 1.6;
+    }}
+    .feat-btn {{
+        display: inline-block;
+        margin-top: 14px;
+        padding: 9px 22px;
+        border-radius: 999px;
+        background: {btn_bg};
+        color: white !important;
+        font-weight: 800;
+        font-size: 0.84rem;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        box-shadow: 0 6px 18px rgba(0,119,182,0.30);
+    }}
+    .used-for-row {{
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin: 0 0 10px 0;
+    }}
+    .used-item {{
+        text-align: center;
+        padding: 6px 10px;
+    }}
+    .used-icon {{ font-size: 1.6rem; display:block; margin-bottom:2px; }}
+    .used-label {{
+        font-size: 0.72rem;
+        font-weight: 800;
+        color: {used_icon_c};
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }}
+    .stats-strip {{
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+        padding: 18px 10px;
+        border-top: 1px solid {divider_c};
+        border-bottom: 1px solid {divider_c};
+        margin: 18px 0 24px 0;
+    }}
+    .stat-chip {{
+        display: flex; align-items: center; gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(0,180,216,0.14);
+        border: 1px solid rgba(0,180,216,0.25);
+    }}
+    .stat-chip-num {{ font-size: 1.2rem; font-weight:900; color:{stat_text}; }}
+    .stat-chip-lbl {{ font-size: 0.75rem; font-weight:700; color:{stat_sub}; text-transform:uppercase; letter-spacing:0.8px; }}
+    .welcome-footer {{
+        text-align: center;
+        font-size: 0.82rem;
+        color: {card_desc};
+        padding-bottom: 18px;
+        font-weight: 600;
+    }}
+    .get-started-wrap {{
+        display: flex;
+        justify-content: center;
+        margin: 8px 0 22px 0;
+    }}
+    .get-started-link {{
+        padding: 13px 48px;
+        border-radius: 999px;
+        background: {btn_bg};
+        color: white !important;
+        font-weight: 900;
+        font-size: 1.08rem;
+        border: 1.5px solid {btn_line_c};
+        box-shadow: 0 12px 34px rgba(0,119,182,0.36);
+        text-decoration: none;
+        transition: all 0.22s;
+    }}
+    </style>
+
+    <div class='welcome-wrap'>
+      <div class='hero-header'>
+        <span class='hero-logo'>🎓</span>
+        <h1 class='hero-title'>{APP_NAME}</h1>
+        <p class='hero-tagline'>{TAGLINE} ✨</p>
+      </div>
+      <hr class='welcome-divider'/>
+
+      <div class='feature-cards-row'>
+        <div class='feat-card'>
+          <span class='feat-icon'>📊</span>
+          <div class='feat-title'>Smart Graph</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • Visualize academic trends<br>
+            • Subject-wise performance<br>
+            • Interactive &amp; insightful
+          </div>
         </div>
-        <div class='stats-row'>
-          <div class='stat-item'><div class='stat-num'>98%</div><div class='stat-label'>Accuracy</div></div>
-          <div class='stat-item'><div class='stat-num'>10K+</div><div class='stat-label'>Predictions</div></div>
-          <div class='stat-item'><div class='stat-num'>3</div><div class='stat-label'>Smart Charts</div></div>
-          <div class='stat-item'><div class='stat-num'>Free</div><div class='stat-label'>Always</div></div>
+        <div class='feat-card'>
+          <span class='feat-icon'>🔮</span>
+          <div class='feat-title'>Prediction</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • AI score prediction<br>
+            • Simple result<br>
+            • Quick &amp; accurate
+          </div>
         </div>
+        <div class='feat-card'>
+          <span class='feat-icon'>📄</span>
+          <div class='feat-title'>PDF Report</div>
+          <div class='feat-sep'></div>
+          <div class='feat-desc'>
+            • Downloadable report<br>
+            • Share on WhatsApp<br>
+            • Professional format
+          </div>
+        </div>
+      </div>
+
+      <div style='text-align:center;margin-bottom:10px;font-size:0.85rem;font-weight:700;color:{card_desc};letter-spacing:1.5px;text-transform:uppercase;'>─── Used For ───</div>
+      <div class='used-for-row'>
+        <div class='used-item'><span class='used-icon'>🎓</span><div class='used-label'>Students</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Track &amp; improve</div></div>
+        <div class='used-item'><span class='used-icon'>👨‍👩‍👧</span><div class='used-label'>Parents</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Monitor child</div></div>
+        <div class='used-item'><span class='used-icon'>📖</span><div class='used-label'>Teachers</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Analyze &amp; support</div></div>
+        <div class='used-item'><span class='used-icon'>🏫</span><div class='used-label'>Schools</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Improve outcomes</div></div>
+        <div class='used-item'><span class='used-icon'>🧑‍💼</span><div class='used-label'>Counselors</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Guide decisions</div></div>
+      </div>
+
+      <div class='stats-strip'>
+        <div class='stat-chip'><span class='stat-chip-num'>5000+</span><span class='stat-chip-lbl'>Students Helped</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>25K+</span><span class='stat-chip-lbl'>Predictions Made</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>10K+</span><span class='stat-chip-lbl'>Reports Generated</span></div>
+        <div class='stat-chip'><span class='stat-chip-num'>99%</span><span class='stat-chip-lbl'>Accuracy Rate</span></div>
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -822,6 +1106,8 @@ def welcome_page():
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
+
+    st.markdown(f"<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
 # AUTH PAGE
@@ -1062,11 +1348,9 @@ def report_page(user):
 
     share_text = f"{APP_NAME} Report%0APredicted Score: {score}/100%0AHours Studied: {inputs.get('Hours_Studied')}%0AAttendance: {inputs.get('Attendance')}%25"
     wa_url    = "https://wa.me/?text=" + share_text
-    email_url = "mailto:?subject=" + urllib.parse.quote(f"{APP_NAME} Prediction Report") + "&body=" + share_text
     st.markdown(f"""
     <div style='text-align:center;margin:16px 0'>
       <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
-      <a class='email-btn' href='{email_url}'>✉️ Share via Email</a>
     </div>
     """, unsafe_allow_html=True)
     st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
