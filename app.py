@@ -333,11 +333,12 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle fixed TOP-LEFT ── */
+    /* ── Theme toggle fixed TOP-RIGHT ── */
     .theme-btn-wrap {{
         position: fixed;
-        top: 10px;
-        left: 55px;
+        top: 18px;
+        right: 24px;
+        left: auto;
         z-index: 999998;
     }}
     .theme-btn-wrap button {{
@@ -538,7 +539,14 @@ def apply_css():
 
     /* ── Welcome page styles ── */
     .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
-    .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
+    .hero-logo {{ display:none !important; }}
+    .app-title-cap {{
+        font-size: clamp(3.2rem,6vw,5.2rem);
+        vertical-align: -0.08em;
+        margin-right: 10px;
+        display: inline-block;
+        filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
+    }}
     .hero-title {{
         font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
         color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
@@ -591,9 +599,9 @@ def apply_css():
 
 apply_css()
 
-# ── JS to inject theme toggle button at top-left (pure HTML/JS, not Streamlit widget) ──
+# ── JS to inject theme toggle button at top-right (pure HTML/JS, not Streamlit widget) ──
 def inject_theme_toggle():
-    """Inject a real fixed-position theme button via HTML — always top-left, always visible."""
+    """Inject a real fixed-position theme button via HTML — always top-right, always visible."""
     dark = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
     # We use a form POST trick via JS to trigger Streamlit rerun
@@ -602,7 +610,7 @@ def inject_theme_toggle():
     pass  # handled via CSS .theme-btn-wrap below
 
 def theme_toggle_button(page_key=""):
-    """Render theme toggle — CSS positions it fixed top-left."""
+    """Render theme toggle — CSS positions it fixed top-right."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
@@ -887,8 +895,7 @@ def welcome_page():
 
     st.markdown(f"""
     <div class='hero-header'>
-      <span class='hero-logo'>🎓</span>
-      <h1 class='hero-title'>{APP_NAME}</h1>
+      <h1 class='hero-title'><span class='app-title-cap'>🎓</span>ScoreWise AI</h1>
       <p class='hero-tagline'>{TAGLINE} ✨</p>
     </div>
     <hr class='welcome-divider'/>
