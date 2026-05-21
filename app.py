@@ -24,9 +24,6 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-# =====================================================
-# APP CONFIG — must be FIRST Streamlit call
-# =====================================================
 APP_NAME   = "ScoreWise AI"
 TAGLINE    = "Smart Student Performance Predictor"
 USER_DB_FILE   = "users.json"
@@ -48,9 +45,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# =====================================================
-# BASIC STORAGE HELPERS
-# =====================================================
 def load_json(path, default):
     if os.path.exists(path):
         try:
@@ -86,9 +80,6 @@ def profile_pic_html(username, fallback="🎓"):
         return f'<img src="data:image/jpeg;base64,{b64}" />'
     return fallback
 
-# =====================================================
-# OTP FUNCTIONS
-# =====================================================
 def generate_otp():
     return str(random.randint(100000, 999999))
 
@@ -133,9 +124,6 @@ def send_otp_email(receiver, otp, name="User"):
     except Exception as e:
         return False, str(e)
 
-# =====================================================
-# SESSION STATE
-# =====================================================
 def init_state():
     defaults = {
         "logged_in":         False,
@@ -150,7 +138,6 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
-        "sidebar_collapsed": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -158,70 +145,71 @@ def init_state():
 
 init_state()
 
-# =====================================================
-# CSS — all pages get background image
-# Welcome   → full vivid image
-# Inner     → same image but heavy dark/light overlay so text stays readable
-# =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
-    is_auth    = (not st.session_state.logged_in and st.session_state.auth_page != "welcome")
 
     BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
 
     if dark:
-        # Welcome page: vivid image, light overlay
         if is_welcome:
-            app_bg      = f"linear-gradient(135deg,rgba(3,4,94,0.55) 0%,rgba(0,119,182,0.30) 100%), url('{BG_IMAGE}')"
+            app_bg = f"linear-gradient(135deg,rgba(3,4,94,0.55) 0%,rgba(0,119,182,0.30) 100%), url('{BG_IMAGE}')"
         else:
-            # Inner dark pages: heavy dark overlay → text easily readable
-            app_bg      = f"linear-gradient(135deg,rgba(3,4,94,0.82) 0%,rgba(0,30,60,0.88) 100%), url('{BG_IMAGE}')"
+            # Lighter dark overlay — more professional, less heavy
+            app_bg = f"linear-gradient(135deg,rgba(8,15,60,0.72) 0%,rgba(0,40,90,0.78) 100%), url('{BG_IMAGE}')"
 
-        panel_bg      = "rgba(3,4,94,0.72)"
-        card_bg       = "rgba(255,255,255,0.10)"
-        soft_card_bg  = "rgba(255,255,255,0.08)"
-        text_primary  = "#f7fbff"
-        text_secondary= "#caf0f8"
-        text_muted    = "#ade8f4"
-        border_color  = "rgba(202,240,248,0.22)"
-        input_bg      = "rgba(255,255,255,0.12)"
-        input_text    = "#ffffff"
-        accent1       = "#90e0ef"
-        accent2       = "#48cae4"
-        accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(3,4,94,0.88)"
-        shadow        = "0 22px 70px rgba(0,0,0,0.32)"
+        panel_bg      = "rgba(10,20,70,0.65)"
+        card_bg       = "rgba(255,255,255,0.09)"
+        soft_card_bg  = "rgba(255,255,255,0.07)"
+        text_primary  = "#eaf4ff"
+        text_secondary= "#b8d8f0"
+        text_muted    = "#88c0e8"
+        border_color  = "rgba(140,200,240,0.18)"
+        # Dark mode inputs: white background so text is black and clearly readable
+        input_bg      = "rgba(255,255,255,0.92)"
+        input_text    = "#0a0f3c"
+        input_border  = "rgba(0,150,220,0.40)"
+        accent1       = "#52b6e8"
+        accent2       = "#38a8dc"
+        accent3       = "#1a95cc"
+        sidebar_bg    = "rgba(5,10,50,0.82)"
+        shadow        = "0 16px 50px rgba(0,0,0,0.28)"
+        select_text   = "#0a0f3c"
     else:
-        # Welcome page: vivid image, soft white overlay
         if is_welcome:
-            app_bg      = f"linear-gradient(135deg,rgba(255,255,255,0.42) 0%,rgba(202,240,248,0.35) 100%), url('{BG_IMAGE}')"
+            app_bg = f"linear-gradient(135deg,rgba(245,252,255,0.50) 0%,rgba(210,240,255,0.40) 100%), url('{BG_IMAGE}')"
         else:
-            # Inner light pages: strong white overlay so content pops
-            app_bg      = f"linear-gradient(135deg,rgba(240,250,255,0.88) 0%,rgba(202,240,248,0.92) 100%), url('{BG_IMAGE}')"
+            app_bg = f"linear-gradient(135deg,rgba(240,250,255,0.84) 0%,rgba(220,242,255,0.88) 100%), url('{BG_IMAGE}')"
 
-        panel_bg      = "rgba(255,255,255,0.74)"
-        card_bg       = "rgba(255,255,255,0.60)"
-        soft_card_bg  = "rgba(255,255,255,0.46)"
+        panel_bg      = "rgba(255,255,255,0.78)"
+        card_bg       = "rgba(255,255,255,0.65)"
+        soft_card_bg  = "rgba(255,255,255,0.50)"
         text_primary  = "#03045e"
         text_secondary= "#023e8a"
         text_muted    = "#0077b6"
-        border_color  = "rgba(2,62,138,0.18)"
-        input_bg      = "rgba(255,255,255,0.86)"
+        border_color  = "rgba(2,62,138,0.16)"
+        input_bg      = "rgba(255,255,255,0.92)"
         input_text    = "#03045e"
+        input_border  = "rgba(0,119,182,0.30)"
         accent1       = "#0077b6"
         accent2       = "#0096c7"
         accent3       = "#00b4d8"
-        sidebar_bg    = "rgba(255,255,255,0.78)"
-        shadow        = "0 20px 60px rgba(2,62,138,0.22)"
+        sidebar_bg    = "rgba(248,253,255,0.82)"
+        shadow        = "0 16px 50px rgba(2,62,138,0.18)"
+        select_text   = "#03045e"
 
     st.markdown(f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
-    * {{ font-family: Inter, sans-serif !important; box-sizing: border-box; }}
+    * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── FULL APP BACKGROUND IMAGE (all pages) ── */
+    /* ── REMOVE ALL TOP PADDING / GAP ── */
+    .stApp > header {{ display: none !important; height: 0 !important; }}
+    [data-testid="stDecoration"] {{ display: none !important; }}
+    #MainMenu, footer {{ visibility: hidden; height: 0; }}
+
+    /* ── FULL APP BACKGROUND ── */
     .stApp {{
         background: {app_bg} !important;
         background-size: cover !important;
@@ -229,15 +217,14 @@ def apply_css():
         background-attachment: fixed !important;
         color: {text_primary};
         min-height: 100vh;
+        padding-top: 0 !important;
     }}
 
+    /* Remove Streamlit's default top spacing */
     .main .block-container {{
-        padding-top: 1.2rem;
+        padding-top: 0.6rem !important;
+        padding-bottom: 1rem !important;
         max-width: 1180px;
-    }}
-
-    [data-testid="stDecoration"], #MainMenu, footer, header {{
-        visibility: hidden; height: 0;
     }}
 
     /* ── SIDEBAR ── */
@@ -245,61 +232,84 @@ def apply_css():
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
         backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
+    /* Sidebar collapse button — positioned at right edge of sidebar */
+    [data-testid="collapsedControl"] {{
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        background: {card_bg} !important;
+        border: 1px solid {border_color} !important;
+        backdrop-filter: blur(14px);
+        border-radius: 0 12px 12px 0 !important;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.15) !important;
+        color: {accent1} !important;
+    }}
+
+    /* ── THEME TOGGLE — fixed top-LEFT corner ── */
+    .theme-toggle-fixed {{
+        position: fixed;
+        top: 12px;
+        left: 14px;
+        z-index: 9999;
+    }}
+    .theme-toggle-fixed .stButton > button {{
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        font-size: 1.2rem !important;
+        background: {card_bg} !important;
+        border: 1px solid {border_color} !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.20) !important;
+        backdrop-filter: blur(16px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: {text_primary} !important;
+    }}
+
     /* ── GLASS CARDS ── */
-    .glass, .metric-card, .profile-info-card, .score-badge {{
+    .glass {{
         background: {card_bg};
         border: 1px solid {border_color};
         box-shadow: {shadow};
-        backdrop-filter: blur(22px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 26px;
     }}
-    .glass {{ border-radius: 26px; padding: 28px; }}
 
     /* ── PAGE TITLES ── */
     .page-title {{
-        font-size: 2.25rem; font-weight: 900; margin-bottom: 4px;
-        color: {text_primary}; letter-spacing: -0.8px;
-        text-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        font-size: 2.1rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
+        color: {text_primary}; letter-spacing: -0.6px;
     }}
-    .subtext {{ color: {text_secondary}; font-size: 0.98rem; margin-bottom: 14px; font-weight: 600; }}
-
-    /* ── THEME TOGGLE BUTTON — emoji only, top-right ── */
-    .theme-toggle-wrap {{
-        position: fixed;
-        top: 14px; right: 18px;
-        z-index: 9999;
-    }}
-    .theme-toggle-wrap .stButton > button {{
-        width: 42px !important; height: 42px !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        font-size: 1.3rem !important;
-        background: {card_bg} !important;
-        border: 1px solid {border_color} !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
-        backdrop-filter: blur(18px);
-        display: flex; align-items: center; justify-content: center;
-    }}
+    .subtext {{ color: {text_secondary}; font-size: 0.92rem; margin-bottom: 12px; font-weight: 600; }}
 
     /* ── METRIC CARDS ── */
     .metric-card {{
-        border-radius: 22px; padding: 22px 14px; text-align: center; transition: 0.22s ease;
+        background: {card_bg};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(18px);
+        border-radius: 20px; padding: 20px 12px; text-align: center; transition: 0.22s ease;
     }}
-    .metric-card:hover {{ transform: translateY(-4px); background: {soft_card_bg}; }}
-    .metric-value {{ font-size: 2.25rem; font-weight: 900; color: {accent1}; }}
-    .metric-label {{ font-size: 0.78rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
+    .metric-card:hover {{ transform: translateY(-3px); background: {soft_card_bg}; }}
+    .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
+    .metric-label {{ font-size: 0.74rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
 
     /* ── AVATAR ── */
     .avatar-circle {{
-        width: 92px; height: 92px; border-radius: 50%;
+        width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden; margin: auto;
         border: 3px solid {accent2};
         background: linear-gradient(135deg,{accent1},{accent3});
-        font-size: 2.2rem;
-        box-shadow: 0 12px 34px rgba(0,0,0,0.22);
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
     }}
     .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; }}
 
@@ -308,42 +318,79 @@ def apply_css():
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
         border-radius: 999px !important; border: 0 !important;
-        font-weight: 900 !important; cursor: pointer !important;
-        padding: 0.66rem 1.5rem !important;
-        background: linear-gradient(135deg,#03045e,#0077b6,#00b4d8) !important;
+        font-weight: 800 !important; cursor: pointer !important;
+        padding: 0.62rem 1.4rem !important;
+        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8) !important;
         color: white !important;
-        box-shadow: 0 12px 26px rgba(0,119,182,0.34) !important;
-        transition: all 0.22s ease !important;
+        box-shadow: 0 10px 24px rgba(0,119,182,0.30) !important;
+        transition: all 0.20s ease !important;
+        letter-spacing: 0.2px !important;
     }}
     .stButton > button:hover,
     [data-testid="stDownloadButton"] button:hover,
     .stFormSubmitButton > button:hover {{
         transform: translateY(-2px) scale(1.01) !important;
-        box-shadow: 0 18px 38px rgba(0,180,216,0.42) !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8,#90e0ef) !important;
+        box-shadow: 0 16px 34px rgba(0,180,216,0.38) !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8,#7dd8f5) !important;
         color: white !important;
     }}
 
-    /* ── INPUTS ── */
-    input, textarea, [data-baseweb="select"] > div {{ border-radius: 15px !important; }}
-    .stTextInput input, .stNumberInput input, .stDateInput input, .stPasswordInput input, textarea {{
-        background: {input_bg} !important; color: {input_text} !important;
-        border: 1px solid {border_color} !important; font-weight: 650 !important;
+    /* ── INPUTS — KEY FIX: dark mode gets white bg with dark/black text ── */
+    input, textarea {{
+        border-radius: 12px !important;
+        background: {input_bg} !important;
+        color: {input_text} !important;
+        border: 1.5px solid {input_border} !important;
+        font-weight: 600 !important;
+        caret-color: {input_text} !important;
     }}
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stPasswordInput input,
+    textarea {{
+        background: {input_bg} !important;
+        color: {input_text} !important;
+        border: 1.5px solid {input_border} !important;
+        font-weight: 600 !important;
+        caret-color: {input_text} !important;
+    }}
+    /* Number input +/- buttons */
+    .stNumberInput [data-testid="stNumberInputField"] {{
+        color: {input_text} !important;
+        background: {input_bg} !important;
+    }}
+    /* Selectbox */
     .stSelectbox [data-baseweb="select"] > div {{
-        background: {input_bg} !important; color: {input_text} !important;
-        border: 1px solid {border_color} !important;
+        background: {input_bg} !important;
+        color: {input_text} !important;
+        border: 1.5px solid {input_border} !important;
+        border-radius: 12px !important;
     }}
+    .stSelectbox [data-baseweb="select"] span,
+    .stSelectbox [data-baseweb="select"] div {{
+        color: {input_text} !important;
+    }}
+    /* Dropdown menu options */
+    [data-baseweb="menu"] {{
+        background: {input_bg} !important;
+    }}
+    [data-baseweb="menu"] li {{
+        color: {input_text} !important;
+    }}
+    [data-baseweb="menu"] li:hover {{
+        background: rgba(0,150,220,0.12) !important;
+    }}
+
+    /* Labels */
     label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
     [data-baseweb="form-control"] label, .stSlider label {{
-        color: {text_primary} !important; font-weight: 700 !important;
+        color: {text_primary} !important;
+        font-weight: 700 !important;
+        font-size: 0.88rem !important;
     }}
-    .stTextInput input, .stNumberInput input, .stPasswordInput input {{
-        color: {input_text} !important; caret-color: {input_text} !important;
-    }}
-    .stSelectbox [data-baseweb="select"] span {{ color: {input_text} !important; }}
 
     /* ── TABS ── */
     [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
@@ -360,10 +407,15 @@ def apply_css():
     }}
 
     /* ── PROFILE CARD ── */
-    .profile-info-card {{ border-radius: 22px; padding: 24px; }}
+    .profile-info-card {{
+        background: {card_bg};
+        border: 1px solid {border_color};
+        backdrop-filter: blur(18px);
+        border-radius: 20px; padding: 22px;
+    }}
     .profile-field {{
         display: flex; justify-content: space-between; gap: 14px;
-        padding: 11px 0; border-bottom: 1px solid {border_color}; font-size: 0.95rem;
+        padding: 10px 0; border-bottom: 1px solid {border_color}; font-size: 0.93rem;
     }}
     .profile-field:last-child {{ border-bottom: none; }}
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
@@ -371,81 +423,81 @@ def apply_css():
 
     /* ── SCORE BADGE ── */
     .score-badge {{
-        display: inline-block; font-size: 3.5rem; font-weight: 900;
-        color: {accent1}; padding: 18px 34px; border-radius: 24px; text-align: center;
+        display: inline-block; font-size: 3.4rem; font-weight: 900;
+        color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
+        background: {card_bg};
+        border: 1px solid {border_color};
+        backdrop-filter: blur(16px);
     }}
 
     hr {{ border-color: {border_color} !important; }}
-    .stAlert {{ border-radius: 18px !important; }}
-    .stDataFrame {{ border-radius: 18px; overflow: hidden; }}
+    .stAlert {{ border-radius: 16px !important; }}
+    .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ── WELCOME HERO ── */
-    .hero-header {{ text-align: center; padding: 36px 10px 20px 10px; }}
-    .hero-logo {{ font-size: 3.6rem; display:block; margin-bottom:6px; }}
+    .hero-header {{ text-align: center; padding: 28px 10px 16px 10px; }}
+    .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
     .hero-title {{
-        font-size: clamp(2.6rem,5.5vw,4.6rem); font-weight: 900;
-        color: {'white' if dark else '#03045e'}; margin: 0 0 10px 0;
-        letter-spacing: -1.5px; text-shadow: 0 4px 22px rgba(0,0,0,0.35);
+        font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
+        color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
+        letter-spacing: -1.2px; text-shadow: 0 3px 18px rgba(0,0,0,0.30);
     }}
     .hero-tagline {{
-        font-size: 1.14rem; color: {'#caf0f8' if dark else '#0077b6'};
+        font-size: 1.08rem; color: {'#b8e0f7' if dark else '#0077b6'};
         font-weight: 600; margin-bottom: 0;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.28);
+        text-shadow: 0 2px 8px rgba(0,0,0,0.22);
     }}
     .welcome-divider {{
         border: 0; height: 1px;
-        background: {'rgba(255,255,255,0.28)' if dark else 'rgba(2,62,138,0.18)'};
-        margin: 22px auto; max-width: 640px;
+        background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
+        margin: 18px auto; max-width: 600px;
     }}
     .feature-cards-row {{
-        display: flex; gap: 18px; justify-content: center;
-        flex-wrap: wrap; margin: 0 0 28px 0;
+        display: flex; gap: 16px; justify-content: center;
+        flex-wrap: wrap; margin: 0 0 24px 0;
     }}
     .feat-card {{
-        flex: 1 1 220px; max-width: 270px;
-        background: {'rgba(255,255,255,0.13)' if dark else 'rgba(255,255,255,0.72)'};
-        border: 1px solid {'rgba(255,255,255,0.28)' if dark else 'rgba(2,62,138,0.20)'};
-        border-radius: 22px; padding: 28px 22px 22px 22px;
-        text-align: center; backdrop-filter: blur(18px);
-        box-shadow: 0 12px 36px rgba(0,0,0,0.16); transition: transform 0.22s ease;
+        flex: 1 1 210px; max-width: 260px;
+        background: {'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};
+        border: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};
+        border-radius: 20px; padding: 24px 20px 20px 20px;
+        text-align: center; backdrop-filter: blur(16px);
+        box-shadow: 0 10px 32px rgba(0,0,0,0.14); transition: transform 0.20s ease;
     }}
-    .feat-card:hover {{ transform: translateY(-5px); }}
-    .feat-icon {{ font-size: 2.5rem; display:block; margin-bottom:10px; }}
-    .feat-title {{ font-size: 1.12rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 6px 0; }}
-    .feat-sep {{ width: 40px; height: 3px; background: linear-gradient(90deg,#00b4d8,#90e0ef); border-radius: 99px; margin: 0 auto 10px auto; }}
-    .feat-desc {{ font-size: 0.82rem; color: {'#caf0f8' if dark else '#0077b6'}; font-weight: 600; line-height: 1.6; }}
-    .used-for-row {{ display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 0 0 10px 0; }}
-    .used-item {{ text-align: center; padding: 6px 10px; }}
-    .used-icon {{ font-size: 1.6rem; display:block; margin-bottom:2px; }}
-    .used-label {{ font-size: 0.72rem; font-weight: 800; color: {'#caf0f8' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
+    .feat-card:hover {{ transform: translateY(-4px); }}
+    .feat-icon {{ font-size: 2.3rem; display:block; margin-bottom:8px; }}
+    .feat-title {{ font-size: 1.08rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 5px 0; }}
+    .feat-sep {{ width: 36px; height: 3px; background: linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius: 99px; margin: 0 auto 9px auto; }}
+    .feat-desc {{ font-size: 0.80rem; color: {'#b8e0f7' if dark else '#0077b6'}; font-weight: 600; line-height: 1.6; }}
+    .used-for-row {{ display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 0 0 10px 0; }}
+    .used-item {{ text-align: center; padding: 5px 10px; }}
+    .used-icon {{ font-size: 1.5rem; display:block; margin-bottom:2px; }}
+    .used-label {{ font-size: 0.70rem; font-weight: 800; color: {'#b8e0f7' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
     .stats-strip {{
-        display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
-        padding: 18px 10px;
-        border-top: 1px solid {'rgba(255,255,255,0.30)' if dark else 'rgba(2,62,138,0.18)'};
-        border-bottom: 1px solid {'rgba(255,255,255,0.30)' if dark else 'rgba(2,62,138,0.18)'};
-        margin: 18px 0 24px 0;
+        display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+        padding: 16px 10px;
+        border-top: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
+        border-bottom: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
+        margin: 16px 0 22px 0;
     }}
     .stat-chip {{
-        display: flex; align-items: center; gap: 8px; padding: 8px 16px;
-        border-radius: 999px; background: rgba(0,180,216,0.14);
-        border: 1px solid rgba(0,180,216,0.25);
+        display: flex; align-items: center; gap: 7px; padding: 7px 14px;
+        border-radius: 999px; background: rgba(0,180,216,0.12);
+        border: 1px solid rgba(0,180,216,0.22);
     }}
-    .stat-chip-num {{ font-size: 1.2rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
-    .stat-chip-lbl {{ font-size: 0.75rem; font-weight:700; color:{'#caf0f8' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.8px; }}
-    .welcome-footer {{ text-align: center; font-size: 0.82rem; color: {'#caf0f8' if dark else '#0077b6'}; padding-bottom: 18px; font-weight: 600; }}
+    .stat-chip-num {{ font-size: 1.15rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
+    .stat-chip-lbl {{ font-size: 0.73rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
+    .welcome-footer {{ text-align: center; font-size: 0.80rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding-bottom: 16px; font-weight: 600; }}
     </style>
     """, unsafe_allow_html=True)
 
 apply_css()
 
-# ── Floating theme toggle (emoji only, top-right, all pages) ──────────────────
+# ── Theme toggle: fixed TOP-LEFT corner ──────────────────────────────────────
 def floating_theme_toggle():
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    # We inject it into a fixed-position wrapper via HTML+JS trick:
-    # Since Streamlit doesn't allow true fixed positioning for widgets,
-    # we put it in a container and use CSS to hide label/text
-    st.markdown("<div class='theme-toggle-wrap'>", unsafe_allow_html=True)
-    if st.button(emoji, key=f"theme_float_{st.session_state.active_page}_{st.session_state.auth_page}"):
+    st.markdown("<div class='theme-toggle-fixed'>", unsafe_allow_html=True)
+    if st.button(emoji, key=f"theme_tl_{st.session_state.active_page}_{st.session_state.auth_page}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
@@ -625,12 +677,12 @@ def get_chart_colors():
     dark = st.session_state.theme == "dark"
     return {
         "paper":  "rgba(0,0,0,0)", "plot": "rgba(0,0,0,0)",
-        "line":   "#52b69a" if dark else "#1e6091",
-        "marker": "#34a0a4" if dark else "#168aad",
-        "bar":    "#34a0a4" if dark else "#1a759f",
-        "bar2":   "#168aad" if dark else "#52b69a",
-        "text":   "#d9ed92" if dark else "#184e77",
-        "grid":   "rgba(82,182,154,0.15)" if dark else "rgba(26,117,159,0.12)",
+        "line":   "#52b6e8" if dark else "#1e6091",
+        "marker": "#38a8dc" if dark else "#168aad",
+        "bar":    "#38a8dc" if dark else "#1a759f",
+        "bar2":   "#1a95cc" if dark else "#52b6e8",
+        "text":   "#b8e0f7" if dark else "#184e77",
+        "grid":   "rgba(82,182,232,0.12)" if dark else "rgba(26,117,159,0.10)",
     }
 
 def score_trend_chart(records):
@@ -643,13 +695,13 @@ def score_trend_chart(records):
         text=scores, textposition="top center",
         line=dict(width=3, color=cc["line"]),
         marker=dict(size=10, color=cc["marker"], line=dict(width=2, color="white")),
-        fill="tozeroy", fillcolor="rgba(52,160,164,0.12)",
+        fill="tozeroy", fillcolor="rgba(56,168,220,0.10)",
     ))
-    fig.add_hline(y=60, line_dash="dash",  line_color="#b5e48c", annotation_text="Pass Line",  annotation_font_color="#b5e48c")
-    fig.add_hline(y=85, line_dash="dot",   line_color="#d9ed92", annotation_text="Excellent",  annotation_font_color="#d9ed92")
+    fig.add_hline(y=60, line_dash="dash",  line_color="#52b6e8", annotation_text="Pass Line",  annotation_font_color="#52b6e8")
+    fig.add_hline(y=85, line_dash="dot",   line_color="#7dd8f5", annotation_text="Excellent",  annotation_font_color="#7dd8f5")
     fig.update_layout(
         title=dict(text="📈 Score Trend Over Time", font=dict(color=cc["text"],size=15)),
-        height=320, margin=dict(l=10,r=10,t=45,b=10),
+        height=300, margin=dict(l=10,r=10,t=42,b=10),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
         xaxis=dict(gridcolor=cc["grid"],color=cc["text"]),
         yaxis=dict(gridcolor=cc["grid"],color=cc["text"],range=[0,110]),
@@ -670,7 +722,7 @@ def radar_chart(inputs):
     ]
     fig = go.Figure(go.Scatterpolar(
         r=vals+[vals[0]], theta=cats+[cats[0]], fill="toself",
-        fillcolor="rgba(52,160,164,0.20)",
+        fillcolor="rgba(56,168,220,0.16)",
         line=dict(color=cc["line"],width=2.5),
         marker=dict(color=cc["marker"],size=7),
     ))
@@ -681,7 +733,7 @@ def radar_chart(inputs):
             radialaxis=dict(visible=True,range=[0,100],color=cc["text"],gridcolor=cc["grid"]),
             angularaxis=dict(color=cc["text"]),
         ),
-        height=340, margin=dict(l=20,r=20,t=50,b=20),
+        height=320, margin=dict(l=20,r=20,t=48,b=20),
         paper_bgcolor=cc["paper"], showlegend=False,
     )
     return fig
@@ -699,14 +751,14 @@ def factor_bar_chart(inputs):
     fig = go.Figure(go.Bar(
         x=list(factors.keys()), y=list(factors.values()),
         marker=dict(color=list(factors.values()),
-                    colorscale=[[0,"#1e6091"],[0.4,"#34a0a4"],[0.7,"#76c893"],[1,"#d9ed92"]],
+                    colorscale=[[0,"#1e6091"],[0.4,"#38a8dc"],[0.7,"#7dd8f5"],[1,"#c8eeff"]],
                     showscale=False),
         text=[f"{v:.0f}" for v in factors.values()],
         textposition="outside", textfont=dict(color=cc["text"],size=11),
     ))
     fig.update_layout(
         title=dict(text="📊 Key Factors Contributing to Score",font=dict(color=cc["text"],size=15)),
-        height=320, margin=dict(l=10,r=10,t=50,b=10),
+        height=300, margin=dict(l=10,r=10,t=48,b=10),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
         xaxis=dict(gridcolor=cc["grid"],color=cc["text"]),
         yaxis=dict(gridcolor=cc["grid"],color=cc["text"],range=[0,115]),
@@ -718,12 +770,10 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
-    # Floating theme toggle (top-right)
     floating_theme_toggle()
 
     dark      = st.session_state.theme == "dark"
-    card_desc = "#caf0f8" if dark else "#0077b6"
-    used_c    = "#caf0f8" if dark else "#023e8a"
+    card_desc = "#b8e0f7" if dark else "#0077b6"
 
     st.markdown(f"""
     <div class='hero-header'>
@@ -754,13 +804,13 @@ def welcome_page():
       </div>
     </div>
 
-    <div style='text-align:center;margin-bottom:10px;font-size:0.85rem;font-weight:700;color:{card_desc};letter-spacing:1.5px;text-transform:uppercase;'>─── Used For ───</div>
+    <div style='text-align:center;margin-bottom:8px;font-size:0.82rem;font-weight:700;color:{card_desc};letter-spacing:1.4px;text-transform:uppercase;'>─── Used For ───</div>
     <div class='used-for-row'>
-      <div class='used-item'><span class='used-icon'>🎓</span><div class='used-label'>Students</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Track &amp; improve</div></div>
-      <div class='used-item'><span class='used-icon'>👨‍👩‍👧</span><div class='used-label'>Parents</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Monitor child</div></div>
-      <div class='used-item'><span class='used-icon'>📖</span><div class='used-label'>Teachers</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Analyze &amp; support</div></div>
-      <div class='used-item'><span class='used-icon'>🏫</span><div class='used-label'>Schools</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Improve outcomes</div></div>
-      <div class='used-item'><span class='used-icon'>🧑‍💼</span><div class='used-label'>Counselors</div><div style='font-size:0.68rem;color:{card_desc};font-weight:600;'>Guide decisions</div></div>
+      <div class='used-item'><span class='used-icon'>🎓</span><div class='used-label'>Students</div></div>
+      <div class='used-item'><span class='used-icon'>👨‍👩‍👧</span><div class='used-label'>Parents</div></div>
+      <div class='used-item'><span class='used-icon'>📖</span><div class='used-label'>Teachers</div></div>
+      <div class='used-item'><span class='used-icon'>🏫</span><div class='used-label'>Schools</div></div>
+      <div class='used-item'><span class='used-icon'>🧑‍💼</span><div class='used-label'>Counselors</div></div>
     </div>
 
     <div class='stats-strip'>
@@ -783,7 +833,6 @@ def welcome_page():
 # AUTH PAGE
 # =====================================================
 def auth_page():
-    # Floating theme toggle
     floating_theme_toggle()
 
     users = load_json(USER_DB_FILE, {})
@@ -797,7 +846,7 @@ def auth_page():
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
-        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:18px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
+        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
@@ -872,31 +921,14 @@ def auth_page():
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# SIDEBAR with collapse arrow toggle
+# SIDEBAR — NO manual collapse button in main content
 # =====================================================
 def sidebar(user):
-    # ── Sidebar collapse arrow button (always visible, outside sidebar) ──
-    # We use a small floating button on the left edge
-    col_toggle = st.columns([0.08, 0.92])
-    with col_toggle[0]:
-        arrow = "◀" if not st.session_state.sidebar_collapsed else "▶"
-        if st.button(arrow, key="sidebar_toggle_btn", help="Toggle sidebar"):
-            st.session_state.sidebar_collapsed = not st.session_state.sidebar_collapsed
-            # Streamlit doesn't support hiding sidebar via Python directly,
-            # so we inject JS to click the built-in sidebar toggle
-            st.markdown("""
-            <script>
-            const btn = window.parent.document.querySelector('[data-testid="collapsedControl"]');
-            if(btn) btn.click();
-            </script>
-            """, unsafe_allow_html=True)
-            st.rerun()
-
     with st.sidebar:
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:14px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
+        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
         st.markdown("---")
 
         pages  = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
@@ -985,7 +1017,7 @@ def prediction_page(user):
 
         status = "🌟 Excellent!" if score>=85 else "👍 Good" if score>=70 else "📈 Needs Work"
         st.markdown(f"""
-        <div style='text-align:center;padding:24px 0'>
+        <div style='text-align:center;padding:22px 0'>
           <div class='score-badge'>{score}<span style='font-size:1.2rem'>/100</span></div>
           <p style='margin-top:10px;font-size:1.1rem;font-weight:700'>{status}</p>
         </div>
