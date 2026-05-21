@@ -209,7 +209,7 @@ def apply_css():
         min-height: 100vh;
     }}
     .main .block-container {{
-        padding-top: 0.5rem !important;
+        padding-top: 0rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
     }}
@@ -333,12 +333,12 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle button RIGHT SIDE ── */
+    /* ── Theme toggle button: dashboard/auth pages top-right ── */
     .theme-row {{
         position: fixed !important;
         top: 18px !important;
-        left: 18px !important;
-        right: auto !important;
+        right: 18px !important;
+        left: auto !important;
         z-index: 999999 !important;
         width: 70px !important;
         height: 44px !important;
@@ -349,32 +349,69 @@ def apply_css():
     .theme-row .stButton {{
         position: fixed !important;
         top: 18px !important;
-        left: 18px !important;
-        right: auto !important;
+        right: 18px !important;
+        left: auto !important;
         z-index: 999999 !important;
         display: flex !important;
         justify-content: flex-end !important;
         align-items: center !important;
     }}
     .theme-row button,
-    .theme-row .stButton > button {{
-        width: 54px !important;
-        height: 40px !important;
-        min-width: 54px !important;
-        border-radius: 999px !important;
+    .theme-row .stButton > button,
+    .welcome-theme-row button,
+    .welcome-theme-row .stButton > button {{
+        width: 58px !important;
+        height: 46px !important;
+        min-width: 58px !important;
+        border-radius: 14px !important;
         padding: 0 !important;
-        font-size: 1.15rem !important;
-        background: {card_bg} !important;
-        border: 1.5px solid {border_color} !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
+        font-size: 1.25rem !important;
+        background: rgba(7,14,35,0.62) !important;
+        border: 1.4px solid rgba(255,255,255,0.34) !important;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.28) !important;
         backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
         color: {text_primary} !important;
     }}
     .theme-row button:hover,
-    .theme-row .stButton > button:hover {{
-        transform: scale(1.07) !important;
-        box-shadow: 0 6px 22px rgba(0,0,0,0.28) !important;
+    .theme-row .stButton > button:hover,
+    .welcome-theme-row button:hover,
+    .welcome-theme-row .stButton > button:hover {{
+        transform: translateY(-1px) scale(1.05) !important;
+        border-color: #00b4d8 !important;
+        box-shadow: 0 12px 28px rgba(0,180,216,0.30) !important;
+    }}
+
+    /* Welcome page: moon/sun icon beside title, right side, little down */
+    .welcome-title-grid {{
+        display: grid !important;
+        grid-template-columns: 1fr auto 1fr !important;
+        align-items: center !important;
+        width: 100% !important;
+        max-width: 980px !important;
+        margin: 0 auto !important;
+        column-gap: 22px !important;
+    }}
+    .welcome-title-center {{
+        grid-column: 2 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 18px !important;
+    }}
+    .welcome-theme-row {{
+        grid-column: 3 !important;
+        justify-self: start !important;
+        align-self: center !important;
+        transform: translateY(9px) !important;
+        width: 58px !important;
+        height: 46px !important;
+        z-index: 20 !important;
+    }}
+    .welcome-theme-row .stButton {{
+        width: 58px !important;
+        height: 46px !important;
     }}
 
     /* ── Back button style ── */
@@ -552,7 +589,7 @@ def apply_css():
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ── Welcome page styles ── */
-    .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
+    .hero-header {{ text-align: center; padding: 4px 10px 12px 10px; }}
     .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
     .app-cap {{
         font-size: 3.8rem;
@@ -563,17 +600,17 @@ def apply_css():
 
     .hero-title {{
         font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
-        color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
+        color: {'white' if dark else '#03045e'}; margin: 0;
         letter-spacing: -1.2px; text-shadow: 0 3px 18px rgba(0,0,0,0.30);
     }}
     .hero-tagline {{
         font-size: 1.06rem; color: {'#b8e0f7' if dark else '#0077b6'};
-        font-weight: 600; margin-bottom: 0;
+        font-weight: 600; margin: 8px 0 0 0;
     }}
     .welcome-divider {{
         border: 0; height: 1px;
         background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
-        margin: 16px auto; max-width: 600px;
+        margin: 12px auto 16px auto; max-width: 600px;
     }}
     .feature-cards-row {{ display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 0 0 22px 0; }}
     .feat-card {{
@@ -608,6 +645,54 @@ def apply_css():
     .stat-chip-num {{ font-size: 1.12rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
     .stat-chip-lbl {{ font-size: 0.72rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
     .welcome-footer {{ text-align: center; font-size: 0.79rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding-bottom: 14px; font-weight: 600; }}
+
+
+    /* ===== FINAL FIX: Welcome title + theme icon same row ===== */
+    .main .block-container {{
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
+    }}
+    [data-testid="stToolbar"] {{
+        visibility: hidden !important;
+        height: 0px !important;
+        position: fixed !important;
+    }}
+    .hero-header {{
+        text-align: center !important;
+        padding: 0px 10px 8px 10px !important;
+        margin-top: -8px !important;
+    }}
+    .hero-title {{
+        margin: 0 !important;
+        line-height: 1.05 !important;
+    }}
+    .hero-tagline {{
+        margin-top: 8px !important;
+    }}
+    .welcome-mode-holder {{
+        height: 100% !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding-top: 32px !important;  /* icon ko title se thoda niche rakhta hai */
+    }}
+    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {{
+        align-items: flex-start !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }}
+    .welcome-theme-row {{
+        position: relative !important;
+        transform: none !important;
+        width: 58px !important;
+        height: 46px !important;
+        z-index: 20 !important;
+    }}
+    .welcome-theme-row .stButton {{
+        position: relative !important;
+        width: 58px !important;
+        height: 46px !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -623,10 +708,11 @@ def inject_theme_toggle():
     # Best approach: render the button normally but use CSS to move it
     pass  # handled via CSS .theme-btn-wrap below
 
-def theme_toggle_button(page_key=""):
-    """Render light/dark mode button on the RIGHT side. Do not delete it."""
+def theme_toggle_button(page_key="", welcome=False):
+    """Render light/dark mode button. Welcome page me icon title ke right side me rahega."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    st.markdown('<div class="theme-row">', unsafe_allow_html=True)
+    wrap_class = "welcome-theme-row" if welcome else "theme-row"
+    st.markdown(f'<div class="{wrap_class}">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
         st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
         st.rerun()
@@ -904,15 +990,26 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
-    theme_toggle_button("welcome")
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
 
+    # Title aur moon/sun icon ek hi row me: icon title ke right side me thoda niche
+    left_space, title_col, mode_col, right_space = st.columns([1.15, 4.6, 0.75, 1.15])
+
+    with title_col:
+        st.markdown(f"""
+        <div class='hero-header'>
+          <h1 class='hero-title'>{APP_NAME}</h1>
+          <p class='hero-tagline'>{TAGLINE} ✨</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with mode_col:
+        st.markdown("<div class='welcome-mode-holder'>", unsafe_allow_html=True)
+        theme_toggle_button("welcome", welcome=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
     st.markdown(f"""
-    <div class='hero-header'>
-      <h1 class='hero-title'>{APP_NAME}</h1>
-      <p class='hero-tagline'>{TAGLINE} ✨</p>
-    </div>
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
       <div class='feat-card'>
