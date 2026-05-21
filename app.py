@@ -231,23 +231,48 @@ def apply_css():
         max-width: 1180px;
     }}
 
-    /* Hide unnecessary Streamlit decoration boxes */
+    /* Streamlit top area clean - header ko hide mat karo, warna sidebar arrow gayab ho jata hai */
     [data-testid="stDecoration"],
     #MainMenu,
-    footer,
-    header {{
+    footer {{
         visibility: hidden;
         height: 0;
     }}
 
-    /* Sidebar */
+    header {{
+        background: transparent !important;
+        visibility: visible !important;
+        height: auto !important;
+    }}
+
+    /* Sidebar FIX */
+    section[data-testid="stSidebar"] {{
+        display: block !important;
+        visibility: visible !important;
+        background: {sidebar_bg} !important;
+        border-right: 1px solid {border_color};
+        backdrop-filter: blur(24px);
+        z-index: 999999 !important;
+    }}
+
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
         backdrop-filter: blur(24px);
     }}
+
     [data-testid="stSidebar"] * {{
         color: {text_primary} !important;
+    }}
+
+    /* Sidebar collapse/expand arrow visible */
+    [data-testid="collapsedControl"],
+    button[kind="header"] {{
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        z-index: 1000000 !important;
     }}
 
     /* Clean professional panels */
