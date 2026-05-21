@@ -333,12 +333,12 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle button RIGHT SIDE ── */
+    /* ── Theme toggle button TOP-RIGHT for login/dashboard pages ── */
     .theme-row {{
         position: fixed !important;
         top: 18px !important;
-        left: 18px !important;
-        right: auto !important;
+        right: 18px !important;
+        left: auto !important;
         z-index: 999999 !important;
         width: 70px !important;
         height: 44px !important;
@@ -349,8 +349,8 @@ def apply_css():
     .theme-row .stButton {{
         position: fixed !important;
         top: 18px !important;
-        left: 18px !important;
-        right: auto !important;
+        right: 18px !important;
+        left: auto !important;
         z-index: 999999 !important;
         display: flex !important;
         justify-content: flex-end !important;
@@ -553,6 +553,40 @@ def apply_css():
 
     /* ── Welcome page styles ── */
     .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
+
+    /* Welcome title and mode button in the same row */
+    .welcome-title-row {{
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        width: 100%;
+        margin: 10px 0 6px 0;
+    }}
+    .welcome-title-center {{
+        grid-column: 2;
+        text-align: center;
+    }}
+    .welcome-title-mode {{
+        grid-column: 3;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding-right: 8px;
+    }}
+    .welcome-title-mode .stButton > button {{
+        width: 54px !important;
+        height: 40px !important;
+        min-width: 54px !important;
+        border-radius: 999px !important;
+        padding: 0 !important;
+        font-size: 1.15rem !important;
+        background: {card_bg} !important;
+        border: 1.5px solid {border_color} !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
+        backdrop-filter: blur(16px) !important;
+        cursor: pointer !important;
+        color: {text_primary} !important;
+    }}
     .hero-logo {{ font-size: 3.2rem; display:block; margin-bottom:4px; }}
     .app-cap {{
         font-size: 3.8rem;
@@ -563,7 +597,7 @@ def apply_css():
 
     .hero-title {{
         font-size: clamp(2.4rem,5vw,4.2rem); font-weight: 900;
-        color: {'white' if dark else '#03045e'}; margin: 0 0 8px 0;
+        color: {'white' if dark else '#03045e'}; margin: 0;
         letter-spacing: -1.2px; text-shadow: 0 3px 18px rgba(0,0,0,0.30);
     }}
     .hero-tagline {{
@@ -904,15 +938,26 @@ def factor_bar_chart(inputs):
 # WELCOME PAGE
 # =====================================================
 def welcome_page():
-    theme_toggle_button("welcome")
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
 
+    st.markdown("<div class='hero-header'>", unsafe_allow_html=True)
+    st.markdown("<div class='welcome-title-row'>", unsafe_allow_html=True)
     st.markdown(f"""
-    <div class='hero-header'>
-      <h1 class='hero-title'>{APP_NAME}</h1>
-      <p class='hero-tagline'>{TAGLINE} ✨</p>
-    </div>
+        <div class='welcome-title-center'>
+            <h1 class='hero-title'>{APP_NAME}</h1>
+        </div>
+    """, unsafe_allow_html=True)
+    st.markdown("<div class='welcome-title-mode'>", unsafe_allow_html=True)
+    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
+    if st.button(emoji, key="theme_welcome_title"):
+        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.rerun()
+    st.markdown("</div></div>", unsafe_allow_html=True)
+    st.markdown(f"<p class='hero-tagline'>{TAGLINE} ✨</p>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    st.markdown(f"""
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
       <div class='feat-card'>
