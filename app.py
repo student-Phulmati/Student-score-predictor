@@ -72,7 +72,7 @@ def save_profile_pic(username, image_bytes):
     with open(path, "wb") as f:
         f.write(image_bytes)
 
-def profile_pic_html(username, fallback="🎓"):
+def profile_pic_html(username, fallback=" "):
     path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
     if os.path.exists(path):
         with open(path, "rb") as f:
