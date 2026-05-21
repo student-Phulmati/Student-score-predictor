@@ -40,7 +40,7 @@ os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
 st.set_page_config(
     page_title=APP_NAME,
-    page_icon="🎓",
+    page_icon=" ",
     layout="wide",
     initial_sidebar_state="expanded"
 )
