@@ -223,9 +223,17 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Working sidebar IN / OUT arrow like top-corner example ── */
+    /* ── Working sidebar IN / OUT arrow - no raw keyboard text ── */
 
-    /* Sidebar ke andar wala collapse arrow */
+    /* Hide Streamlit raw material icon text */
+    [data-testid="stSidebarCollapseButton"] button,
+    [data-testid="collapsedControl"] {{
+        font-size: 0 !important;
+        color: transparent !important;
+        overflow: hidden !important;
+    }}
+
+    /* Sidebar open: collapse button inside sidebar top-right */
     [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
         top: 14px !important;
@@ -264,21 +272,17 @@ def apply_css():
         cursor: pointer !important;
     }}
 
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.04) !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] svg {{
-        width: 18px !important;
-        height: 18px !important;
+    /* Create clean collapse arrow */
+    [data-testid="stSidebarCollapseButton"] button::before {{
+        content: "«" !important;
+        font-size: 24px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
         color: white !important;
-        fill: white !important;
-        stroke: white !important;
+        display: block !important;
     }}
 
-    /* Sidebar band hone ke baad bahar wala expand arrow */
+    /* Sidebar closed: expand button outside */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
         top: 14px !important;
@@ -300,17 +304,33 @@ def apply_css():
         cursor: pointer !important;
     }}
 
+    /* Create clean expand arrow */
+    [data-testid="collapsedControl"]::before {{
+        content: "»" !important;
+        font-size: 24px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        color: white !important;
+        display: block !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="stSidebarCollapseButton"] button:hover,
     [data-testid="collapsedControl"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.04) !important;
     }}
 
-    [data-testid="collapsedControl"] svg {{
-        width: 18px !important;
-        height: 18px !important;
-        color: white !important;
-        fill: white !important;
-        stroke: white !important;
+    /* Hide original SVG/icon if Streamlit renders it */
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="collapsedControl"] span {{
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        font-size: 0 !important;
+        color: transparent !important;
     }}
 
     /* ── Theme toggle fixed TOP-LEFT ── */
