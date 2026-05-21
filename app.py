@@ -189,11 +189,10 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Keep Streamlit header clickable but remove top blank gap ── */
+    /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
-        height: 0 !important;
-        min-height: 0 !important;
+        height: 3rem !important;
         display: block !important;
         z-index: 99999 !important;
     }}
@@ -210,7 +209,7 @@ def apply_css():
         min-height: 100vh;
     }}
     .main .block-container {{
-        padding-top: 0rem !important;
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
     }}
@@ -224,57 +223,45 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Sidebar collapse/open arrow — clean working arrow like ChatGPT sidebar ── */
-    [data-testid="collapsedControl"] {{
-        display: none !important;
-    }}
+    /* ── Sidebar collapse/open arrow — fixed visible button ── */
+    [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapseButton"] {{
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         position: fixed !important;
         top: 50% !important;
         left: 0 !important;
         transform: translateY(-50%) !important;
+        width: 40px !important;
+        height: 60px !important;
         z-index: 999999 !important;
-    }}
-    [data-testid="stSidebarCollapseButton"] button {{
-        width: 38px !important;
-        height: 58px !important;
-        min-width: 38px !important;
-        padding: 0 !important;
-        border: none !important;
-        border-radius: 0 16px 16px 0 !important;
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: white !important;
+        border: none !important;
+        border-radius: 0 14px 14px 0 !important;
         box-shadow: 0 8px 24px rgba(0,0,0,0.35) !important;
-        display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
-        transition: all 0.2s ease !important;
     }}
-    [data-testid="stSidebarCollapseButton"] button:hover {{
-        transform: scale(1.06) !important;
-        background: linear-gradient(135deg,#023e8a,#00b4d8) !important;
+    [data-testid="collapsedControl"]:hover,
+    [data-testid="stSidebarCollapseButton"]:hover {{
+        transform: translateY(-50%) scale(1.05) !important;
     }}
-    [data-testid="stSidebarCollapseButton"] button p,
-    [data-testid="stSidebarCollapseButton"] button span {{
-        font-size: 0 !important;
-        color: transparent !important;
-    }}
-    [data-testid="stSidebarCollapseButton"] button svg {{
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg {{
         color: white !important;
         fill: white !important;
         width: 20px !important;
         height: 20px !important;
     }}
-    section[data-testid="stSidebarContent"] {{
-        padding-top: 1rem !important;
-    }}
 
-    /* ── Theme toggle fixed TOP-RIGHT ── */
+    /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
         position: fixed;
         top: 10px;
-        right: 16px;
+        left: 55px;
         z-index: 999998;
     }}
     .theme-btn-wrap button {{
@@ -528,9 +515,9 @@ def apply_css():
 
 apply_css()
 
-# ── Theme toggle button fixed at top-right (pure HTML/JS, not Streamlit widget) ──
+# ── JS to inject theme toggle button at top-left (pure HTML/JS, not Streamlit widget) ──
 def inject_theme_toggle():
-    """Theme button is positioned fixed top-right through CSS."""
+    """Inject a real fixed-position theme button via HTML — always top-left, always visible."""
     dark = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
     # We use a form POST trick via JS to trigger Streamlit rerun
@@ -539,7 +526,7 @@ def inject_theme_toggle():
     pass  # handled via CSS .theme-btn-wrap below
 
 def theme_toggle_button(page_key=""):
-    """Render theme toggle — CSS positions it fixed top-right."""
+    """Render theme toggle — CSS positions it fixed top-left."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
@@ -1251,6 +1238,9 @@ def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
+
+    # Dashboard ke andar se Login page par wapas jane ka option
+    back_to_login_button("dashboard_back_login")
 
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
