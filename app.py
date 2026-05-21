@@ -192,7 +192,7 @@ def apply_css():
     /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
-        height: 3rem !important;
+        height: 0rem !important;
         display: block !important;
         z-index: 99999 !important;
     }}
@@ -223,46 +223,95 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* ── Sidebar collapse/open arrow like top-corner example ── */
-    [data-testid="collapsedControl"] {{
-        position: fixed !important;
+    /* ── Working sidebar IN / OUT arrow like top-corner example ── */
+
+    /* Sidebar ke andar wala collapse arrow */
+    [data-testid="stSidebarCollapseButton"] {
+        position: absolute !important;
         top: 14px !important;
-        left: 270px !important;
+        right: 14px !important;
         z-index: 999999 !important;
         width: 34px !important;
         height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
         border-radius: 10px !important;
         background: rgba(8,15,60,0.95) !important;
-        border: 1px solid rgba(255,255,255,0.12) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
         display: flex !important;
         visibility: visible !important;
         opacity: 1 !important;
         align-items: center !important;
         justify-content: center !important;
-        backdrop-filter: blur(12px) !important;
         box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
         cursor: pointer !important;
-    }}
+    }
 
-    [data-testid="collapsedControl"]:hover {{
-        transform: scale(1.06) !important;
+    [data-testid="stSidebarCollapseButton"] button {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }
+
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="stSidebarCollapseButton"] button:hover {
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-    }}
+        transform: scale(1.04) !important;
+    }
 
-    [data-testid="collapsedControl"] svg {{
+    [data-testid="stSidebarCollapseButton"] svg {
         width: 18px !important;
         height: 18px !important;
-        fill: white !important;
         color: white !important;
-    }}
+        fill: white !important;
+        stroke: white !important;
+    }
 
-    [data-testid="collapsedControl"][aria-expanded="false"] {{
-        left: 10px !important;
-    }}
+    /* Sidebar band hone ke baad bahar wala expand arrow */
+    [data-testid="collapsedControl"] {
+        position: fixed !important;
+        top: 14px !important;
+        left: 14px !important;
+        z-index: 999999 !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.95) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        cursor: pointer !important;
+    }
 
-    [data-testid="stSidebarCollapseButton"] {{
-        display: none !important;
-    }}
+    [data-testid="collapsedControl"]:hover {
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.04) !important;
+    }
+
+    [data-testid="collapsedControl"] svg {
+        width: 18px !important;
+        height: 18px !important;
+        color: white !important;
+        fill: white !important;
+        stroke: white !important;
+    }
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
