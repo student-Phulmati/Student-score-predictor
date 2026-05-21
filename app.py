@@ -645,6 +645,54 @@ def apply_css():
     .stat-chip-num {{ font-size: 1.12rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
     .stat-chip-lbl {{ font-size: 0.72rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
     .welcome-footer {{ text-align: center; font-size: 0.79rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding-bottom: 14px; font-weight: 600; }}
+
+
+    /* ===== FINAL FIX: Welcome title + theme icon same row ===== */
+    .main .block-container {
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
+    }
+    [data-testid="stToolbar"] {
+        visibility: hidden !important;
+        height: 0px !important;
+        position: fixed !important;
+    }
+    .hero-header {
+        text-align: center !important;
+        padding: 0px 10px 8px 10px !important;
+        margin-top: -8px !important;
+    }
+    .hero-title {
+        margin: 0 !important;
+        line-height: 1.05 !important;
+    }
+    .hero-tagline {
+        margin-top: 8px !important;
+    }
+    .welcome-mode-holder {
+        height: 100% !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        justify-content: flex-start !important;
+        padding-top: 32px !important;  /* icon ko title se thoda niche rakhta hai */
+    }
+    div[data-testid="stHorizontalBlock"]:has(.welcome-mode-holder) {
+        align-items: flex-start !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+    .welcome-theme-row {
+        position: relative !important;
+        transform: none !important;
+        width: 58px !important;
+        height: 46px !important;
+        z-index: 20 !important;
+    }
+    .welcome-theme-row .stButton {
+        position: relative !important;
+        width: 58px !important;
+        height: 46px !important;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -945,21 +993,23 @@ def welcome_page():
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
 
-    st.markdown(f"""
-    <div class='hero-header'>
-      <div class='welcome-title-grid'>
-        <div></div>
-        <div class='welcome-title-center'>
+    # Title aur moon/sun icon ek hi row me: icon title ke right side me thoda niche
+    left_space, title_col, mode_col, right_space = st.columns([1.15, 4.6, 0.75, 1.15])
+
+    with title_col:
+        st.markdown(f"""
+        <div class='hero-header'>
           <h1 class='hero-title'>{APP_NAME}</h1>
+          <p class='hero-tagline'>{TAGLINE} ✨</p>
         </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-    theme_toggle_button("welcome", welcome=True)
+    with mode_col:
+        st.markdown("<div class='welcome-mode-holder'>", unsafe_allow_html=True)
+        theme_toggle_button("welcome", welcome=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown(f"""
-      </div>
-      <p class='hero-tagline'>{TAGLINE} ✨</p>
-    </div>
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
       <div class='feat-card'>
