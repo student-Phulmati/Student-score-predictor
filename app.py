@@ -226,7 +226,7 @@ def apply_css():
     /* ── Working sidebar IN / OUT arrow like top-corner example ── */
 
     /* Sidebar ke andar wala collapse arrow */
-    [data-testid="stSidebarCollapseButton"] {
+    [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
         top: 14px !important;
         right: 14px !important;
@@ -245,9 +245,9 @@ def apply_css():
         justify-content: center !important;
         box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
         cursor: pointer !important;
-    }
+    }}
 
-    [data-testid="stSidebarCollapseButton"] button {
+    [data-testid="stSidebarCollapseButton"] button {{
         width: 34px !important;
         height: 34px !important;
         min-width: 34px !important;
@@ -262,24 +262,24 @@ def apply_css():
         align-items: center !important;
         justify-content: center !important;
         cursor: pointer !important;
-    }
+    }}
 
     [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover {
+    [data-testid="stSidebarCollapseButton"] button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.04) !important;
-    }
+    }}
 
-    [data-testid="stSidebarCollapseButton"] svg {
+    [data-testid="stSidebarCollapseButton"] svg {{
         width: 18px !important;
         height: 18px !important;
         color: white !important;
         fill: white !important;
         stroke: white !important;
-    }
+    }}
 
     /* Sidebar band hone ke baad bahar wala expand arrow */
-    [data-testid="collapsedControl"] {
+    [data-testid="collapsedControl"] {{
         position: fixed !important;
         top: 14px !important;
         left: 14px !important;
@@ -298,20 +298,20 @@ def apply_css():
         justify-content: center !important;
         box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
         cursor: pointer !important;
-    }
+    }}
 
-    [data-testid="collapsedControl"]:hover {
+    [data-testid="collapsedControl"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.04) !important;
-    }
+    }}
 
-    [data-testid="collapsedControl"] svg {
+    [data-testid="collapsedControl"] svg {{
         width: 18px !important;
         height: 18px !important;
         color: white !important;
         fill: white !important;
         stroke: white !important;
-    }
+    }}
 
     /* ── Theme toggle fixed TOP-LEFT ── */
     .theme-btn-wrap {{
