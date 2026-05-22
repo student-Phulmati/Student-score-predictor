@@ -13,7 +13,6 @@ import urllib.parse
 from datetime import datetime, date
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import streamlit.components.v1 as components
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -190,6 +189,7 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
+    /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
         height: 0rem !important;
@@ -198,8 +198,8 @@ def apply_css():
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
     #MainMenu, footer {{ visibility: hidden; height: 0; }}
-    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
 
+    /* ── Background ── */
     .stApp {{
         background: {app_bg} !important;
         background-size: cover !important;
@@ -214,6 +214,7 @@ def apply_css():
         max-width: 1180px;
     }}
 
+    /* ── Sidebar ── */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
@@ -222,41 +223,127 @@ def apply_css():
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
-    /* Hide ALL sidebar arrow default content — text, svg, span */
-    [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="stSidebarCollapseButton"] span,
-    [data-testid="stSidebarCollapseButton"] button svg,
-    [data-testid="stSidebarCollapseButton"] button span,
-    [data-testid="collapsedControl"] svg,
-    [data-testid="collapsedControl"] span {{
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        font-size: 0 !important;
-        color: transparent !important;
-        width: 0 !important;
-    }}
+    /* ── Working sidebar IN / OUT arrow - no raw keyboard text ── */
 
-    /* Also hide raw Material Icons text that leaks */
+    /* Hide Streamlit raw material icon text */
     [data-testid="stSidebarCollapseButton"] button,
     [data-testid="collapsedControl"] {{
         font-size: 0 !important;
         color: transparent !important;
-        letter-spacing: -99px !important;
-        text-indent: -9999px !important;
+        overflow: hidden !important;
     }}
 
-    /* Theme toggle */
+    /* Sidebar open: collapse button inside sidebar top-right */
+    [data-testid="stSidebarCollapseButton"] {{
+        position: absolute !important;
+        top: 14px !important;
+        right: 14px !important;
+        z-index: 999999 !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.95) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        cursor: pointer !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button {{
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+    }}
+
+    /* Create clean collapse arrow */
+    [data-testid="stSidebarCollapseButton"] button::before {{
+        content: "«" !important;
+        font-size: 24px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        color: white !important;
+        display: block !important;
+    }}
+
+    /* Sidebar closed: expand button outside */
+    [data-testid="collapsedControl"] {{
+        position: fixed !important;
+        top: 14px !important;
+        left: 14px !important;
+        z-index: 999999 !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.95) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25) !important;
+        cursor: pointer !important;
+    }}
+
+    /* Create clean expand arrow */
+    [data-testid="collapsedControl"]::before {{
+        content: "»" !important;
+        font-size: 24px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        color: white !important;
+        display: block !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"]:hover,
+    [data-testid="stSidebarCollapseButton"] button:hover,
+    [data-testid="collapsedControl"]:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.04) !important;
+    }}
+
+    /* Hide original SVG/icon if Streamlit renders it */
+    [data-testid="stSidebarCollapseButton"] svg,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="collapsedControl"] span {{
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        font-size: 0 !important;
+        color: transparent !important;
+    }}
+
+    /* ── Theme toggle fixed TOP-RIGHT ── */
     .theme-btn-wrap {{
         position: fixed;
         top: 18px;
         right: 24px;
+        left: auto;
         z-index: 999998;
     }}
-    .theme-btn-wrap button,
-    .theme-btn-wrap .stButton > button {{
-        width: 42px !important;
-        height: 42px !important;
+    .theme-btn-wrap button {{
+        width: 40px !important;
+        height: 40px !important;
         border-radius: 50% !important;
         padding: 0 !important;
         font-size: 1.2rem !important;
@@ -265,17 +352,18 @@ def apply_css():
         box-shadow: 0 4px 18px rgba(0,0,0,0.22) !important;
         backdrop-filter: blur(16px) !important;
         cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         transition: all 0.2s ease !important;
         color: {text_primary} !important;
-        letter-spacing: normal !important;
-        text-indent: 0 !important;
     }}
-    .theme-btn-wrap button:hover,
-    .theme-btn-wrap .stButton > button:hover {{
+    .theme-btn-wrap button:hover {{
         transform: scale(1.1) !important;
         box-shadow: 0 6px 22px rgba(0,0,0,0.28) !important;
     }}
 
+    /* ── Back button style ── */
     .back-btn-wrap .stButton > button {{
         background: {card_bg} !important;
         border: 1.5px solid {border_color} !important;
@@ -283,14 +371,13 @@ def apply_css():
         box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important;
         padding: 0.4rem 1.1rem !important;
         font-size: 0.88rem !important;
-        letter-spacing: normal !important;
-        text-indent: 0 !important;
     }}
     .back-btn-wrap .stButton > button:hover {{
         background: {soft_card_bg} !important;
         transform: translateX(-2px) !important;
     }}
 
+    /* ── Glass cards ── */
     .glass {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -301,12 +388,14 @@ def apply_css():
         padding: 26px;
     }}
 
+    /* ── Page title ── */
     .page-title {{
         font-size: 2.0rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
         color: {text_primary}; letter-spacing: -0.5px;
     }}
     .subtext {{ color: {text_secondary}; font-size: 0.91rem; margin-bottom: 12px; font-weight: 600; }}
 
+    /* ── Metric cards ── */
     .metric-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -318,6 +407,7 @@ def apply_css():
     .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
     .metric-label {{ font-size: 0.73rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
 
+    /* ── Avatar ── */
     .avatar-circle {{
         width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
@@ -329,6 +419,7 @@ def apply_css():
     }}
     .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; }}
 
+    /* ── All buttons default ── */
     .stButton > button,
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
@@ -339,8 +430,6 @@ def apply_css():
         color: white !important;
         box-shadow: 0 8px 22px rgba(0,119,182,0.28) !important;
         transition: all 0.20s ease !important;
-        letter-spacing: normal !important;
-        text-indent: 0 !important;
     }}
     .stButton > button:hover,
     [data-testid="stDownloadButton"] button:hover,
@@ -351,6 +440,7 @@ def apply_css():
         color: white !important;
     }}
 
+    /* ── Inputs — dark mode: white bg, black text ── */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -367,6 +457,7 @@ def apply_css():
     .stPasswordInput input::placeholder {{
         color: rgba(10,15,60,0.45) !important;
     }}
+    /* Selectbox */
     .stSelectbox [data-baseweb="select"] > div {{
         background: {input_bg} !important;
         color: {input_text} !important;
@@ -378,14 +469,23 @@ def apply_css():
     .stSelectbox [data-baseweb="select"] input {{
         color: {input_text} !important;
     }}
-    [data-baseweb="menu"] {{ background: {input_bg} !important; }}
-    [data-baseweb="menu"] li {{ color: {input_text} !important; font-weight: 600 !important; }}
-    [data-baseweb="menu"] li:hover {{ background: rgba(0,150,220,0.14) !important; }}
+    [data-baseweb="menu"] {{
+        background: {input_bg} !important;
+    }}
+    [data-baseweb="menu"] li {{
+        color: {input_text} !important;
+        font-weight: 600 !important;
+    }}
+    [data-baseweb="menu"] li:hover {{
+        background: rgba(0,150,220,0.14) !important;
+    }}
+    /* Number input value text */
     [data-testid="stNumberInputField"] input {{
         color: {input_text} !important;
         background: {input_bg} !important;
     }}
 
+    /* Labels */
     label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
@@ -395,10 +495,12 @@ def apply_css():
         font-size: 0.87rem !important;
     }}
 
+    /* ── Tabs ── */
     [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
     [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
     [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
 
+    /* ── WhatsApp button ── */
     .whatsapp-btn {{
         display: inline-block; border-radius: 999px; padding: 11px 22px;
         color: white !important; text-decoration: none; font-weight: 900;
@@ -407,6 +509,7 @@ def apply_css():
         background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
+    /* ── Profile card ── */
     .profile-info-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -421,6 +524,7 @@ def apply_css():
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
     .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
+    /* ── Score badge ── */
     .score-badge {{
         display: inline-block; font-size: 3.4rem; font-weight: 900;
         color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
@@ -433,7 +537,9 @@ def apply_css():
     .stAlert {{ border-radius: 16px !important; }}
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
+    /* ── Welcome page styles ── */
     .hero-header {{ text-align: center; padding: 28px 10px 14px 10px; }}
+    .hero-logo {{ display:none !important; }}
     .app-title-cap {{
         font-size: clamp(3.2rem,6vw,5.2rem);
         vertical-align: -0.08em;
@@ -491,129 +597,20 @@ def apply_css():
     </style>
     """, unsafe_allow_html=True)
 
-
-def inject_sidebar_arrows():
-    """
-    Sidebar ke collapse/expand buttons ko JS se style karta hai.
-    components.html() use karta hai kyunki st.markdown() scripts strip kar deta hai.
-    window.parent.document se parent Streamlit page ka DOM access hota hai.
-    """
-    components.html("""
-    <script>
-    (function() {
-        function styleArrows() {
-            // Sidebar OPEN — collapse button (left-pointing arrow)
-            var collapseBtn =
-                window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button') ||
-                window.parent.document.querySelector('button[data-testid="stBaseButton-headerNoPadding"]');
-
-            // Sidebar CLOSED — expand button (right-pointing arrow)
-            var expandBtn = window.parent.document.querySelector('[data-testid="collapsedControl"]');
-
-            function applyStyle(el, arrow) {
-                if (!el || el._swDone) return;
-
-                // Pehle saara inner content saaf karo
-                el.innerHTML = "";
-
-                // Ek naya span banao sirf arrow ke liye
-                var span = document.createElement("span");
-                span.textContent = arrow;
-                span.style.cssText = [
-                    "font-size:22px",
-                    "font-weight:900",
-                    "color:white",
-                    "line-height:1",
-                    "display:block",
-                    "font-family:Arial,sans-serif",
-                    "letter-spacing:normal",
-                    "text-indent:0"
-                ].join(";");
-                el.appendChild(span);
-
-                // Button ko style karo
-                el.style.cssText += [
-                    "width:36px!important",
-                    "height:36px!important",
-                    "min-width:36px!important",
-                    "min-height:36px!important",
-                    "border-radius:10px!important",
-                    "background:rgba(8,15,60,0.92)!important",
-                    "border:1.5px solid rgba(255,255,255,0.20)!important",
-                    "box-shadow:0 4px 18px rgba(0,0,0,0.30)!important",
-                    "display:flex!important",
-                    "align-items:center!important",
-                    "justify-content:center!important",
-                    "cursor:pointer!important",
-                    "padding:0!important",
-                    "overflow:hidden!important",
-                    "transition:all 0.18s ease!important",
-                    "font-size:0!important",
-                    "color:transparent!important",
-                    "letter-spacing:-99px!important",
-                    "text-indent:-9999px!important"
-                ].join(";");
-
-                el.addEventListener("mouseover", function() {
-                    el.style.background = "linear-gradient(135deg,#0077b6,#00b4d8)";
-                    el.style.transform  = "scale(1.08)";
-                    el.style.boxShadow  = "0 8px 24px rgba(0,180,216,0.40)";
-                });
-                el.addEventListener("mouseout", function() {
-                    el.style.background = "rgba(8,15,60,0.92)";
-                    el.style.transform  = "scale(1)";
-                    el.style.boxShadow  = "0 4px 18px rgba(0,0,0,0.30)";
-                });
-
-                el._swDone = true;
-            }
-
-            applyStyle(collapseBtn, "\u00AB");  // «
-            applyStyle(expandBtn,   "\u00BB");  // »
-        }
-
-        // Turant run karo
-        styleArrows();
-
-        // Streamlit ke lazy render ke baad bhi run karo
-        setTimeout(styleArrows, 300);
-        setTimeout(styleArrows, 800);
-        setTimeout(styleArrows, 2000);
-        setTimeout(styleArrows, 4000);
-
-        // DOM changes pe watch karo (sidebar toggle, page navigation)
-        var observer = new MutationObserver(function(mutations) {
-            var shouldRun = false;
-            mutations.forEach(function(m) {
-                if (m.addedNodes.length > 0) shouldRun = true;
-            });
-            if (shouldRun) {
-                // _swDone flag reset karo taaki re-style ho sake
-                var els = [
-                    window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button'),
-                    window.parent.document.querySelector('button[data-testid="stBaseButton-headerNoPadding"]'),
-                    window.parent.document.querySelector('[data-testid="collapsedControl"]')
-                ];
-                els.forEach(function(el) {
-                    if (el) el._swDone = false;
-                });
-                styleArrows();
-            }
-        });
-        observer.observe(window.parent.document.body, {
-            childList: true,
-            subtree: true
-        });
-    })();
-    </script>
-    """, height=0, scrolling=False)
-
-
 apply_css()
-inject_sidebar_arrows()
 
+# ── JS to inject theme toggle button at top-right (pure HTML/JS, not Streamlit widget) ──
+def inject_theme_toggle():
+    """Inject a real fixed-position theme button via HTML — always top-right, always visible."""
+    dark = st.session_state.theme == "dark"
+    emoji = "☀️" if dark else "🌙"
+    # We use a form POST trick via JS to trigger Streamlit rerun
+    # Instead, we use st.button inside a fixed div using CSS injection + JS click relay
+    # Best approach: render the button normally but use CSS to move it
+    pass  # handled via CSS .theme-btn-wrap below
 
 def theme_toggle_button(page_key=""):
+    """Render theme toggle — CSS positions it fixed top-right."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     st.markdown('<div class="theme-btn-wrap">', unsafe_allow_html=True)
     if st.button(emoji, key=f"theme_{page_key}"):
@@ -622,6 +619,7 @@ def theme_toggle_button(page_key=""):
     st.markdown('</div>', unsafe_allow_html=True)
 
 def back_to_login_button(key_name="back_login"):
+    """Show a small back button inside the dashboard to return to login page."""
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
     if st.button("← Back to Login", key=key_name):
         st.session_state.logged_in = False
@@ -659,13 +657,13 @@ def predict_score(data):
 
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:           recs.append("📚 Improve daily study hours to 6–8 hours.")
-    if d["Attendance"] < 80:              recs.append("🏫 Keep attendance above 80% for stronger performance.")
-    if d["Sleep_Hours"] < 7:              recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
-    if d["Motivation_Level"] == "Low":    recs.append("🎯 Set small daily goals and track your progress.")
-    if d["Internet_Access"] == "No":      recs.append("📖 Use offline notes, library support, and teacher guidance.")
-    if d["Learning_Resources"] == "Low":  recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
-    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
+    if d["Hours_Studied"] < 6:          recs.append("📚 Improve daily study hours to 6–8 hours.")
+    if d["Attendance"] < 80:             recs.append("🏫 Keep attendance above 80% for stronger performance.")
+    if d["Sleep_Hours"] < 7:             recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
+    if d["Motivation_Level"] == "Low":   recs.append("🎯 Set small daily goals and track your progress.")
+    if d["Internet_Access"] == "No":     recs.append("📖 Use offline notes, library support, and teacher guidance.")
+    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
+    if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
 # =====================================================
@@ -717,7 +715,7 @@ def generate_pdf(username, user_data, score, inputs, recs):
     rec_style      = ParagraphStyle("RecX",   parent=styles["Normal"],   fontSize=10, leading=15,
                                     textColor=colors.HexColor("#184e77"), leftIndent=10)
     story = []
-    story.append(Paragraph(f"{APP_NAME}", title_style))
+    story.append(Paragraph(f"🎓 {APP_NAME}", title_style))
     story.append(Paragraph("Official Student Performance Prediction Report", subtitle_style))
     story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d %B %Y  |  %I:%M %p')}", subtitle_style))
     story.append(Table([[""]], colWidths=[6.6*inch],
@@ -725,7 +723,7 @@ def generate_pdf(username, user_data, score, inputs, recs):
                ("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
     story.append(Spacer(1,10))
     student_name = user_data.get("full_name") or user_data.get("child_name") or username
-    story.append(Paragraph("  Student / User Details", head_style))
+    story.append(Paragraph("  👤  Student / User Details", head_style))
     story.append(Spacer(1,4))
     info_rows = [["Full Name",student_name],["Username",username],
                  ["Email",user_data.get("email","N/A")],["Role",user_data.get("role","N/A").title()]]
@@ -746,8 +744,8 @@ def generate_pdf(username, user_data, score, inputs, recs):
         ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold"),("FONTNAME",(1,0),(1,-1),"Helvetica"),
     ]))
     story.append(t_info); story.append(Spacer(1,14))
-    story.append(Paragraph("  Prediction Result", head_style)); story.append(Spacer(1,4))
-    status_label = "Excellent!" if score>=85 else ("Good" if score>=70 else "Needs Improvement")
+    story.append(Paragraph("  📊  Prediction Result", head_style)); story.append(Spacer(1,4))
+    status_label = "🌟 Excellent!" if score>=85 else ("👍 Good" if score>=70 else "📈 Needs Improvement")
     score_color  = colors.HexColor("#168aad") if score>=70 else colors.HexColor("#e85d04")
     result_rows  = [["Predicted Score",f"{score} / 100"],["Performance Status",status_label]]
     t_result = Table([[Paragraph(f"<b>{r[0]}</b>",normal_style),Paragraph(r[1],normal_style)] for r in result_rows],
@@ -760,7 +758,7 @@ def generate_pdf(username, user_data, score, inputs, recs):
         ("FONTSIZE",(1,0),(1,0),13),("TEXTCOLOR",(1,0),(1,0),score_color),("PADDING",(0,0),(-1,-1),9),
     ]))
     story.append(t_result); story.append(Spacer(1,14))
-    story.append(Paragraph("  Academic Input Details", head_style)); story.append(Spacer(1,4))
+    story.append(Paragraph("  📋  Academic Input Details", head_style)); story.append(Spacer(1,4))
     input_header = [[Paragraph("<b>Factor</b>",normal_style),Paragraph("<b>Value Provided</b>",normal_style)]]
     input_data   = [[Paragraph(k.replace("_"," "),normal_style),Paragraph(str(v),normal_style)] for k,v in inputs.items()]
     t_inputs = Table(input_header+input_data, colWidths=[2.9*inch,3.7*inch])
@@ -775,15 +773,15 @@ def generate_pdf(username, user_data, score, inputs, recs):
     story.append(t_inputs); story.append(Spacer(1,14))
     scores_list = [r.get("score",0) for r in user_history(username)] + [score]
     if len(scores_list) > 1:
-        story.append(Paragraph("  Score History Graph", head_style)); story.append(Spacer(1,6))
+        story.append(Paragraph("  📈  Score History Graph", head_style)); story.append(Spacer(1,6))
         story.append(simple_pdf_graph(scores_list[-10:])); story.append(Spacer(1,14))
-    story.append(Paragraph("  Personalized Recommendations", head_style)); story.append(Spacer(1,6))
+    story.append(Paragraph("  💡  Personalized Recommendations", head_style)); story.append(Spacer(1,6))
     if recs:
         for r in recs:
             story.append(Paragraph("• "+r.lstrip("📚🏫😴🎯📖💡🤝 ").strip(), rec_style))
             story.append(Spacer(1,3))
     else:
-        story.append(Paragraph("Your current academic inputs are strong. Keep up the great work!", rec_style))
+        story.append(Paragraph("✅ Your current academic inputs are strong. Keep up the great work!", rec_style))
     story.append(Spacer(1,20))
     story.append(Table([[""]], colWidths=[6.6*inch],
         style=[("LINEABOVE",(0,0),(-1,-1),.8,colors.HexColor("#ade8f4")),
@@ -945,11 +943,12 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE
+# AUTH PAGE  — with proper Back button
 # =====================================================
 def auth_page():
     theme_toggle_button("auth")
 
+    # ── Back button — styled, not raw code ──
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
     if st.button("← Back to Home", key="auth_back"):
         st.session_state.auth_page = "welcome"
@@ -1322,6 +1321,8 @@ def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
     sidebar(user)
+
+    # Dashboard ke andar se Login page par wapas jane ka option
     back_to_login_button("dashboard_back_login")
 
     page = st.session_state.active_page
