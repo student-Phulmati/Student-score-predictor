@@ -146,6 +146,7 @@ def init_state():
         "auth_page":         "welcome",
         "theme":             "light",
         "active_page":       "Home",
+        "previous_page":     "Home",
         "last_score":        None,
         "last_pdf":          None,
         "last_inputs":       {},
@@ -1003,6 +1004,265 @@ def apply_10x_layout_fix():
 
 apply_10x_layout_fix()
 
+def apply_professional_header_fix():
+    st.markdown("""
+    <style>
+    /* ===== FINAL PROFESSIONAL HEADER + GAP FIX ===== */
+    .stApp > header,
+    header[data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        visibility: hidden !important;
+    }
+    [data-testid="stAppViewContainer"] > .main,
+    .main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-top: 0 !important;
+        max-width: 100% !important;
+    }
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.25rem !important;
+    }
+
+    .topbar-shell {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .pro-header {
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 8px 2.4vw 7px 2.4vw !important;
+        background: rgba(255,255,255,0.92) !important;
+        border-bottom: 1px solid rgba(2,62,138,0.10) !important;
+        box-shadow: 0 8px 26px rgba(3,4,94,0.08) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999999 !important;
+    }
+
+    .header-title-wrap { line-height: 1.05; }
+    .header-app {
+        color: #03045e !important;
+        font-size: 1.05rem !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.3px !important;
+        white-space: nowrap !important;
+    }
+    .active-page-chip {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        margin-top: 4px !important;
+        padding: 4px 10px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        font-size: 0.68rem !important;
+        font-weight: 900 !important;
+        box-shadow: 0 6px 16px rgba(0,119,182,0.18) !important;
+    }
+    .header-sub {
+        color: #46617f !important;
+        font-size: 0.64rem !important;
+        font-weight: 700 !important;
+        margin-top: 3px !important;
+        white-space: nowrap !important;
+    }
+
+    .back-top-btn .stButton > button {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: 14px !important;
+        background: #ffffff !important;
+        color: #023e8a !important;
+        border: 1px solid rgba(2,62,138,0.16) !important;
+        box-shadow: 0 6px 14px rgba(3,4,94,0.08) !important;
+        font-size: 1.15rem !important;
+        font-weight: 900 !important;
+    }
+    .back-top-btn .stButton > button:hover {
+        background: #eaf6ff !important;
+        color: #0077b6 !important;
+        transform: translateX(-2px) !important;
+    }
+
+    .nav-tab .stButton > button,
+    .nav-tab-active .stButton > button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 10px !important;
+        border-radius: 999px !important;
+        font-size: 0.74rem !important;
+        font-weight: 900 !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,119,182,0.13) !important;
+        white-space: nowrap !important;
+        transform: none !important;
+    }
+    .nav-tab .stButton > button {
+        background: rgba(255,255,255,0.56) !important;
+        color: #1f3266 !important;
+    }
+    .nav-tab-active .stButton > button,
+    .nav-tab .stButton > button:hover {
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+    }
+
+    .corner-user {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+    }
+    .corner-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        background: linear-gradient(135deg,#0077b6,#90e0ef) !important;
+        color: #ffffff !important;
+        font-size: 1.15rem !important;
+        box-shadow: 0 7px 16px rgba(0,119,182,0.18) !important;
+        flex-shrink: 0 !important;
+    }
+    .corner-name {
+        color: #03045e !important;
+        font-size: 0.78rem !important;
+        font-weight: 900 !important;
+        line-height: 1.1 !important;
+        max-width: 100px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        text-align: left !important;
+    }
+    .corner-role {
+        color: #0077b6 !important;
+        font-size: 0.60rem !important;
+        font-weight: 800 !important;
+        margin-top: 2px !important;
+        white-space: nowrap !important;
+    }
+
+    .circle-tool-btn .stButton > button {
+        width: 38px !important;
+        min-width: 38px !important;
+        height: 38px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        background: #eaf6ff !important;
+        color: #0066d9 !important;
+        border: 1px solid rgba(0,119,182,0.10) !important;
+        box-shadow: none !important;
+        font-size: 1rem !important;
+    }
+    .logout-small-btn .stButton > button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 12px !important;
+        border-radius: 999px !important;
+        background: #03045e !important;
+        color: #ffffff !important;
+        border: 0 !important;
+        box-shadow: 0 8px 18px rgba(3,4,94,0.16) !important;
+        font-size: 0.70rem !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+    }
+
+    .dash-page {
+        padding: 14px 5.2vw 24px 5.2vw !important;
+        min-height: auto !important;
+    }
+    .dash-title,
+    .page-title {
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+        font-size: clamp(1.45rem, 2.1vw, 2.05rem) !important;
+        line-height: 1.08 !important;
+    }
+    .dash-subtitle,
+    .subtext {
+        margin-top: 0 !important;
+        margin-bottom: 14px !important;
+        font-size: 0.88rem !important;
+    }
+    .metric-card {
+        min-height: 105px !important;
+        padding: 12px 10px !important;
+        border-radius: 18px !important;
+    }
+    .metric-value {
+        font-size: 1.85rem !important;
+    }
+    .metric-label {
+        font-size: 0.70rem !important;
+        margin-top: 8px !important;
+    }
+    .metric-accent {
+        margin-top: 9px !important;
+        height: 3px !important;
+    }
+    .chart-glass {
+        margin-top: 12px !important;
+        padding: 10px 14px 4px 14px !important;
+        border-radius: 18px !important;
+    }
+
+    @media (max-width: 1050px) {
+        .header-sub { display: none !important; }
+        .header-app { font-size: 0.90rem !important; }
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.64rem !important;
+            padding: 0 5px !important;
+        }
+        .corner-role { display: none !important; }
+        .corner-name { max-width: 68px !important; font-size: 0.68rem !important; }
+    }
+    @media (max-width: 760px) {
+        .header-app { display: none !important; }
+        .active-page-chip { font-size: 0.60rem !important; padding: 4px 7px !important; }
+        .corner-user-text { display: none !important; }
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.58rem !important;
+            padding: 0 4px !important;
+        }
+        .dash-page {
+            padding: 10px 16px 20px 16px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_professional_header_fix()
+
+
 # =====================================================
 # MODEL AND PREDICTION
 # =====================================================
@@ -1469,54 +1729,107 @@ def auth_page():
 # =====================================================
 # TOP NAVIGATION BAR
 # =====================================================
-def top_navbar(user):
-    """Compact top menu without heavy navigation bar/sidebar."""
-    emoji = "🌙" if st.session_state.theme == "light" else "☀️"
+def go_page(page_name):
+    """Change page and remember previous page for Back button."""
+    if st.session_state.active_page != page_name:
+        st.session_state.previous_page = st.session_state.active_page
+        st.session_state.active_page = page_name
 
-    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
-    c_brand, c_home, c_pred, c_report, c_hist, c_prof, c_theme, c_sign = st.columns(
-        [2.3, 0.9, 1.05, 1.15, 0.95, 0.95, 0.45, 0.95], gap="small", vertical_alignment="center"
+def top_navbar(user):
+    """Professional compact header with Back, active page indicator, menu, and user profile."""
+    emoji = "🌙" if st.session_state.theme == "light" else "☀️"
+    active = st.session_state.active_page
+    name = user.get("full_name", st.session_state.username) or st.session_state.username
+    role = user.get("role", st.session_state.role or "student").title()
+    icon = "🎓" if user.get("role", "student") == "student" else "👨‍👩‍👧"
+    avatar = profile_pic_html(st.session_state.username, icon)
+
+    page_icons = {
+        "Home": "🏠",
+        "Prediction": "📈",
+        "Report & Share": "📄",
+        "History": "📚",
+        "Profile": "👤",
+    }
+    page_subtitles = {
+        "Home": "Dashboard overview",
+        "Prediction": "Enter details and predict score",
+        "Report & Share": "PDF report and sharing",
+        "History": "Previous prediction records",
+        "Profile": "User account details",
+    }
+
+    st.markdown('<div class="pro-header">', unsafe_allow_html=True)
+    c_back, c_title, c_home, c_pred, c_report, c_hist, c_prof, c_user, c_theme, c_sign = st.columns(
+        [0.55, 2.15, 0.72, 0.92, 0.92, 0.82, 0.82, 1.35, 0.48, 0.72],
+        gap="small",
+        vertical_alignment="center"
     )
 
-    with c_brand:
+    with c_back:
+        st.markdown('<div class="back-top-btn">', unsafe_allow_html=True)
+        if st.button("←", key="header_back", help="Back", use_container_width=True):
+            prev = st.session_state.get("previous_page", "Home")
+            if active == "Home":
+                st.session_state.logged_in = False
+                st.session_state.auth_page = "welcome"
+            else:
+                st.session_state.active_page = prev if prev != active else "Home"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_title:
         st.markdown(f"""
-        <div>
-            <div class="top-menu-title">🎓 {APP_NAME_PLAIN}</div>
-            <div class="top-menu-sub">{TAGLINE}</div>
+        <div class="header-title-wrap">
+            <div class="header-app">🎓 {APP_NAME_PLAIN}</div>
+            <div class="active-page-chip">{page_icons.get(active, "📌")} {active}</div>
+            <div class="header-sub">{page_subtitles.get(active, TAGLINE)}</div>
         </div>
         """, unsafe_allow_html=True)
 
     menu_items = [
-        (c_home, "Home", "🏠 Home"),
-        (c_pred, "Prediction", "📈 Predict"),
-        (c_report, "Report & Share", "📄 Report"),
-        (c_hist, "History", "◔ History"),
-        (c_prof, "Profile", "👤 Profile"),
+        (c_home, "Home", "Home"),
+        (c_pred, "Prediction", "Predict"),
+        (c_report, "Report & Share", "Report"),
+        (c_hist, "History", "History"),
+        (c_prof, "Profile", "Profile"),
     ]
     for col, page_name, label in menu_items:
         with col:
-            active_cls = "top-menu-btn-active" if st.session_state.active_page == page_name else "top-menu-btn"
+            active_cls = "nav-tab-active" if active == page_name else "nav-tab"
             st.markdown(f'<div class="{active_cls}">', unsafe_allow_html=True)
-            if st.button(label, key=f"top_menu_{page_name}", use_container_width=True):
-                st.session_state.active_page = page_name
+            if st.button(label, key=f"pro_nav_{page_name}", use_container_width=True):
+                go_page(page_name)
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
+    with c_user:
+        st.markdown(f"""
+        <div class="corner-user">
+            <div class="corner-avatar">{avatar}</div>
+            <div class="corner-user-text">
+                <div class="corner-name">{name}</div>
+                <div class="corner-role">{role} Account</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     with c_theme:
-        st.markdown('<div class="top-menu-btn">', unsafe_allow_html=True)
-        if st.button(emoji, key="top_theme", help="Toggle Theme", use_container_width=True):
+        st.markdown('<div class="circle-tool-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="pro_theme", help="Toggle Theme", use_container_width=True):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
     with c_sign:
-        st.markdown('<div class="top-menu-btn">', unsafe_allow_html=True)
-        if st.button("↪ Logout", key="top_signout", use_container_width=True):
+        st.markdown('<div class="logout-small-btn">', unsafe_allow_html=True)
+        if st.button("Logout", key="pro_logout", use_container_width=True):
             st.session_state.logged_in = False
             st.session_state.username = ""
             st.session_state.role = ""
             st.session_state.auth_page = "welcome"
             st.session_state.active_page = "Home"
+            st.session_state.previous_page = "Home"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1639,7 +1952,7 @@ def prediction_page(user):
         st.session_state.last_inputs = data
         st.session_state.last_recs = recs
         st.session_state.last_pdf = generate_pdf(st.session_state.username, user, score, data, recs)
-        st.session_state.active_page = "Report & Share"
+        go_page("Report & Share")
         st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
