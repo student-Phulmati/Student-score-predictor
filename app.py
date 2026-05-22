@@ -37,7 +37,6 @@ PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 
-# ── Set your Gmail credentials here ──
 EMAIL_SENDER   = "your_email@gmail.com"
 EMAIL_PASSWORD = "your_gmail_app_password"
 
@@ -160,7 +159,7 @@ def init_state():
 init_state()
 
 # =====================================================
-# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
+# CSS — FULLY FIXED (Background covers full viewport)
 # =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
@@ -169,7 +168,7 @@ def apply_css():
     BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
 
     if dark:
-        app_bg        = f"linear-gradient(135deg,rgba(8,15,60,0.75) 0%,rgba(0,40,90,0.80) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(3,4,94,0.55) 0%,rgba(0,119,182,0.30) 100%), url('{BG_IMAGE}')"
+        app_bg        = f"linear-gradient(135deg,rgba(8,15,60,0.82) 0%,rgba(0,40,90,0.88) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(3,4,94,0.60) 0%,rgba(0,119,182,0.35) 100%), url('{BG_IMAGE}')"
         card_bg       = "rgba(255,255,255,0.09)"
         soft_card_bg  = "rgba(255,255,255,0.07)"
         text_primary  = "#eaf4ff"
@@ -182,13 +181,13 @@ def apply_css():
         accent1       = "#52b6e8"
         accent2       = "#38a8dc"
         accent3       = "#1a95cc"
-        topbar_bg     = "rgba(8,18,60,0.96)"
-        topbar_border = "rgba(82,182,232,0.18)"
+        topbar_bg     = "rgba(6,14,52,0.97)"
+        topbar_border = "rgba(82,182,232,0.20)"
         topbar_text   = "#eaf4ff"
         topbar_role   = "#88c0e8"
         shadow        = "0 16px 50px rgba(0,0,0,0.28)"
     else:
-        app_bg        = f"linear-gradient(135deg,rgba(240,250,255,0.84) 0%,rgba(220,242,255,0.88) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(245,252,255,0.50) 0%,rgba(210,240,255,0.40) 100%), url('{BG_IMAGE}')"
+        app_bg        = f"linear-gradient(135deg,rgba(235,248,255,0.88) 0%,rgba(215,240,255,0.92) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(245,252,255,0.55) 0%,rgba(210,240,255,0.45) 100%), url('{BG_IMAGE}')"
         card_bg       = "rgba(255,255,255,0.65)"
         soft_card_bg  = "rgba(255,255,255,0.50)"
         text_primary  = "#03045e"
@@ -202,7 +201,7 @@ def apply_css():
         accent2       = "#0096c7"
         accent3       = "#00b4d8"
         topbar_bg     = "rgba(255,255,255,0.97)"
-        topbar_border = "rgba(2,62,138,0.12)"
+        topbar_border = "rgba(2,62,138,0.14)"
         topbar_text   = "#03045e"
         topbar_role   = "#0077b6"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
@@ -212,11 +211,18 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Hide Streamlit chrome ── */
-    .stApp > header {{ background: transparent !important; height: 0rem !important; }}
+    /* ══════════════════════════════════════════
+       HIDE ALL STREAMLIT CHROME COMPLETELY
+    ══════════════════════════════════════════ */
+    .stApp > header {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+    }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden; height: 0; }}
-    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
+    #MainMenu {{ display: none !important; }}
+    footer {{ display: none !important; visibility: hidden !important; height: 0 !important; }}
+    [data-testid="stToolbar"] {{ display: none !important; visibility: hidden !important; height: 0 !important; }}
     [data-testid="stSidebar"],
     [data-testid="stSidebarNav"],
     [data-testid="stSidebarCollapseButton"],
@@ -226,40 +232,70 @@ def apply_css():
         width: 0 !important;
         min-width: 0 !important;
     }}
+    /* Hide the top Streamlit deploy/hamburger bar */
+    [data-testid="stHeader"] {{
+        display: none !important;
+        height: 0 !important;
+    }}
 
-    /* ── App background ── */
+    /* ══════════════════════════════════════════
+       FULL VIEWPORT BACKGROUND — COVERS EVERYTHING
+    ══════════════════════════════════════════ */
+    html, body {{
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+    }}
+
     .stApp {{
         background: {app_bg} !important;
         background-size: cover !important;
-        background-position: center !important;
+        background-position: center top !important;
         background-attachment: fixed !important;
+        background-repeat: no-repeat !important;
         color: {text_primary};
-        min-height: 100vh;
+        min-height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }}
+
+    /* Remove ALL top padding/margin from Streamlit's main container */
+    .main {{
+        padding: 0 !important;
+        margin: 0 !important;
+    }}
+
     .main .block-container {{
-        padding-top: 0 !important;
-        padding-bottom: 1rem !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
         max-width: 100% !important;
+        min-height: 100vh !important;
+    }}
+
+    /* The very first element Streamlit renders — push it to absolute top */
+    [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]:first-child,
+    section[data-testid="stMain"] > div:first-child {{
+        padding-top: 0 !important;
         margin-top: 0 !important;
     }}
 
     /* ══════════════════════════════════════════
-       TOP NAVIGATION BAR
+       TOP NAVIGATION BAR — STICKY AT VERY TOP
     ══════════════════════════════════════════ */
     .topbar-shell {{
         width: 100%;
         background: {topbar_bg};
         border-bottom: 1px solid {topbar_border};
-        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
+        box-shadow: 0 4px 28px rgba(0,0,0,0.18);
+        backdrop-filter: blur(32px);
+        -webkit-backdrop-filter: blur(32px);
         padding: 10px 20px 8px 20px;
         position: sticky;
         top: 0;
         z-index: 9999;
+        margin: 0;
     }}
+
     .top-profile {{
         display: flex;
         align-items: center;
@@ -514,8 +550,15 @@ def apply_css():
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ══════════════════════════════════════════
-       WELCOME PAGE
+       WELCOME PAGE — Full Viewport Hero
     ══════════════════════════════════════════ */
+    .welcome-wrapper {{
+        min-height: 100vh;
+        padding: 28px 5vw 20px 5vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }}
     .hero-title {{
         font-size: clamp(2.2rem,4.5vw,3.4rem); font-weight: 900;
         color: {'white' if dark else '#03045e'}; margin: 0;
@@ -625,13 +668,13 @@ def predict_score(data):
 
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:           recs.append("📚 Improve daily study hours to 6–8 hours.")
-    if d["Attendance"] < 80:             recs.append("🏫 Keep attendance above 80% for stronger performance.")
+    if d["Hours_Studied"] < 6:            recs.append("📚 Improve daily study hours to 6–8 hours.")
+    if d["Attendance"] < 80:              recs.append("🏫 Keep attendance above 80% for stronger performance.")
     if d["Sleep_Hours"] < 7:             recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
-    if d["Motivation_Level"] == "Low":   recs.append("🎯 Set small daily goals and track your progress.")
-    if d["Internet_Access"] == "No":     recs.append("📖 Use offline notes, library support, and teacher guidance.")
-    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
-    if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
+    if d["Motivation_Level"] == "Low":    recs.append("🎯 Set small daily goals and track your progress.")
+    if d["Internet_Access"] == "No":      recs.append("📖 Use offline notes, library support, and teacher guidance.")
+    if d["Learning_Resources"] == "Low":  recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
+    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
 # =====================================================
@@ -932,14 +975,13 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  (Login + OTP Signup)
+# AUTH PAGE
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
-    # Top bar: Back | spacer | Theme
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -954,7 +996,6 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
@@ -963,7 +1004,6 @@ def auth_page():
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
-        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -977,7 +1017,6 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
-        # ── SIGNUP WITH OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -1001,7 +1040,6 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            # Send OTP button
             if st.button("📨 Send OTP to Email", key="send_otp_btn", use_container_width=True):
                 if not email:
                     st.warning("Please enter your email first.")
@@ -1144,7 +1182,6 @@ def top_navbar(user):
 # INNER PAGES
 # =====================================================
 
-# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
@@ -1181,7 +1218,6 @@ def home_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
@@ -1269,7 +1305,6 @@ def prediction_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
@@ -1339,7 +1374,6 @@ def report_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
@@ -1363,7 +1397,6 @@ def history_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
@@ -1389,7 +1422,6 @@ def profile_page(user):
         edit = st.session_state.profile_edit_mode
 
         if not edit:
-            # View mode
             st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
@@ -1424,7 +1456,6 @@ def profile_page(user):
                 st.rerun()
 
         else:
-            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
@@ -1501,7 +1532,7 @@ def profile_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# MAIN APP SHELL  (Top Navbar + Page Router)
+# MAIN APP SHELL
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
