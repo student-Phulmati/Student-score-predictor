@@ -1436,6 +1436,116 @@ def apply_final_no_gap_header_fix():
 apply_final_no_gap_header_fix()
 
 # =====================================================
+# FINAL USER REQUEST FIX — professional side gap, bigger titles,
+# visible upload text in dark mode, larger profile picture
+# =====================================================
+def apply_profile_margin_title_fix():
+    st.markdown("""
+    <style>
+    /* Small professional side spacing for full app content/header */
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container,
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stAppViewBlockContainer"] {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        padding-top: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* Keep page content clean with balanced left/right gap */
+    .dash-page {
+        padding: 8px 3.4vw 24px 3.4vw !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+
+    /* Bigger main title inside every page */
+    .dash-title,
+    .page-title {
+        font-size: clamp(2.35rem, 4.2vw, 3.65rem) !important;
+        line-height: 1.04 !important;
+        font-weight: 900 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        letter-spacing: -1px !important;
+    }
+
+    /* Subtitle: smaller than title and placed slightly lower */
+    .dash-subtitle,
+    .subtext {
+        display: block !important;
+        font-size: clamp(0.95rem, 1.25vw, 1.12rem) !important;
+        line-height: 1.55 !important;
+        font-weight: 800 !important;
+        margin-top: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    /* Larger profile picture */
+    .avatar-circle {
+        width: 118px !important;
+        height: 118px !important;
+        font-size: 2.65rem !important;
+        border-width: 4px !important;
+    }
+
+    /* File uploader text visible in dark mode */
+    [data-testid="stFileUploader"] label,
+    [data-testid="stFileUploader"] label p,
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploader"] section div,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploaderDropzone"] div,
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] span {
+        color: #eaf4ff !important;
+        opacity: 1 !important;
+        font-weight: 800 !important;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.55) !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] {
+        background: rgba(255,255,255,0.12) !important;
+        border: 1.5px solid rgba(144,224,239,0.40) !important;
+        border-radius: 14px !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button {
+        color: #03045e !important;
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid rgba(144,224,239,0.45) !important;
+        font-weight: 900 !important;
+    }
+
+    @media (max-width: 760px) {
+        .main .block-container,
+        [data-testid="stAppViewContainer"] .main .block-container,
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stAppViewBlockContainer"] {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        .dash-page {
+            padding: 8px 14px 22px 14px !important;
+        }
+        .page-title,
+        .dash-title {
+            font-size: 2.15rem !important;
+        }
+        .avatar-circle {
+            width: 104px !important;
+            height: 104px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_profile_margin_title_fix()
+
+
+# =====================================================
 # MODEL AND PREDICTION
 # =====================================================
 @st.cache_resource
