@@ -13,6 +13,7 @@ import urllib.parse
 from datetime import datetime, date
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import streamlit.components.v1 as components  # ← ADDED
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -221,112 +222,6 @@ def apply_css():
         -webkit-backdrop-filter: blur(28px);
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
-
-    /* ══════════════════════════════════════════
-       SIDEBAR ARROWS — WORKING VERSION
-    ══════════════════════════════════════════ */
-
-    /* Hide default SVG icons from both buttons */
-    [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="stSidebarCollapseButton"] span,
-    button[data-testid="stBaseButton-headerNoPadding"] svg,
-    button[data-testid="stBaseButton-headerNoPadding"] span,
-    [data-testid="collapsedControl"] svg,
-    [data-testid="collapsedControl"] span {{
-        display: none !important;
-        opacity: 0 !important;
-    }}
-
-    /* Sidebar OPEN — collapse button (« arrow) */
-    [data-testid="stSidebarCollapseButton"] {{
-        position: absolute !important;
-        top: 12px !important;
-        right: 12px !important;
-        z-index: 999999 !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.88) !important;
-        border: 1.5px solid rgba(255,255,255,0.22) !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        transition: all 0.18s ease !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button,
-    button[data-testid="stBaseButton-headerNoPadding"] {{
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        border-radius: 10px !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        font-size: 0 !important;
-        color: transparent !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"] button::after,
-    button[data-testid="stBaseButton-headerNoPadding"]::after {{
-        content: "«" !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: white !important;
-        display: block !important;
-        line-height: 1 !important;
-    }}
-
-    [data-testid="stSidebarCollapseButton"]:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.07) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.38) !important;
-    }}
-
-    /* Sidebar CLOSED — expand button (» arrow) */
-    [data-testid="collapsedControl"] {{
-        position: fixed !important;
-        top: 12px !important;
-        left: 12px !important;
-        z-index: 999999 !important;
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.88) !important;
-        border: 1.5px solid rgba(255,255,255,0.22) !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        transition: all 0.18s ease !important;
-        overflow: visible !important;
-    }}
-
-    [data-testid="collapsedControl"]::after {{
-        content: "»" !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        color: white !important;
-        display: block !important;
-        line-height: 1 !important;
-    }}
-
-    [data-testid="collapsedControl"]:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.07) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.38) !important;
-    }}
 
     /* ══════════════════════════════════════════
        THEME TOGGLE
@@ -662,7 +557,88 @@ def apply_css():
     </style>
     """, unsafe_allow_html=True)
 
+
+# =====================================================
+# ← NEW: SIDEBAR ARROW INJECTOR (JS via components)
+# =====================================================
+def inject_sidebar_arrows():
+    components.html("""
+    <script>
+    (function() {
+        function styleArrows() {
+            // Collapse button — sidebar open state (« arrow)
+            var collapseBtn =
+                window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"] button') ||
+                window.parent.document.querySelector('button[data-testid="stBaseButton-headerNoPadding"]') ||
+                window.parent.document.querySelector('[data-testid="stSidebarCollapseButton"]');
+
+            // Expand button — sidebar closed state (» arrow)
+            var expandBtn = window.parent.document.querySelector('[data-testid="collapsedControl"]');
+
+            function applyStyle(el, arrow) {
+                if (!el || el._arrowDone) return;
+                el.innerHTML = arrow;
+                el.style.cssText += [
+                    "width:36px!important",
+                    "height:36px!important",
+                    "min-width:36px!important",
+                    "border-radius:10px!important",
+                    "background:rgba(8,15,60,0.88)!important",
+                    "border:1.5px solid rgba(255,255,255,0.22)!important",
+                    "box-shadow:0 4px 18px rgba(0,0,0,0.28)!important",
+                    "display:flex!important",
+                    "align-items:center!important",
+                    "justify-content:center!important",
+                    "cursor:pointer!important",
+                    "font-size:20px!important",
+                    "font-weight:900!important",
+                    "color:white!important",
+                    "padding:0!important",
+                    "transition:all 0.18s ease!important"
+                ].join(";");
+
+                el.onmouseover = function() {
+                    el.style.background = "linear-gradient(135deg,#0077b6,#00b4d8)";
+                    el.style.transform  = "scale(1.07)";
+                    el.style.boxShadow  = "0 8px 24px rgba(0,180,216,0.38)";
+                };
+                el.onmouseout = function() {
+                    el.style.background = "rgba(8,15,60,0.88)";
+                    el.style.transform  = "scale(1)";
+                    el.style.boxShadow  = "0 4px 18px rgba(0,0,0,0.28)";
+                };
+                el._arrowDone = true;
+            }
+
+            applyStyle(collapseBtn, "&#171;");
+            applyStyle(expandBtn,   "&#187;");
+        }
+
+        // Run immediately
+        styleArrows();
+
+        // Run after Streamlit lazy-renders the sidebar buttons
+        setTimeout(styleArrows, 400);
+        setTimeout(styleArrows, 1000);
+        setTimeout(styleArrows, 2500);
+
+        // Watch for DOM changes (sidebar toggle, page rerender)
+        var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(m) {
+                if (m.addedNodes.length > 0) styleArrows();
+            });
+        });
+        observer.observe(window.parent.document.body, {
+            childList: true,
+            subtree: true
+        });
+    })();
+    </script>
+    """, height=0, scrolling=False)
+
+
 apply_css()
+inject_sidebar_arrows()   # ← sidebar arrows inject here
 
 
 def theme_toggle_button(page_key="", welcome=False):
