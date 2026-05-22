@@ -310,7 +310,7 @@ def apply_css():
     /* Sidebar closed: expand button outside */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
-        top: 60px !important;
+        top: 90px !important;
         left: 14px !important;
         z-index: 999999 !important;
         width: 34px !important;
