@@ -1544,6 +1544,132 @@ def apply_profile_margin_title_fix():
 
 apply_profile_margin_title_fix()
 
+# =====================================================
+# FINAL HEADER TITLE + ACTIVE PAGE HIGHLIGHT FIX
+# =====================================================
+def apply_header_title_active_fix():
+    st.markdown("""
+    <style>
+    /* ScoreWise AI brand title: bigger and more important than page welcome title */
+    .header-title-wrap {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .header-app {
+        color: #03045e !important;
+        font-size: clamp(1.55rem, 2.35vw, 2.35rem) !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        letter-spacing: -0.8px !important;
+        white-space: nowrap !important;
+        text-shadow: 0 2px 12px rgba(255,255,255,0.55) !important;
+    }
+
+    /* Remove old small text under ScoreWise AI */
+    .header-sub {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Beautiful current-page indicator below the brand */
+    .active-page-chip {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin-top: 3px !important;
+        padding: 5px 14px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        font-size: 0.78rem !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        box-shadow: 0 8px 20px rgba(0,119,182,0.24) !important;
+        border: 1px solid rgba(255,255,255,0.50) !important;
+    }
+    .active-page-chip::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 14px !important;
+        right: 14px !important;
+        bottom: -7px !important;
+        height: 3px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;
+        box-shadow: 0 5px 12px rgba(0,119,182,0.25) !important;
+    }
+
+    /* Welcome title smaller than ScoreWise AI brand */
+    .dash-title,
+    .page-title {
+        font-size: clamp(1.85rem, 3.45vw, 3.05rem) !important;
+        line-height: 1.04 !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.8px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .dash-subtitle,
+    .subtext {
+        margin-top: 10px !important;
+        margin-bottom: 16px !important;
+        font-size: clamp(0.92rem, 1.12vw, 1.04rem) !important;
+        line-height: 1.45 !important;
+    }
+
+    /* Active navigation button also gets a clean highlight line */
+    .nav-tab-active .stButton > button {
+        position: relative !important;
+        background: linear-gradient(135deg,#023e8a,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255,255,255,0.40) !important;
+        box-shadow: 0 10px 24px rgba(0,119,182,0.25) !important;
+    }
+
+    @media (max-width: 1050px) {
+        .header-app {
+            font-size: 1.25rem !important;
+        }
+        .active-page-chip {
+            font-size: 0.66rem !important;
+            padding: 4px 10px !important;
+        }
+        .dash-title,
+        .page-title {
+            font-size: 2.15rem !important;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .header-app {
+            display: block !important;
+            font-size: 1.05rem !important;
+        }
+        .active-page-chip {
+            font-size: 0.58rem !important;
+            padding: 4px 8px !important;
+        }
+        .dash-title,
+        .page-title {
+            font-size: 1.9rem !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_header_title_active_fix()
+
 
 # =====================================================
 # MODEL AND PREDICTION
