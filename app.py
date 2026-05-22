@@ -245,94 +245,144 @@ def apply_css():
         margin-top: 0 !important;
     }}
 
-    /* ══════════════════════════════════════════
-       TOP NAVIGATION BAR
-    ══════════════════════════════════════════ */
-    .topbar-shell {{
-        width: 100%;
-        background: {topbar_bg};
-        border-bottom: 1px solid {topbar_border};
-        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
-        padding: 10px 20px 8px 20px;
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-    }}
-    .top-profile {{
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }}
-    .top-avatar {{
-        width: 52px; height: 52px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        overflow: hidden;
-        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
-        font-size: 1.5rem;
-        box-shadow: 0 4px 14px rgba(0,119,182,0.30);
-        border: 2px solid {accent2};
-        flex-shrink: 0;
-    }}
-    .top-name {{
-        font-size: 1.05rem; font-weight: 900;
-        color: {topbar_text}; line-height: 1.1;
-    }}
-    .top-role {{
-        font-size: 0.75rem; font-weight: 600;
-        color: {topbar_role}; margin-top: 2px;
-    }}
+  ```python
+/* ══════════════════════════════════════════
+   TOP NAVIGATION BAR
+══════════════════════════════════════════ */
+.topbar-shell {{
+    width: 100%;
+    background: transparent !important;
+    border-bottom: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    padding: 10px 20px 8px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+}}
 
-    /* Back icon button and theme button in topbar */
-    .back-icon-btn .stButton > button,
-    .theme-top-btn .stButton > button {{
-        width: 42px !important; min-width: 42px !important;
-        height: 42px !important; border-radius: 12px !important;
-        padding: 0 !important;
-        background: {'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'} !important;
-        color: {topbar_text} !important;
-        border: 1px solid {topbar_border} !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-        font-size: 1.1rem !important;
-        transition: all 0.18s ease !important;
-    }}
-    .back-icon-btn .stButton > button:hover,
-    .theme-top-btn .stButton > button:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: white !important;
-        transform: scale(1.06) !important;
-        border-color: #00b4d8 !important;
-    }}
-    .signout-top-btn .stButton > button {{
-        height: 42px !important;
-        border-radius: 999px !important;
-        padding: 0 1.1rem !important;
-        font-size: 0.85rem !important;
-    }}
+/* REMOVE WHITE ROW / LINE */
+hr {{
+    display: none !important;
+}}
 
-    /* Segmented control nav */
-    div[data-testid="stSegmentedControl"] {{
-        background: transparent !important;
-    }}
-    div[data-testid="stSegmentedControl"] button {{
-        border-radius: 10px !important;
-        background: transparent !important;
-        color: {topbar_role} !important;
-        box-shadow: none !important;
-        border: 0 !important;
-        font-weight: 700 !important;
-        font-size: 0.82rem !important;
-        padding: 6px 10px !important;
-        transition: all 0.15s ease !important;
-    }}
-    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
-        color: {'#52b6e8' if dark else '#0077b6'} !important;
-        background: {'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'} !important;
-        border-bottom: 2px solid {'#52b6e8' if dark else '#0077b6'} !important;
-        border-radius: 10px 10px 0 0 !important;
-    }}
+/* Remove top spacing */
+.main .block-container {{
+    padding-top: 0rem !important;
+    margin-top: 0rem !important;
+    max-width: 100% !important;
+}}
+
+/* Remove Streamlit white header */
+.stApp > header {{
+    background: transparent !important;
+    height: 0rem !important;
+}}
+
+[data-testid="stHeader"] {{
+    background: transparent !important;
+    height: 0px !important;
+}}
+
+[data-testid="stToolbar"] {{
+    display: none !important;
+}}
+
+[data-testid="stDecoration"] {{
+    display: none !important;
+}}
+
+/* Profile section */
+.top-profile {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}}
+
+.top-avatar {{
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
+    font-size: 1.5rem;
+    box-shadow: 0 4px 14px rgba(0,119,182,0.30);
+    border: 2px solid {accent2};
+    flex-shrink: 0;
+}}
+
+.top-name {{
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: {topbar_text};
+    line-height: 1.1;
+}}
+
+.top-role {{
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: {topbar_role};
+    margin-top: 2px;
+}}
+
+/* Back icon button and theme button */
+.back-icon-btn .stButton > button,
+.theme-top-btn .stButton > button {{
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    border-radius: 12px !important;
+    padding: 0 !important;
+    background: rgba(255,255,255,0.10) !important;
+    color: {topbar_text} !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+    font-size: 1.1rem !important;
+    transition: all 0.18s ease !important;
+}}
+
+.back-icon-btn .stButton > button:hover,
+.theme-top-btn .stButton > button:hover {{
+    background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+    color: white !important;
+    transform: scale(1.06) !important;
+}}
+
+/* Signout button */
+.signout-top-btn .stButton > button {{
+    height: 42px !important;
+    border-radius: 999px !important;
+    padding: 0 1.1rem !important;
+    font-size: 0.85rem !important;
+}}
+
+/* Navigation buttons */
+div[data-testid="stSegmentedControl"] {{
+    background: transparent !important;
+}}
+
+div[data-testid="stSegmentedControl"] button {{
+    border-radius: 10px !important;
+    background: transparent !important;
+    color: {topbar_role} !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    font-weight: 700 !important;
+    font-size: 0.82rem !important;
+    padding: 6px 10px !important;
+    transition: all 0.15s ease !important;
+}}
+
+div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+    color: #52b6e8 !important;
+    background: rgba(82,182,232,0.14) !important;
+    border-bottom: 2px solid #52b6e8 !important;
+    border-radius: 10px 10px 0 0 !important;
+}}
 
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
