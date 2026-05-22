@@ -229,96 +229,160 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
     /* ══════════════════════════════════════════
-       SIDEBAR ARROWS — FIX 3
-       Sidebar open  → « collapse button (inside sidebar, top-right)
-       Sidebar closed → » expand button (fixed, top-left)
+       SIDEBAR DOUBLE ARROWS — FINAL FIX
+       Sidebar open   → « button hides sidebar
+       Sidebar closed → » button opens sidebar
     ══════════════════════════════════════════ */
 
-    /* Hide raw text / SVG from Streamlit buttons */
+    /* Keep sidebar visible and styled */
+    [data-testid="stSidebar"] {{
+        background: {sidebar_bg} !important;
+        border-right: 1px solid {border_color} !important;
+        backdrop-filter: blur(28px) !important;
+        -webkit-backdrop-filter: blur(28px) !important;
+        overflow: visible !important;
+        z-index: 99999 !important;
+    }}
+
+    [data-testid="stSidebarContent"] {{
+        padding-top: 58px !important;
+    }}
+
+    /* Hide Streamlit default icon/text inside sidebar buttons */
+    [data-testid="stSidebarCollapseButton"],
     [data-testid="stSidebarCollapseButton"] button,
-    [data-testid="collapsedControl"] {{
+    [data-testid="collapsedControl"],
+    [data-testid="collapsedControl"] button {{
         font-size: 0 !important;
         color: transparent !important;
         overflow: hidden !important;
     }}
+
     [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="collapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] span,
-    [data-testid="collapsedControl"] span {{
+    [data-testid="stSidebarCollapseButton"] p,
+    [data-testid="collapsedControl"] svg,
+    [data-testid="collapsedControl"] span,
+    [data-testid="collapsedControl"] p {{
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
+        width: 0 !important;
+        height: 0 !important;
         font-size: 0 !important;
         color: transparent !important;
     }}
 
-    /* Sidebar open: collapse «  */
+    /* Sidebar open: show « inside sidebar */
     [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        top: 16px !important;
+        right: 16px !important;
+        z-index: 9999999 !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        border-radius: 13px !important;
+        background: rgba(5,10,50,0.94) !important;
+        border: 1.5px solid rgba(255,255,255,0.24) !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 7px 22px rgba(0,0,0,0.30) !important;
         cursor: pointer !important;
         transition: all 0.18s ease !important;
     }}
+
     [data-testid="stSidebarCollapseButton"] button {{
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        padding: 0 !important; margin: 0 !important;
-        border: none !important; border-radius: 10px !important;
-        background: transparent !important; box-shadow: none !important;
-        display: flex !important; align-items: center !important;
-        justify-content: center !important; cursor: pointer !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 13px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
     }}
-    /* « arrow via pseudo-element */
+
     [data-testid="stSidebarCollapseButton"] button::before {{
         content: "«" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
         display: block !important;
+        font-size: 26px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
+        font-family: Arial, sans-serif !important;
     }}
+
     [data-testid="stSidebarCollapseButton"]:hover,
     [data-testid="stSidebarCollapseButton"] button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+        box-shadow: 0 10px 28px rgba(0,180,216,0.38) !important;
     }}
 
-    /* Sidebar closed: expand »  */
+    /* Sidebar closed: show » on left side */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
-        top: 14px !important; left: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        top: 16px !important;
+        left: 16px !important;
+        z-index: 9999999 !important;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        border-radius: 13px !important;
+        background: rgba(5,10,50,0.94) !important;
+        border: 1.5px solid rgba(255,255,255,0.24) !important;
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 7px 22px rgba(0,0,0,0.30) !important;
         cursor: pointer !important;
         transition: all 0.18s ease !important;
     }}
-    /* » arrow via pseudo-element */
-    [data-testid="collapsedControl"]::before {{
-        content: "»" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
-        display: block !important;
+
+    [data-testid="collapsedControl"] button {{
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        min-height: 40px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 13px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        cursor: pointer !important;
     }}
-    [data-testid="collapsedControl"]:hover {{
+
+    [data-testid="collapsedControl"]::before,
+    [data-testid="collapsedControl"] button::before {{
+        content: "»" !important;
+        display: block !important;
+        font-size: 26px !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        color: #ffffff !important;
+        font-family: Arial, sans-serif !important;
+    }}
+
+    [data-testid="collapsedControl"]:hover,
+    [data-testid="collapsedControl"] button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+        box-shadow: 0 10px 28px rgba(0,180,216,0.38) !important;
     }}
 
     /* ══════════════════════════════════════════
