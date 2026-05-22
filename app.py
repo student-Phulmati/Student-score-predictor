@@ -245,96 +245,146 @@ def apply_css():
         margin-top: 0 !important;
     }}
 
-```python
-/* ══════════════════════════════════════════
-   TOP NAVIGATION BAR
-══════════════════════════════════════════ */
-.topbar-shell {{
-    width: 94%;
-    margin: -12px auto 0 auto !important;
-    background: rgba(255,255,255,0.92) !important;
-    border: 1px solid rgba(255,255,255,0.55) !important;
-    box-shadow:
-        0 10px 35px rgba(0,0,0,0.10),
-        0 2px 10px rgba(255,255,255,0.35) inset !important;
-    backdrop-filter: blur(22px) !important;
-    -webkit-backdrop-filter: blur(22px) !important;
-    border-radius: 30px !important;
-    padding: 16px 24px 14px 24px !important;
-    position: sticky;
-    top: 8px;
-    z-index: 9999;
-}}
-
-/* Navigation buttons container */
-div[data-testid="stSegmentedControl"] {{
-    background: rgba(255,255,255,0.65) !important;
-    padding: 6px !important;
-    border-radius: 18px !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
-}}
-
-/* Navigation buttons */
-div[data-testid="stSegmentedControl"] button {{
-    border-radius: 14px !important;
-    background: transparent !important;
-    color: #1d3557 !important;
-    border: none !important;
-    font-weight: 700 !important;
-    font-size: 0.92rem !important;
-    padding: 12px 18px !important;
-    transition: all 0.18s ease !important;
-}}
-
-/* Active navigation button */
-div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
-    background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
-    color: #0077b6 !important;
-    box-shadow:
-        0 4px 14px rgba(0,119,182,0.14),
-        inset 0 1px 0 rgba(255,255,255,0.85) !important;
-    border: 1px solid rgba(0,119,182,0.12) !important;
-}}
-
-/* Profile avatar */
-.top-avatar {{
-    width: 62px;
-    height: 62px;
-    border-radius: 50%;
-    background: linear-gradient(135deg,#005bea,#00c6fb);
-    border: 3px solid white;
-    box-shadow: 0 8px 20px rgba(0,119,182,0.25);
-}}
-
-/* Signout button */
-.signout-top-btn .stButton > button {{
-    height: 48px !important;
-    border-radius: 999px !important;
-    padding: 0 1.6rem !important;
-    font-size: 0.95rem !important;
-    font-weight: 800 !important;
-    background: linear-gradient(135deg,#005bea,#00c6fb) !important;
-    color: white !important;
-    border: none !important;
-    box-shadow: 0 8px 18px rgba(0,119,182,0.25) !important;
-}}
-
-/* Theme + back button */
-.back-icon-btn .stButton > button,
-.theme-top-btn .stButton > button {{
-    width: 48px !important;
-    height: 48px !important;
-    border-radius: 16px !important;
-    background: rgba(255,255,255,0.88) !important;
-    border: 1px solid rgba(0,0,0,0.06) !important;
-    color: #1d3557 !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
-}}
-```
-
-
     /* ══════════════════════════════════════════
+       TOP NAVIGATION BAR
+    ══════════════════════════════════════════ */
+
+    /* Full white professional navigation bar container */
+    div[class*="st-key-topbar_container"] {{
+        width: 94% !important;
+        margin: -6px auto 0 auto !important;
+        padding: 14px 22px !important;
+        background: rgba(255,255,255,0.94) !important;
+        border: 1px solid rgba(255,255,255,0.75) !important;
+        border-radius: 28px !important;
+        box-shadow:
+            0 14px 38px rgba(2,62,138,0.16),
+            inset 0 1px 0 rgba(255,255,255,0.85) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        position: sticky !important;
+        top: 8px !important;
+        z-index: 9999 !important;
+    }}
+
+    div[class*="st-key-topbar_container"] [data-testid="stHorizontalBlock"] {{
+        align-items: center !important;
+        gap: 12px !important;
+    }}
+
+    .top-profile {{
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }}
+
+    .top-avatar {{
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(135deg,#005bea,#00c6fb);
+        font-size: 1.55rem;
+        border: 3px solid white;
+        box-shadow: 0 8px 20px rgba(0,119,182,0.26);
+        flex-shrink: 0;
+    }}
+
+    .top-name {{
+        font-size: 1.05rem;
+        font-weight: 900;
+        color: #03045e;
+        line-height: 1.1;
+    }}
+
+    .top-role {{
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: #0077b6;
+        margin-top: 3px;
+    }}
+
+    /* Back and theme buttons */
+    .back-icon-btn .stButton > button,
+    .theme-top-btn .stButton > button {{
+        width: 48px !important;
+        min-width: 48px !important;
+        height: 48px !important;
+        border-radius: 15px !important;
+        padding: 0 !important;
+        background: rgba(255,255,255,0.92) !important;
+        color: #03045e !important;
+        border: 1px solid rgba(2,62,138,0.10) !important;
+        box-shadow: 0 6px 16px rgba(2,62,138,0.10) !important;
+        font-size: 1.15rem !important;
+        transition: all 0.20s ease !important;
+    }}
+
+    .back-icon-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
+        transform: translateY(-2px) scale(1.04) !important;
+    }}
+
+    /* Navigation white inner pill */
+    div[data-testid="stSegmentedControl"] {{
+        background: rgba(255,255,255,0.82) !important;
+        padding: 6px !important;
+        border-radius: 18px !important;
+        border: 1px solid rgba(2,62,138,0.08) !important;
+        box-shadow:
+            inset 0 1px 4px rgba(2,62,138,0.05),
+            0 6px 18px rgba(2,62,138,0.08) !important;
+    }}
+
+    div[data-testid="stSegmentedControl"] button {{
+        border-radius: 13px !important;
+        background: transparent !important;
+        color: #03045e !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        font-weight: 800 !important;
+        font-size: 0.90rem !important;
+        padding: 10px 16px !important;
+        transition: all 0.18s ease !important;
+    }}
+
+    div[data-testid="stSegmentedControl"] button:hover {{
+        background: rgba(0,180,216,0.09) !important;
+        color: #0077b6 !important;
+    }}
+
+    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+        color: #0077b6 !important;
+        background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
+        border: 1px solid rgba(0,119,182,0.16) !important;
+        box-shadow: 0 5px 16px rgba(0,119,182,0.16) !important;
+    }}
+
+    /* Sign out button */
+    .signout-top-btn .stButton > button {{
+        height: 48px !important;
+        border-radius: 999px !important;
+        padding: 0 1.45rem !important;
+        font-size: 0.94rem !important;
+        font-weight: 900 !important;
+        background: linear-gradient(135deg,#023e8a,#00b4d8) !important;
+        color: white !important;
+        border: none !important;
+        box-shadow: 0 10px 24px rgba(0,119,182,0.28) !important;
+    }}
+
+    .signout-top-btn .stButton > button:hover {{
+        transform: translateY(-2px) !important;
+        background: linear-gradient(135deg,#0077b6,#48cae4) !important;
+    }}
+
+
+/* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
     ══════════════════════════════════════════ */
     .dash-page {{
@@ -1070,75 +1120,80 @@ def top_navbar(user):
     icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
+    # Professional white top navigation bar
+    with st.container(key="topbar_container"):
+        c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
+            [0.55, 2.1, 6.5, 1.35, 0.55],
+            vertical_alignment="center"
+        )
 
-    c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
-        [0.5, 2.0, 6.5, 1.2, 0.5], vertical_alignment="center"
-    )
-
-    with c_back:
-        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-        if st.button("‹", key="top_back_login", help="Back to Login"):
-            st.session_state.logged_in   = False
-            st.session_state.username    = ""
-            st.session_state.role        = ""
-            st.session_state.auth_page   = "login"
-            st.session_state.active_page = "Home"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c_profile:
-        st.markdown(f"""
-        <div class='top-profile'>
-          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
-          <div>
-            <div class='top-name'>{name}</div>
-            <div class='top-role'>{role} Account</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c_nav:
-        nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-        current_label = st.session_state.active_page
-        current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
-        try:
-            selected = st.segmented_control(
-                "Navigation", nav_options,
-                default=current_full,
-                label_visibility="collapsed",
-                key="top_nav"
-            )
-        except Exception:
-            idx = nav_options.index(current_full) if current_full in nav_options else 0
-            selected = st.radio(
-                "Navigation", nav_options, index=idx,
-                horizontal=True, label_visibility="collapsed",
-                key="top_nav_radio"
-            )
-        if selected:
-            new_page = selected.split(" ",1)[1]
-            if new_page != st.session_state.active_page:
-                st.session_state.active_page = new_page
+        with c_back:
+            st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
+            if st.button("‹", key="top_back_login", help="Back to Login"):
+                st.session_state.logged_in   = False
+                st.session_state.username    = ""
+                st.session_state.role        = ""
+                st.session_state.auth_page   = "login"
+                st.session_state.active_page = "Home"
                 st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    with c_sign:
-        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
-        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        with c_profile:
+            st.markdown(f"""
+            <div class='top-profile'>
+              <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
+              <div>
+                <div class='top-name'>{name}</div>
+                <div class='top-role'>{role} Account</div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-    with c_theme:
-        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
-        if st.button(emoji, key="top_theme", help="Toggle Theme"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        with c_nav:
+            nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
+            current_label = st.session_state.active_page
+            current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
+            try:
+                selected = st.segmented_control(
+                    "Navigation",
+                    nav_options,
+                    default=current_full,
+                    label_visibility="collapsed",
+                    key="top_nav"
+                )
+            except Exception:
+                idx = nav_options.index(current_full) if current_full in nav_options else 0
+                selected = st.radio(
+                    "Navigation",
+                    nav_options,
+                    index=idx,
+                    horizontal=True,
+                    label_visibility="collapsed",
+                    key="top_nav_radio"
+                )
 
-    st.markdown('</div>', unsafe_allow_html=True)
+            if selected:
+                new_page = selected.split(" ",1)[1]
+                if new_page != st.session_state.active_page:
+                    st.session_state.active_page = new_page
+                    st.rerun()
+
+        with c_sign:
+            st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
+            if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
+                st.session_state.logged_in  = False
+                st.session_state.username   = ""
+                st.session_state.auth_page  = "welcome"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        with c_theme:
+            st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
+            if st.button(emoji, key="top_theme", help="Toggle Theme"):
+                st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
 
 # =====================================================
 # INNER PAGES
