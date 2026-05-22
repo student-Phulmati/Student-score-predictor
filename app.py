@@ -105,12 +105,12 @@ def verify_otp(email, entered):
 def send_otp_email(receiver, otp, name="User"):
     try:
         msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Your {APP_NAME} OTP"
+        msg["Subject"] = f"Your ScoreWise AI OTP"
         msg["From"]    = EMAIL_SENDER
         msg["To"]      = receiver
         html = f"""
         <div style='font-family:Arial;background:#184e77;color:white;padding:26px;border-radius:18px'>
-          <h2 style='color:#d9ed92'>{APP_NAME}</h2>
+          <h2 style='color:#d9ed92'>ScoreWise AI</h2>
           <p>Hello <b>{name}</b>, your signup OTP is:</p>
           <div style='font-size:34px;letter-spacing:8px;font-weight:800;color:#99d98c'>{otp}</div>
           <p>This OTP is valid for 10 minutes.</p>
@@ -189,7 +189,6 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Keep Streamlit header minimal ── */
     .stApp > header {{
         background: transparent !important;
         height: 0rem !important;
@@ -200,7 +199,6 @@ def apply_css():
     #MainMenu, footer {{ visibility: hidden; height: 0; }}
     [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
 
-    /* ── Background ── */
     .stApp {{
         background: {app_bg} !important;
         background-size: cover !important;
@@ -216,7 +214,6 @@ def apply_css():
         margin-top: 0 !important;
     }}
 
-    /* ── Sidebar ── */
     [data-testid="stSidebar"] {{
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
@@ -226,100 +223,113 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
     /* ══════════════════════════════════════════
-       SIDEBAR ARROWS — FIX 3
-       Sidebar open  → « collapse button (inside sidebar, top-right)
-       Sidebar closed → » expand button (fixed, top-left)
+       SIDEBAR ARROWS — WORKING VERSION
     ══════════════════════════════════════════ */
 
-    /* Hide raw text / SVG from Streamlit buttons */
-    [data-testid="stSidebarCollapseButton"] button,
-    [data-testid="collapsedControl"] {{
-        font-size: 0 !important;
-        color: transparent !important;
-        overflow: hidden !important;
-    }}
+    /* Hide default SVG icons from both buttons */
     [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="collapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] span,
+    button[data-testid="stBaseButton-headerNoPadding"] svg,
+    button[data-testid="stBaseButton-headerNoPadding"] span,
+    [data-testid="collapsedControl"] svg,
     [data-testid="collapsedControl"] span {{
         display: none !important;
-        visibility: hidden !important;
         opacity: 0 !important;
+    }}
+
+    /* Sidebar OPEN — collapse button (« arrow) */
+    [data-testid="stSidebarCollapseButton"] {{
+        position: absolute !important;
+        top: 12px !important;
+        right: 12px !important;
+        z-index: 999999 !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.88) !important;
+        border: 1.5px solid rgba(255,255,255,0.22) !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.18s ease !important;
+    }}
+
+    [data-testid="stSidebarCollapseButton"] button,
+    button[data-testid="stBaseButton-headerNoPadding"] {{
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
         font-size: 0 !important;
         color: transparent !important;
     }}
 
-    /* Sidebar open: collapse «  */
-    [data-testid="stSidebarCollapseButton"] {{
-        position: absolute !important;
-        top: 14px !important;
-        right: 14px !important;
-        z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
-        cursor: pointer !important;
-        transition: all 0.18s ease !important;
-    }}
-    [data-testid="stSidebarCollapseButton"] button {{
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
-        padding: 0 !important; margin: 0 !important;
-        border: none !important; border-radius: 10px !important;
-        background: transparent !important; box-shadow: none !important;
-        display: flex !important; align-items: center !important;
-        justify-content: center !important; cursor: pointer !important;
-    }}
-    /* « arrow via pseudo-element */
-    [data-testid="stSidebarCollapseButton"] button::before {{
+    [data-testid="stSidebarCollapseButton"] button::after,
+    button[data-testid="stBaseButton-headerNoPadding"]::after {{
         content: "«" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
+        font-size: 20px !important;
+        font-weight: 900 !important;
+        color: white !important;
         display: block !important;
-    }}
-    [data-testid="stSidebarCollapseButton"]:hover,
-    [data-testid="stSidebarCollapseButton"] button:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+        line-height: 1 !important;
     }}
 
-    /* Sidebar closed: expand »  */
+    [data-testid="stSidebarCollapseButton"]:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        transform: scale(1.07) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.38) !important;
+    }}
+
+    /* Sidebar CLOSED — expand button (» arrow) */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
-        top: 14px !important; left: 14px !important;
+        top: 12px !important;
+        left: 12px !important;
         z-index: 999999 !important;
-        width: 36px !important; height: 36px !important;
-        min-width: 36px !important; min-height: 36px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
         border-radius: 10px !important;
-        background: rgba(8,15,60,0.90) !important;
-        border: 1.5px solid rgba(255,255,255,0.20) !important;
-        display: flex !important; visibility: visible !important; opacity: 1 !important;
-        align-items: center !important; justify-content: center !important;
+        background: rgba(8,15,60,0.88) !important;
+        border: 1.5px solid rgba(255,255,255,0.22) !important;
         box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         cursor: pointer !important;
         transition: all 0.18s ease !important;
+        overflow: visible !important;
     }}
-    /* » arrow via pseudo-element */
-    [data-testid="collapsedControl"]::before {{
+
+    [data-testid="collapsedControl"]::after {{
         content: "»" !important;
-        font-size: 22px !important; line-height: 1 !important;
-        font-weight: 900 !important; color: white !important;
+        font-size: 20px !important;
+        font-weight: 900 !important;
+        color: white !important;
         display: block !important;
+        line-height: 1 !important;
     }}
+
     [data-testid="collapsedControl"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        transform: scale(1.06) !important;
-        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
+        transform: scale(1.07) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.38) !important;
     }}
 
     /* ══════════════════════════════════════════
-       THEME TOGGLE — dashboard/inner pages (fixed top-right)
+       THEME TOGGLE
     ══════════════════════════════════════════ */
     .theme-row {{
         position: fixed !important;
@@ -353,8 +363,7 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       AUTH PAGE: back button + theme icon same horizontal line — FIX 3
-       Uses a flex row wrapper
+       AUTH PAGE TOPBAR
     ══════════════════════════════════════════ */
     .auth-topbar {{
         display: flex !important;
@@ -393,17 +402,12 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       WELCOME PAGE — FIX 1 & 2
-       Icon far right, tight vertical spacing
+       WELCOME PAGE
     ══════════════════════════════════════════ */
-
-    /* Remove ALL default Streamlit top padding on welcome */
     .welcome-outer {{
         padding-top: 0 !important;
         margin-top: 0 !important;
     }}
-
-    /* Title row: title center, icon extreme right */
     .welcome-toprow {{
         display: flex !important;
         align-items: center !important;
@@ -415,7 +419,6 @@ def apply_css():
     .welcome-title-block {{
         text-align: center !important;
     }}
-    /* Theme icon: absolute right edge of welcome top row */
     .welcome-icon-abs {{
         position: absolute !important;
         right: 0px !important;
@@ -438,7 +441,6 @@ def apply_css():
         box-shadow: 0 10px 26px rgba(0,180,216,0.32) !important;
     }}
 
-    /* ── Back button style ── */
     .back-btn-wrap .stButton > button {{
         background: {card_bg} !important;
         border: 1.5px solid {border_color} !important;
@@ -463,14 +465,12 @@ def apply_css():
         padding: 26px;
     }}
 
-    /* ── Page title ── */
     .page-title {{
         font-size: 2.0rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
         color: {text_primary}; letter-spacing: -0.5px;
     }}
     .subtext {{ color: {text_secondary}; font-size: 0.91rem; margin-bottom: 12px; font-weight: 600; }}
 
-    /* ── Metric cards ── */
     .metric-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -482,7 +482,6 @@ def apply_css():
     .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
     .metric-label {{ font-size: 0.73rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
 
-    /* ── Avatar ── */
     .avatar-circle {{
         width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
@@ -558,7 +557,6 @@ def apply_css():
         background: {input_bg} !important;
     }}
 
-    /* Labels */
     label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
@@ -573,7 +571,6 @@ def apply_css():
     [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
     [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
 
-    /* ── WhatsApp button ── */
     .whatsapp-btn {{
         display: inline-block; border-radius: 999px; padding: 11px 22px;
         color: white !important; text-decoration: none; font-weight: 900;
@@ -582,7 +579,6 @@ def apply_css():
         background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
-    /* ── Profile card ── */
     .profile-info-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -597,7 +593,6 @@ def apply_css():
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
     .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
-    /* ── Score badge ── */
     .score-badge {{
         display: inline-block; font-size: 3.4rem; font-weight: 900;
         color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
@@ -610,7 +605,6 @@ def apply_css():
     .stAlert {{ border-radius: 16px !important; }}
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
-    /* ── Welcome page styles ── */
     .app-cap {{
         font-size: 3.2rem;
         vertical-align: middle;
@@ -672,10 +666,8 @@ apply_css()
 
 
 def theme_toggle_button(page_key="", welcome=False):
-    """Render light/dark mode button."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     if welcome:
-        # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
         st.markdown('<div class="welcome-icon-abs">', unsafe_allow_html=True)
         if st.button(emoji, key=f"theme_{page_key}"):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
@@ -785,7 +777,7 @@ def generate_pdf(username, user_data, score, inputs, recs):
     rec_style      = ParagraphStyle("RecX",   parent=styles["Normal"],   fontSize=10, leading=15,
                                     textColor=colors.HexColor("#184e77"), leftIndent=10)
     story = []
-    story.append(Paragraph(f"🎓 {APP_NAME}", title_style))
+    story.append(Paragraph("🎓 ScoreWise AI", title_style))
     story.append(Paragraph("Official Student Performance Prediction Report", subtitle_style))
     story.append(Paragraph(f"Generated on: {datetime.now().strftime('%d %B %Y  |  %I:%M %p')}", subtitle_style))
     story.append(Table([[""]], colWidths=[6.6*inch],
@@ -856,7 +848,7 @@ def generate_pdf(username, user_data, score, inputs, recs):
     story.append(Table([[""]], colWidths=[6.6*inch],
         style=[("LINEABOVE",(0,0),(-1,-1),.8,colors.HexColor("#ade8f4")),
                ("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
-    story.append(Paragraph(f"Generated by {APP_NAME}  •  {datetime.now().strftime('%d-%m-%Y')}  •  For academic guidance only.", subtitle_style))
+    story.append(Paragraph(f"Generated by ScoreWise AI  •  {datetime.now().strftime('%d-%m-%Y')}  •  For academic guidance only.", subtitle_style))
     doc.build(story)
     buffer.seek(0)
     return buffer.read()
@@ -956,34 +948,30 @@ def factor_bar_chart(inputs):
     return fig
 
 # =====================================================
-# WELCOME PAGE  — FIX 1 & 2
+# WELCOME PAGE
 # =====================================================
 def welcome_page():
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # ── Title row: relative container so theme icon can be absolute-right ──
-    # We use a single st.columns([1, auto, tiny]) where tiny col holds the icon
     title_col, icon_col = st.columns([15, 1])
 
     with title_col:
         st.markdown(f"""
         <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
-          <h1 class='hero-title'>{APP_NAME}</h1>
+          <h1 class='hero-title'>🎓 ScoreWise AI</h1>
           <p class='hero-tagline'>{TAGLINE} ✨</p>
         </div>
         """, unsafe_allow_html=True)
 
     with icon_col:
-        # Minimal vertical centering — push button down to align with title center
         st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
         if st.button(emoji, key="theme_welcome"):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # ── Content: no extra top/bottom gaps ──
     st.markdown(f"""
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
@@ -1031,13 +1019,11 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  — FIX 3: Back button + theme icon same horizontal line
-#              FIX 4: Remove the empty box at top
+# AUTH PAGE
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
 
-    # ── Top bar: Back button LEFT, theme icon RIGHT — same row ──
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
@@ -1056,11 +1042,10 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # ── Login / Signup card ──
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
-        st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center;margin-bottom:2px'>🎓 ScoreWise AI</h2>", unsafe_allow_html=True)
         st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
@@ -1277,7 +1262,7 @@ def report_page(user):
                         file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
                         mime="application/pdf", use_container_width=True)
 
-    share_text = f"{APP_NAME} Report%0APredicted Score: {score}/100%0AHours Studied: {inputs.get('Hours_Studied')}%0AAttendance: {inputs.get('Attendance')}%25"
+    share_text = f"ScoreWise AI Report%0APredicted Score: {score}/100%0AHours Studied: {inputs.get('Hours_Studied')}%0AAttendance: {inputs.get('Attendance')}%25"
     wa_url = "https://wa.me/?text=" + share_text
     st.markdown(f"""
     <div style='text-align:center;margin:16px 0'>
