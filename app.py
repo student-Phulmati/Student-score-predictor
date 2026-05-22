@@ -152,7 +152,6 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
-        "saved_prediction_inputs": {},
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -921,45 +920,88 @@ def apply_css():
         .top-profile {{ display: none !important; }}
         .dash-page {{ padding: 12px 16px 22px 16px !important; }}
     }}
-    
-
-    /* =====================================================
-       FINAL CLEAN LAYOUT UPDATE
-       ===================================================== */
-    .topbar-shell.clean-header {{
-        background: transparent !important;
-        border-bottom: 0 !important;
-        box-shadow: none !important;
-        padding: 10px 4.6vw 8px 4.6vw !important;
-        min-height: 62px !important;
-    }}
-    .header-spacer {{
-        height: 1px !important;
-    }}
-    .nav-pill, .nav-pill-active {{
-        display: none !important;
-    }}
-    .dash-page {{
-        padding-top: 12px !important;
-    }}
-    .auth-page-shell {{
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }}
-    .glass {{
-        margin-top: 0 !important;
-    }}
-    .prediction-action-row {{
-        margin-top: 18px !important;
-        padding-top: 10px !important;
-    }}
-    div[data-testid="stVerticalBlock"]:has(> div.element-container div[style*="height: 70px"]) {{
-        display:none !important;
-    }}
-</style>
+    </style>
     """, unsafe_allow_html=True)
 
 apply_css()
+
+def apply_10x_layout_fix():
+    st.markdown("""
+    <style>
+    .stApp > header,
+    header[data-testid="stHeader"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        visibility: hidden !important;
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        padding-top: 0 !important;
+    }
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        padding-bottom: 0.8rem !important;
+    }
+    div[data-testid="stVerticalBlock"] { gap: 0.35rem !important; }
+    .topbar-shell {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 8px 3.2vw 4px 3.2vw !important;
+        min-height: 54px !important;
+        position: sticky !important;
+        top: 0 !important;
+    }
+    .top-menu-title {
+        font-size: 1.28rem;
+        font-weight: 900;
+        color: #03045e;
+        line-height: 1.05;
+    }
+    .top-menu-sub {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #0077b6;
+    }
+    .top-menu-btn .stButton > button,
+    .top-menu-btn-active .stButton > button {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 12px !important;
+        border-radius: 999px !important;
+        font-size: 0.82rem !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,119,182,0.16) !important;
+        background: rgba(255,255,255,0.56) !important;
+        color: #023e8a !important;
+        white-space: nowrap !important;
+    }
+    .top-menu-btn-active .stButton > button,
+    .top-menu-btn .stButton > button:hover {
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        transform: none !important;
+    }
+    .dash-page {
+        padding: 8px 3.2vw 22px 3.2vw !important;
+        min-height: auto !important;
+    }
+    .page-title, .dash-title { margin-top: 0 !important; }
+    .dash-subtitle, .subtext { margin-bottom: 12px !important; }
+    .glass { margin-top: 0 !important; }
+    @media (max-width: 760px) {
+        .top-menu-title, .top-menu-sub { display:none !important; }
+        .top-menu-btn .stButton > button,
+        .top-menu-btn-active .stButton > button { font-size: 0.68rem !important; padding: 0 6px !important; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_10x_layout_fix()
 
 # =====================================================
 # MODEL AND PREDICTION
@@ -1302,11 +1344,11 @@ def auth_page():
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
-    st.markdown("<div class='auth-page-shell'>", unsafe_allow_html=True)
-    left_col, right_col = st.columns([8, 1])
+    # Top bar: Back | spacer | Theme
+    left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
-        if st.button("← Back to Home", key="auth_back"):
+        if st.button("← Back", key="auth_back"):
             st.session_state.auth_page = "welcome"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1423,76 +1465,60 @@ def auth_page():
                         st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
 # TOP NAVIGATION BAR
 # =====================================================
 def top_navbar(user):
-    name  = user.get("full_name", st.session_state.username)
-    role  = user.get("role","student").title()
-    icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+    """Compact top menu without heavy navigation bar/sidebar."""
     emoji = "🌙" if st.session_state.theme == "light" else "☀️"
 
-    st.markdown('<div class="topbar-shell clean-header">', unsafe_allow_html=True)
-
-    # Only fixed upper content. Navigation menu buttons are removed.
-    c_back, c_brand, c_space, c_sign, c_theme, c_profile = st.columns(
-        [0.55, 2.55, 5.20, 1.20, 0.55, 1.55], vertical_alignment="center"
+    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
+    c_brand, c_home, c_pred, c_report, c_hist, c_prof, c_theme, c_sign = st.columns(
+        [2.3, 0.9, 1.05, 1.15, 0.95, 0.95, 0.45, 0.95], gap="small", vertical_alignment="center"
     )
-
-    with c_back:
-        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-        if st.button("←", key="top_back_login", help="Back to Login"):
-            st.session_state.logged_in   = False
-            st.session_state.username    = ""
-            st.session_state.role        = ""
-            st.session_state.auth_page   = "login"
-            st.session_state.active_page = "Home"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with c_brand:
         st.markdown(f"""
-        <div class="brand-wrap">
-            <div class="brand-logo">🎓</div>
-            <div>
-                <div class="brand-title">{APP_NAME_PLAIN}</div>
-                <div class="brand-sub">{TAGLINE}</div>
-            </div>
+        <div>
+            <div class="top-menu-title">🎓 {APP_NAME_PLAIN}</div>
+            <div class="top-menu-sub">{TAGLINE}</div>
         </div>
         """, unsafe_allow_html=True)
 
-    with c_space:
-        st.markdown("<div class='header-spacer'></div>", unsafe_allow_html=True)
-
-    with c_sign:
-        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
-        if st.button("↪ Sign Out", key="top_signout", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
-            st.session_state.active_page = "Home"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    menu_items = [
+        (c_home, "Home", "🏠 Home"),
+        (c_pred, "Prediction", "📈 Predict"),
+        (c_report, "Report & Share", "📄 Report"),
+        (c_hist, "History", "◔ History"),
+        (c_prof, "Profile", "👤 Profile"),
+    ]
+    for col, page_name, label in menu_items:
+        with col:
+            active_cls = "top-menu-btn-active" if st.session_state.active_page == page_name else "top-menu-btn"
+            st.markdown(f'<div class="{active_cls}">', unsafe_allow_html=True)
+            if st.button(label, key=f"top_menu_{page_name}", use_container_width=True):
+                st.session_state.active_page = page_name
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
     with c_theme:
-        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
-        if st.button(emoji, key="top_theme", help="Toggle Theme"):
+        st.markdown('<div class="top-menu-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="top_theme", help="Toggle Theme", use_container_width=True):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with c_profile:
-        st.markdown(f"""
-        <div class='top-profile'>
-          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
-          <div>
-            <div class='top-name'>{name}</div>
-            <div class='top-role'>{role} Account</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    with c_sign:
+        st.markdown('<div class="top-menu-btn">', unsafe_allow_html=True)
+        if st.button("↪ Logout", key="top_signout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.role = ""
+            st.session_state.auth_page = "welcome"
+            st.session_state.active_page = "Home"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1508,24 +1534,6 @@ def home_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown(f"<div class='dash-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
     st.markdown("<p class='dash-subtitle'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
-
-    qa1, qa2, qa3, qa4 = st.columns(4)
-    with qa1:
-        if st.button("📈 Prediction", use_container_width=True, key="home_to_prediction"):
-            st.session_state.active_page = "Prediction"
-            st.rerun()
-    with qa2:
-        if st.button("📄 Report", use_container_width=True, key="home_to_report"):
-            st.session_state.active_page = "Report & Share"
-            st.rerun()
-    with qa3:
-        if st.button("◔ History", use_container_width=True, key="home_to_history"):
-            st.session_state.active_page = "History"
-            st.rerun()
-    with qa4:
-        if st.button("👤 Profile", use_container_width=True, key="home_to_profile"):
-            st.session_state.active_page = "Profile"
-            st.rerun()
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -1562,73 +1570,75 @@ def home_page(user):
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Enter academic details. Use Save Values to store form values, or Predict & Generate Report to open the full report page.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Enter academic details. Save keeps values; Predict opens the full report page.</p>", unsafe_allow_html=True)
 
-    saved = st.session_state.get("saved_prediction_inputs", {}) or {}
+    saved = st.session_state.last_inputs if isinstance(st.session_state.last_inputs, dict) else {}
 
-    with st.form("prediction_form"):
+    def saved_index(options, key, default):
+        value = saved.get(key, default)
+        return options.index(value) if value in options else options.index(default)
+
+    with st.form("prediction_form", clear_on_submit=False):
         col1, col2 = st.columns(2)
         with col1:
-            hours       = st.number_input("📖 Hours Studied (per day)", 0, 24, int(saved.get("Hours_Studied", 5)), 1)
-            attendance  = st.number_input("🏫 Attendance (%)",           0, 100, int(saved.get("Attendance", 75)), 1)
-            previous    = st.number_input("📝 Previous Score",           0, 100, int(saved.get("Previous_Scores", 60)), 1)
-            sleep       = st.number_input("😴 Sleep Hours",              0, 12, int(saved.get("Sleep_Hours", 7)), 1)
-            motivation  = st.selectbox("💡 Motivation Level",  ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Motivation_Level", "Medium")) if saved.get("Motivation_Level", "Medium") in ["Low","Medium","High"] else 1)
-            teacher     = st.selectbox("👨‍🏫 Teacher Quality",   ["Poor","Average","Good"], index=["Poor","Average","Good"].index(saved.get("Teacher_Quality", "Average")) if saved.get("Teacher_Quality", "Average") in ["Poor","Average","Good"] else 1)
-            school_type = st.selectbox("🏢 School Type",        ["Public","Private"], index=["Public","Private"].index(saved.get("School_Type", "Public")) if saved.get("School_Type", "Public") in ["Public","Private"] else 0)
+            hours = st.number_input("📖 Hours Studied (per day)", 0, 24, int(saved.get("Hours_Studied", 5) or 5), 1)
+            attendance = st.number_input("🏫 Attendance (%)", 0, 100, int(saved.get("Attendance", 75) or 75), 1)
+            previous = st.number_input("📝 Previous Score", 0, 100, int(saved.get("Previous_Scores", 60) or 60), 1)
+            sleep = st.number_input("😴 Sleep Hours", 0, 12, int(saved.get("Sleep_Hours", 7) or 7), 1)
+            motivation = st.selectbox("💡 Motivation Level", ["Low","Medium","High"], index=saved_index(["Low","Medium","High"], "Motivation_Level", "Medium"))
+            teacher = st.selectbox("👨‍🏫 Teacher Quality", ["Poor","Average","Good"], index=saved_index(["Poor","Average","Good"], "Teacher_Quality", "Average"))
+            school_type = st.selectbox("🏢 School Type", ["Public","Private"], index=saved_index(["Public","Private"], "School_Type", "Public"))
         with col2:
-            internet    = st.selectbox("🌐 Internet Access",    ["Yes","No"], index=["Yes","No"].index(saved.get("Internet_Access", "Yes")) if saved.get("Internet_Access", "Yes") in ["Yes","No"] else 0)
-            income      = st.selectbox("💰 Family Income",      ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Family_Income", "Medium")) if saved.get("Family_Income", "Medium") in ["Low","Medium","High"] else 1)
-            parental    = st.selectbox("👨‍👩‍👦 Parental Involvement",["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Parental_Involvement", "Medium")) if saved.get("Parental_Involvement", "Medium") in ["Low","Medium","High"] else 1)
-            education   = st.selectbox("🎓 Parent Education",   ["School","College"], index=["School","College"].index(saved.get("Parental_Education_Level", "School")) if saved.get("Parental_Education_Level", "School") in ["School","College"] else 0)
-            peer        = st.selectbox("🤝 Peer Influence",     ["Negative","Neutral","Positive"], index=["Negative","Neutral","Positive"].index(saved.get("Peer_Influence", "Neutral")) if saved.get("Peer_Influence", "Neutral") in ["Negative","Neutral","Positive"] else 1)
-            resources   = st.selectbox("📚 Learning Resources", ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Learning_Resources", "Medium")) if saved.get("Learning_Resources", "Medium") in ["Low","Medium","High"] else 1)
-            activities  = st.selectbox("⚽ Extracurricular",    ["Yes","No"], index=["Yes","No"].index(saved.get("Extracurricular_Activities", "Yes")) if saved.get("Extracurricular_Activities", "Yes") in ["Yes","No"] else 0)
+            internet = st.selectbox("🌐 Internet Access", ["Yes","No"], index=saved_index(["Yes","No"], "Internet_Access", "Yes"))
+            income = st.selectbox("💰 Family Income", ["Low","Medium","High"], index=saved_index(["Low","Medium","High"], "Family_Income", "Medium"))
+            parental = st.selectbox("👨‍👩‍👦 Parental Involvement", ["Low","Medium","High"], index=saved_index(["Low","Medium","High"], "Parental_Involvement", "Medium"))
+            education = st.selectbox("🎓 Parent Education", ["School","College"], index=saved_index(["School","College"], "Parental_Education_Level", "School"))
+            peer = st.selectbox("🤝 Peer Influence", ["Negative","Neutral","Positive"], index=saved_index(["Negative","Neutral","Positive"], "Peer_Influence", "Neutral"))
+            resources = st.selectbox("📚 Learning Resources", ["Low","Medium","High"], index=saved_index(["Low","Medium","High"], "Learning_Resources", "Medium"))
+            activities = st.selectbox("⚽ Extracurricular", ["Yes","No"], index=saved_index(["Yes","No"], "Extracurricular_Activities", "Yes"))
 
-        st.markdown("<div class='prediction-action-row'>", unsafe_allow_html=True)
-        col_save, col_predict = st.columns(2)
-        with col_save:
+        st.markdown("<br>", unsafe_allow_html=True)
+        save_col, predict_col = st.columns(2)
+        with save_col:
             save_clicked = st.form_submit_button("💾 Save Values", use_container_width=True)
-        with col_predict:
-            predict_clicked = st.form_submit_button("🚀 Predict & Generate Report", use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with predict_col:
+            predict_clicked = st.form_submit_button("🚀 Predict & Open Report", use_container_width=True)
 
     data = {
-        "Hours_Studied":          int(hours),
-        "Attendance":             int(attendance),
-        "Previous_Scores":        int(previous),
-        "Sleep_Hours":            int(sleep),
-        "Motivation_Level":       motivation,
-        "Teacher_Quality":        teacher,
-        "School_Type":            school_type,
-        "Internet_Access":        internet,
-        "Family_Income":          income,
-        "Parental_Involvement":   parental,
+        "Hours_Studied": int(hours),
+        "Attendance": int(attendance),
+        "Previous_Scores": int(previous),
+        "Sleep_Hours": int(sleep),
+        "Motivation_Level": motivation,
+        "Teacher_Quality": teacher,
+        "School_Type": school_type,
+        "Internet_Access": internet,
+        "Family_Income": income,
+        "Parental_Involvement": parental,
         "Parental_Education_Level": education,
-        "Peer_Influence":         peer,
-        "Learning_Resources":     resources,
+        "Peer_Influence": peer,
+        "Learning_Resources": resources,
         "Extracurricular_Activities": activities,
     }
 
     if save_clicked:
-        st.session_state.saved_prediction_inputs = data
-        st.success("✅ Values saved. You can come back and continue from these values.")
+        st.session_state.last_inputs = data
+        st.success("✅ Values saved. Now click Predict & Open Report when you want the full report.")
 
     if predict_clicked:
-        st.session_state.saved_prediction_inputs = data
-        score  = predict_score(data)
-        recs   = get_recommendations(data)
+        score = predict_score(data)
+        recs = get_recommendations(data)
         record = {
-            "date":            datetime.now().strftime("%d-%m-%Y %H:%M"),
-            "score":           score,
-            "inputs":          data,
-            "recommendations": recs
+            "date": datetime.now().strftime("%d-%m-%Y %H:%M"),
+            "score": score,
+            "inputs": data,
+            "recommendations": recs,
         }
         save_prediction(st.session_state.username, record)
-        st.session_state.last_score  = score
+        st.session_state.last_score = score
         st.session_state.last_inputs = data
-        st.session_state.last_recs   = recs
-        st.session_state.last_pdf    = generate_pdf(st.session_state.username, user, score, data, recs)
+        st.session_state.last_recs = recs
+        st.session_state.last_pdf = generate_pdf(st.session_state.username, user, score, data, recs)
         st.session_state.active_page = "Report & Share"
         st.rerun()
 
