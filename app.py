@@ -265,11 +265,22 @@ def apply_css():
         margin: 0 !important;
     }}
 
-    .main .block-container {{
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {{
         padding: 0 !important;
         margin: 0 !important;
         max-width: 100% !important;
         min-height: 100vh !important;
+    }}
+
+    section[data-testid="stMain"],
+    div[data-testid="stAppViewContainer"] {{
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }}
+
+    div[data-testid="stVerticalBlock"] {{
+        gap: 0.25rem !important;
     }}
 
     /* The very first element Streamlit renders — push it to absolute top */
@@ -280,74 +291,58 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       TOP NAVIGATION BAR — WORKING STREAMLIT CONTAINER
+       TOP NAVIGATION BAR — FULL WIDTH WHITE BAR
     ══════════════════════════════════════════ */
-
-    /* st.container(key="topbarshell") ko full width white navbar banata hai */
-    .st-key-topbarshell {{
-        width: 100vw !important;
-        max-width: 100vw !important;
-        margin: 0 0 0 0 !important;
-        padding: 12px 4.5vw !important;
+    .topbar-shell {{
+        width: calc(100% - 20px) !important;
+        margin: 8px 10px 8px 10px !important;
         background: rgba(255,255,255,0.96) !important;
-        border-bottom: 1px solid rgba(2,62,138,0.10) !important;
-        box-shadow: 0 10px 35px rgba(2,62,138,0.13) !important;
+        border: 1px solid rgba(255,255,255,0.70) !important;
+        box-shadow: 0 8px 26px rgba(0,0,0,0.10) !important;
         backdrop-filter: blur(24px) !important;
         -webkit-backdrop-filter: blur(24px) !important;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 9999 !important;
-    }}
-
-    .st-key-topbarshell [data-testid="stHorizontalBlock"] {{
-        align-items: center !important;
-        gap: 0.8rem !important;
+        border-radius: 22px !important;
+        padding: 10px 18px !important;
+        position: sticky;
+        top: 6px;
+        z-index: 9999;
     }}
 
     .top-profile {{
         display: flex;
         align-items: center;
         gap: 10px;
-        min-width: 150px;
     }}
     .top-avatar {{
-        width: 56px !important;
-        height: 56px !important;
+        width: 52px; height: 52px;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
         font-size: 1.5rem;
-        box-shadow: 0 8px 22px rgba(0,119,182,0.25);
-        border: 3px solid #ffffff;
+        box-shadow: 0 4px 14px rgba(0,119,182,0.30);
+        border: 2px solid {accent2};
         flex-shrink: 0;
     }}
     .top-name {{
-        font-size: 1.05rem; 
-        font-weight: 900;
-        color: #03045e !important;
-        line-height: 1.1;
+        font-size: 1.05rem; font-weight: 900;
+        color: #03045e !important; line-height: 1.1;
     }}
     .top-role {{
-        font-size: 0.75rem; 
-        font-weight: 800;
-        color: #0077b6 !important;
-        margin-top: 2px;
-        white-space: nowrap;
+        font-size: 0.75rem; font-weight: 700;
+        color: #0077b6 !important; margin-top: 2px;
     }}
 
     /* Back icon button and theme button in topbar */
     .back-icon-btn .stButton > button,
     .theme-top-btn .stButton > button {{
-        width: 44px !important; 
-        min-width: 44px !important;
-        height: 44px !important; 
-        border-radius: 13px !important;
+        width: 42px !important; min-width: 42px !important;
+        height: 42px !important; border-radius: 12px !important;
         padding: 0 !important;
-        background: rgba(255,255,255,0.95) !important;
+        background: rgba(255,255,255,0.90) !important;
         color: #03045e !important;
         border: 1px solid rgba(2,62,138,0.14) !important;
-        box-shadow: 0 4px 14px rgba(2,62,138,0.10) !important;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08) !important;
         font-size: 1.1rem !important;
         transition: all 0.18s ease !important;
     }}
@@ -355,33 +350,27 @@ def apply_css():
     .theme-top-btn .stButton > button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         color: white !important;
-        transform: translateY(-1px) scale(1.04) !important;
+        transform: scale(1.06) !important;
         border-color: #00b4d8 !important;
     }}
-
     .signout-top-btn .stButton > button {{
-        height: 46px !important;
+        height: 42px !important;
         border-radius: 999px !important;
-        padding: 0 1.35rem !important;
-        font-size: 0.92rem !important;
-        font-weight: 900 !important;
-        background: linear-gradient(135deg,#023e8a,#0096c7,#00b4d8) !important;
+        padding: 0 1.25rem !important;
+        font-size: 0.88rem !important;
+        background: linear-gradient(135deg,#023e8a,#00b4d8) !important;
         color: white !important;
         border: none !important;
-        box-shadow: 0 10px 24px rgba(0,119,182,0.25) !important;
-        white-space: nowrap !important;
+        box-shadow: 0 8px 20px rgba(0,119,182,0.24) !important;
     }}
 
-    /* Segmented control nav — white pill box ke andar buttons */
+    /* Segmented control nav */
     div[data-testid="stSegmentedControl"] {{
-        background: rgba(255,255,255,0.88) !important;
-        padding: 5px !important;
+        background: rgba(255,255,255,0.78) !important;
+        padding: 4px !important;
         border-radius: 16px !important;
-        border: 1px solid rgba(2,62,138,0.14) !important;
-        box-shadow: inset 0 1px 4px rgba(2,62,138,0.05), 0 4px 16px rgba(2,62,138,0.08) !important;
-        width: fit-content !important;
-        max-width: 100% !important;
-        margin: 0 auto !important;
+        border: 1px solid rgba(2,62,138,0.12) !important;
+        box-shadow: inset 0 1px 4px rgba(0,0,0,0.04) !important;
     }}
     div[data-testid="stSegmentedControl"] button {{
         border-radius: 12px !important;
@@ -390,37 +379,19 @@ def apply_css():
         box-shadow: none !important;
         border: 0 !important;
         font-weight: 800 !important;
-        font-size: 0.88rem !important;
-        padding: 8px 14px !important;
+        font-size: 0.84rem !important;
+        padding: 8px 12px !important;
         transition: all 0.15s ease !important;
-        white-space: nowrap !important;
     }}
     div[data-testid="stSegmentedControl"] button:hover {{
         background: rgba(0,119,182,0.08) !important;
-        color: #0077b6 !important;
     }}
     div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
         color: #0077b6 !important;
-        background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
-        border: 1px solid rgba(0,119,182,0.20) !important;
-        box-shadow: 0 4px 12px rgba(0,119,182,0.12) !important;
+        background: linear-gradient(135deg,rgba(222,245,255,0.95),rgba(255,255,255,0.98)) !important;
+        border: 1px solid rgba(0,119,182,0.22) !important;
+        box-shadow: 0 3px 10px rgba(0,119,182,0.12) !important;
     }}
-
-    /* Mobile/tablet safety */
-    @media (max-width: 900px) {{
-        .st-key-topbarshell {{
-            padding: 10px 3vw !important;
-            overflow-x: auto !important;
-        }}
-        div[data-testid="stSegmentedControl"] button {{
-            font-size: 0.78rem !important;
-            padding: 7px 9px !important;
-        }}
-        .top-role {{
-            display: none !important;
-        }}
-    }}
-
 
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
@@ -428,7 +399,8 @@ def apply_css():
     .dash-page {{
         width: 100%;
         min-height: calc(100vh - 72px);
-        padding: 18px 5vw 28px 5vw;
+        padding: 8px 5vw 24px 5vw !important;
+        margin-top: 0 !important;
     }}
     .dash-title {{
         font-size: clamp(1.8rem, 3vw, 2.5rem);
@@ -1160,80 +1132,75 @@ def top_navbar(user):
     icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # IMPORTANT: st.container(key="topbarshell") se CSS class st-key-topbarshell banti hai.
-    # Iske andar jo bhi columns/buttons hain, sab actual white navigation bar ke andar dikhenge.
-    with st.container(key="topbarshell"):
-        c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
-            [0.55, 2.25, 6.8, 1.45, 0.55], vertical_alignment="center"
-        )
+    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
 
-        with c_back:
-            st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-            if st.button("‹", key="top_back_login", help="Back to Login"):
-                st.session_state.logged_in   = False
-                st.session_state.username    = ""
-                st.session_state.role        = ""
-                st.session_state.auth_page   = "login"
-                st.session_state.active_page = "Home"
+    c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
+        [0.55, 2.2, 6.8, 1.35, 0.55], vertical_alignment="center"
+    )
+
+    with c_back:
+        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
+        if st.button("‹", key="top_back_login", help="Back to Login"):
+            st.session_state.logged_in   = False
+            st.session_state.username    = ""
+            st.session_state.role        = ""
+            st.session_state.auth_page   = "login"
+            st.session_state.active_page = "Home"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_profile:
+        st.markdown(f"""
+        <div class='top-profile'>
+          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
+          <div>
+            <div class='top-name'>{name}</div>
+            <div class='top-role'>{role} Account</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_nav:
+        nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
+        current_label = st.session_state.active_page
+        current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
+        try:
+            selected = st.segmented_control(
+                "Navigation", nav_options,
+                default=current_full,
+                label_visibility="collapsed",
+                key="top_nav"
+            )
+        except Exception:
+            idx = nav_options.index(current_full) if current_full in nav_options else 0
+            selected = st.radio(
+                "Navigation", nav_options, index=idx,
+                horizontal=True, label_visibility="collapsed",
+                key="top_nav_radio"
+            )
+        if selected:
+            new_page = selected.split(" ",1)[1]
+            if new_page != st.session_state.active_page:
+                st.session_state.active_page = new_page
                 st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
-        with c_profile:
-            st.markdown(f"""
-            <div class='top-profile'>
-              <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
-              <div>
-                <div class='top-name'>{name}</div>
-                <div class='top-role'>{role} Account</div>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+    with c_sign:
+        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
+        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
+            st.session_state.logged_in  = False
+            st.session_state.username   = ""
+            st.session_state.auth_page  = "welcome"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        with c_nav:
-            nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-            current_label = st.session_state.active_page
-            current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
-            try:
-                selected = st.segmented_control(
-                    "Navigation",
-                    nav_options,
-                    default=current_full,
-                    label_visibility="collapsed",
-                    key="top_nav"
-                )
-            except Exception:
-                idx = nav_options.index(current_full) if current_full in nav_options else 0
-                selected = st.radio(
-                    "Navigation",
-                    nav_options,
-                    index=idx,
-                    horizontal=True,
-                    label_visibility="collapsed",
-                    key="top_nav_radio"
-                )
+    with c_theme:
+        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="top_theme", help="Toggle Theme"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-            if selected:
-                new_page = selected.split(" ",1)[1]
-                if new_page != st.session_state.active_page:
-                    st.session_state.active_page = new_page
-                    st.rerun()
-
-        with c_sign:
-            st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
-            if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
-                st.session_state.logged_in  = False
-                st.session_state.username   = ""
-                st.session_state.auth_page  = "welcome"
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with c_theme:
-            st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
-            if st.button(emoji, key="top_theme", help="Toggle Theme"):
-                st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
