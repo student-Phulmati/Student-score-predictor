@@ -1550,13 +1550,13 @@ apply_profile_margin_title_fix()
 def apply_header_title_active_fix():
     st.markdown("""
     <style>
-    /* FINAL HEADER UPDATE: brand title large, no separate active chip, active page highlighted in top menu */
+    /* ScoreWise AI brand title: bigger and more important than page welcome title */
     .header-title-wrap {
         display: flex !important;
         flex-direction: column !important;
         align-items: flex-start !important;
         justify-content: center !important;
-        gap: 0 !important;
+        gap: 4px !important;
         padding: 0 !important;
         margin: 0 !important;
     }
@@ -1571,25 +1571,51 @@ def apply_header_title_active_fix():
         text-shadow: 0 2px 12px rgba(255,255,255,0.55) !important;
     }
 
-    /* Hide old page text/chip under ScoreWise AI */
-    .header-sub,
-    .active-page-chip {
+    /* Remove old small text under ScoreWise AI */
+    .header-sub {
         display: none !important;
         height: 0 !important;
-        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
     }
 
-    /* Welcome title made smaller and cleaner */
+    /* Beautiful current-page indicator below the brand */
+    .active-page-chip {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        margin-top: 3px !important;
+        padding: 5px 14px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        font-size: 0.78rem !important;
+        line-height: 1 !important;
+        font-weight: 900 !important;
+        box-shadow: 0 8px 20px rgba(0,119,182,0.24) !important;
+        border: 1px solid rgba(255,255,255,0.50) !important;
+    }
+    .active-page-chip::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 14px !important;
+        right: 14px !important;
+        bottom: -7px !important;
+        height: 3px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;
+        box-shadow: 0 5px 12px rgba(0,119,182,0.25) !important;
+    }
+
+    /* Welcome title smaller than ScoreWise AI brand */
     .dash-title,
     .page-title {
-        font-size: clamp(1.45rem, 2.65vw, 2.35rem) !important;
-        line-height: 1.06 !important;
+        font-size: clamp(1.85rem, 3.45vw, 3.05rem) !important;
+        line-height: 1.04 !important;
         font-weight: 900 !important;
-        letter-spacing: -0.6px !important;
+        letter-spacing: -0.8px !important;
         margin-top: 0 !important;
         margin-bottom: 0 !important;
     }
@@ -1598,42 +1624,31 @@ def apply_header_title_active_fix():
     .subtext {
         margin-top: 10px !important;
         margin-bottom: 16px !important;
-        font-size: clamp(0.88rem, 1.04vw, 0.98rem) !important;
+        font-size: clamp(0.92rem, 1.12vw, 1.04rem) !important;
         line-height: 1.45 !important;
     }
 
-    /* Active page highlight directly on the top menu button */
+    /* Active navigation button also gets a clean highlight line */
     .nav-tab-active .stButton > button {
         position: relative !important;
         background: linear-gradient(135deg,#023e8a,#0077b6,#00b4d8) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255,255,255,0.44) !important;
-        box-shadow: 0 12px 26px rgba(0,119,182,0.28) !important;
-        transform: translateY(-1px) !important;
-    }
-
-    .nav-tab-active .stButton > button::after {
-        content: "" !important;
-        position: absolute !important;
-        left: 22% !important;
-        right: 22% !important;
-        bottom: -7px !important;
-        height: 4px !important;
-        border-radius: 999px !important;
-        background: linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;
-        box-shadow: 0 5px 12px rgba(0,119,182,0.30) !important;
-    }
-
-    .nav-tab .stButton > button:hover {
-        background: rgba(255,255,255,0.74) !important;
-        color: #0077b6 !important;
-        border-color: rgba(0,119,182,0.24) !important;
+        border: 1px solid rgba(255,255,255,0.40) !important;
+        box-shadow: 0 10px 24px rgba(0,119,182,0.25) !important;
     }
 
     @media (max-width: 1050px) {
-        .header-app { font-size: 1.25rem !important; }
+        .header-app {
+            font-size: 1.25rem !important;
+        }
+        .active-page-chip {
+            font-size: 0.66rem !important;
+            padding: 4px 10px !important;
+        }
         .dash-title,
-        .page-title { font-size: 1.95rem !important; }
+        .page-title {
+            font-size: 2.15rem !important;
+        }
     }
 
     @media (max-width: 760px) {
@@ -1641,8 +1656,14 @@ def apply_header_title_active_fix():
             display: block !important;
             font-size: 1.05rem !important;
         }
+        .active-page-chip {
+            font-size: 0.58rem !important;
+            padding: 4px 8px !important;
+        }
         .dash-title,
-        .page-title { font-size: 1.65rem !important; }
+        .page-title {
+            font-size: 1.9rem !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2168,6 +2189,7 @@ def top_navbar(user):
         st.markdown(f"""
         <div class="header-title-wrap">
             <div class="header-app">🎓 {APP_NAME_PLAIN}</div>
+            <div class="active-page-chip">{page_icons.get(active, "📌")} {active}</div>
             <div class="header-sub">{page_subtitles.get(active, TAGLINE)}</div>
         </div>
         """, unsafe_allow_html=True)
