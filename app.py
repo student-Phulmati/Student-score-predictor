@@ -668,124 +668,83 @@ def apply_css():
 
 
     /* ══════════════════════════════════════════
-       TOP NAV DASHBOARD LAYOUT — no sidebar
+       TOP NAV DASHBOARD - screenshot style
     ══════════════════════════════════════════ */
-    [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
+    section[data-testid="stSidebar"], [data-testid="collapsedControl"] {{
         display: none !important;
         visibility: hidden !important;
         width: 0 !important;
-        min-width: 0 !important;
-    }
-    .main .block-container {
+    }}
+    .main .block-container {{
         max-width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        padding-top: 0 !important;
-    }
-    .topbar-shell {
-        width: 100%;
-        min-height: 86px;
-        background: rgba(255,255,255,0.96);
-        border-bottom: 1px solid rgba(2,62,138,0.10);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        padding: 14px 24px 10px 24px;
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-    }
-    .top-profile {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 180px;
-    }
-    .top-avatar {
-        width: 58px;
-        height: 58px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        background: linear-gradient(135deg,#caf0f8,#48cae4);
-        font-size: 1.6rem;
-        box-shadow: 0 6px 18px rgba(0,119,182,0.16);
-    }
-    .top-avatar img { width: 100%; height: 100%; object-fit: cover; }
-    .top-name {
-        font-size: 1.15rem;
-        font-weight: 900;
-        color: #0b163f;
-        line-height: 1.1;
-    }
-    .top-role {
-        font-size: 0.80rem;
-        font-weight: 600;
-        color: #1c2d57;
-        margin-top: 4px;
-    }
-    .dash-page {
-        width: 100%;
-        min-height: calc(100vh - 86px);
-        padding: 54px 5vw 28px 5vw;
-        background: linear-gradient(90deg, rgba(3,10,36,0.78), rgba(9,34,78,0.72)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85');
-        background-size: cover;
-        background-position: center;
-    }
-    .dash-title {
-        font-size: clamp(2rem, 3vw, 2.7rem);
-        font-weight: 900;
-        color: #ffffff;
-        margin: 0 0 8px 0;
-        letter-spacing: -0.8px;
-    }
-    .dash-subtitle {
-        font-size: 1rem;
-        font-weight: 700;
-        color: rgba(255,255,255,0.88);
-        margin-bottom: 34px;
-    }
-    .chart-glass {
-        background: rgba(13,31,68,0.58);
-        border: 1px solid rgba(173,232,244,0.16);
-        box-shadow: 0 18px 50px rgba(0,0,0,0.30);
+        padding-left: 42px !important;
+        padding-right: 42px !important;
+        padding-top: 116px !important;
+    }}
+    .top-nav-bar {{
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 92px;
+        background: rgba(255,255,255,0.94);
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
-        border-radius: 24px;
-        padding: 18px 18px 4px 18px;
-        margin-top: 28px;
-    }
-    .top-spacer { height: 0px; }
-    .back-icon-btn .stButton > button,
-    .theme-top-btn .stButton > button {
-        width: 44px !important;
-        min-width: 44px !important;
-        height: 44px !important;
-        border-radius: 12px !important;
-        padding: 0 !important;
-        background: rgba(255,255,255,0.92) !important;
-        color: #0b265f !important;
-        border: 1px solid rgba(2,62,138,0.15) !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.10) !important;
-        font-size: 1.15rem !important;
-    }
-    .signout-top-btn .stButton > button {
-        height: 44px !important;
-        border-radius: 999px !important;
-        padding: 0.45rem 1.2rem !important;
-    }
-    div[data-testid="stSegmentedControl"] button {
-        border-radius: 0 !important;
-        background: transparent !important;
-        color: #0b163f !important;
-        box-shadow: none !important;
-        border: 0 !important;
-        font-weight: 800 !important;
-    }
-    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
-        color: #005bbb !important;
-        border-bottom: 3px solid #0077b6 !important;
-    }
+        border-bottom: 1px solid rgba(2,62,138,0.10);
+        z-index: 999999;
+        display: grid;
+        grid-template-columns: 340px 1fr 250px;
+        align-items: center;
+        gap: 12px;
+        padding: 0 28px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    }}
+    .top-left-area {{ display:flex; align-items:center; gap:18px; min-width:0; }}
+    .top-back-icon {{
+        width: 48px; height: 48px; border-radius: 14px;
+        background: rgba(255,255,255,0.96);
+        border: 1px solid rgba(2,62,138,0.12);
+        box-shadow: 0 4px 14px rgba(2,62,138,0.16);
+        display:flex; align-items:center; justify-content:center;
+        color:#0b1f3a !important; font-size:28px; font-weight:900;
+        text-decoration:none !important;
+    }}
+    .top-avatar {{
+        width: 62px; height: 62px; border-radius:50%;
+        overflow:hidden; display:flex; align-items:center; justify-content:center;
+        background: linear-gradient(135deg,#90e0ef,#0096c7);
+        font-size: 30px; color:white; flex: 0 0 auto;
+        box-shadow: 0 7px 22px rgba(0,119,182,0.20);
+    }}
+    .top-avatar img {{ width:100%; height:100%; object-fit:cover; }}
+    .top-user-name {{ color:#0b1f3a; font-size:20px; font-weight:900; line-height:1.1; }}
+    .top-user-role {{ color:#34445c; font-size:14px; font-weight:600; margin-top:6px; }}
+    .top-nav-links {{ display:flex; align-items:center; justify-content:center; gap:34px; white-space:nowrap; }}
+    .top-nav-links a {{
+        color:#0b1f3a !important; text-decoration:none !important;
+        font-size:16px; font-weight:800; padding: 8px 4px 13px;
+        border-bottom: 3px solid transparent;
+    }}
+    .top-nav-links a.active {{ border-bottom-color:#0077b6; color:#001a49 !important; }}
+    .top-right-area {{ display:flex; align-items:center; justify-content:flex-end; gap:14px; }}
+    .top-signout {{
+        background: linear-gradient(135deg,#005bea,#00b4d8);
+        color:white !important; text-decoration:none !important;
+        padding: 12px 25px; border-radius:999px;
+        font-size:16px; font-weight:900;
+        box-shadow: 0 8px 24px rgba(0,119,182,0.28);
+    }}
+    .top-theme {{
+        width:50px; height:50px; border-radius:50%;
+        background: linear-gradient(135deg,#00b4d8,#0077b6);
+        color:white !important; text-decoration:none !important;
+        display:flex; align-items:center; justify-content:center;
+        font-size:22px; box-shadow:0 8px 24px rgba(0,119,182,0.25);
+    }}
+    @media (max-width: 1000px) {{
+        .top-nav-bar {{ grid-template-columns: 250px 1fr 190px; padding:0 14px; }}
+        .top-nav-links {{ gap:14px; }}
+        .top-nav-links a {{ font-size:13px; }}
+        .top-user-role {{ display:none; }}
+    }}
 
     </style>
     """, unsafe_allow_html=True)
@@ -795,6 +754,8 @@ apply_css()
 
 def theme_toggle_button(page_key="", welcome=False):
     """Render light/dark mode button."""
+    if st.session_state.get("logged_in", False):
+        return
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
     if welcome:
         # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
@@ -1257,77 +1218,111 @@ def auth_page():
 
         st.markdown("</div>", unsafe_allow_html=True)
 
+
 # =====================================================
-# TOP NAVIGATION BAR  (matches your reference image)
+# TOP NAVIGATION BAR (replaces sidebar)
 # =====================================================
-def top_navbar(user):
-    name = user.get("full_name", st.session_state.username)
+def handle_top_nav_query():
+    params = st.query_params
+    changed = False
+
+    action = params.get("action", None)
+    if action in ["logout", "back_login"]:
+        st.session_state.logged_in = False
+        st.session_state.username = ""
+        st.session_state.role = ""
+        st.session_state.auth_page = "login" if action == "back_login" else "welcome"
+        st.session_state.active_page = "Home"
+        st.query_params.clear()
+        st.rerun()
+
+    if params.get("toggle_theme", None) == "1":
+        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.query_params.clear()
+        st.rerun()
+
+    page = params.get("page", None)
+    valid_pages = ["Home", "Prediction", "Report & Share", "History", "Profile"]
+    if page in valid_pages and st.session_state.active_page != page:
+        st.session_state.active_page = page
+        changed = True
+
+    if changed:
+        st.query_params.clear()
+        st.rerun()
+
+
+def top_nav(user):
+    name = user.get("full_name", st.session_state.username) or st.session_state.username
     role = user.get("role", "student").title()
-    icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
-    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
+    avatar = profile_pic_html(st.session_state.username, "🎓")
+    theme_emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
+    active = st.session_state.active_page
 
-    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
-    c_back, c_profile, c_nav, c_sign, c_theme = st.columns([0.55, 2.2, 6.4, 1.25, 0.55], vertical_alignment="center")
+    def nav_link(page, icon):
+        cls = "active" if active == page else ""
+        return f'<a class="{cls}" href="?page={urllib.parse.quote(page)}">{icon} {page}</a>'
 
-    with c_back:
-        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-        if st.button("‹", key="top_back_login", help="Back to Login"):
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.session_state.role = ""
-            st.session_state.auth_page = "login"
-            st.session_state.active_page = "Home"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c_profile:
-        st.markdown(f"""
-        <div class='top-profile'>
-          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
-          <div>
-            <div class='top-name'>{name}</div>
-            <div class='top-role'>{role} Account</div>
-          </div>
+    st.markdown(f"""
+    <div class="top-nav-bar">
+      <div class="top-left-area">
+        <a class="top-back-icon" href="?action=back_login">‹</a>
+        <div class="top-avatar">{avatar}</div>
+        <div>
+          <div class="top-user-name">{name}</div>
+          <div class="top-user-role">{role} Account</div>
         </div>
-        """, unsafe_allow_html=True)
+      </div>
+      <div class="top-nav-links">
+        {nav_link('Home','🏠')}
+        {nav_link('Prediction','🔮')}
+        {nav_link('Report & Share','📄')}
+        {nav_link('History','📚')}
+        {nav_link('Profile','👤')}
+      </div>
+      <div class="top-right-area">
+        <a class="top-signout" href="?action=logout">🚪 Sign Out</a>
+        <a class="top-theme" href="?toggle_theme=1">{theme_emoji}</a>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with c_nav:
-        nav_options = ["🏠 Home", "🔮 Prediction", "📄 Report & Share", "📚 History", "👤 Profile"]
-        current = next((x for x in nav_options if x.endswith(st.session_state.active_page)), "🏠 Home")
-        try:
-            selected = st.segmented_control("Navigation", nav_options, default=current, label_visibility="collapsed", key="top_nav")
-        except Exception:
-            selected = st.radio("Navigation", nav_options, index=nav_options.index(current), horizontal=True, label_visibility="collapsed", key="top_nav_radio")
-        if selected:
-            st.session_state.active_page = selected.split(" ", 1)[1]
+# =====================================================
+# OLD SIDEBAR (not used after top navigation update)
+# =====================================================
+def sidebar(user):
+    with st.sidebar:
+        icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+        st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
+        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
+        st.markdown("---")
 
-    with c_sign:
-        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
-        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
-            st.session_state.logged_in = False
-            st.session_state.username = ""
-            st.session_state.auth_page = "welcome"
+        pages  = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
+        labels = [p.split(" ",1)[1] for p in pages]
+        sel_idx = 0
+        for i, label in enumerate(labels):
+            if st.session_state.active_page == label:
+                sel_idx = i
+        selected = st.radio("Navigation", pages, index=sel_idx)
+        st.session_state.active_page = selected.split(" ",1)[1]
+
+        st.markdown("---")
+        if st.button("🚪 Sign Out", use_container_width=True):
+            st.session_state.logged_in  = False
+            st.session_state.username   = ""
+            st.session_state.auth_page  = "welcome"
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c_theme:
-        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
-        if st.button(emoji, key="top_theme", help="Change Mode"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
 # =====================================================
 def home_page(user):
+    theme_toggle_button("home")
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
-    st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
-    st.markdown(f"<div class='dash-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
-    st.markdown("<div class='dash-subtitle'>Your academic performance dashboard — all insights in one place.</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='page-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -1338,15 +1333,13 @@ def home_page(user):
             st.markdown(f"<div class='metric-card'><div class='metric-value'>{val}</div><div class='metric-label'>{label}</div></div>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     if records:
-        st.markdown("<div class='chart-glass'>", unsafe_allow_html=True)
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.info("🚀 Go to the Prediction page and generate your first score!")
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def prediction_page(user):
+    theme_toggle_button("pred")
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
 
@@ -1414,6 +1407,7 @@ def prediction_page(user):
 
 
 def report_page(user):
+    theme_toggle_button("report")
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
 
@@ -1456,6 +1450,7 @@ def report_page(user):
 
 
 def history_page(user):
+    theme_toggle_button("hist")
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
@@ -1474,6 +1469,7 @@ def history_page(user):
 
 
 def profile_page(user):
+    theme_toggle_button("prof")
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
 
@@ -1574,9 +1570,11 @@ def profile_page(user):
 # MAIN APP SHELL
 # =====================================================
 def main_app():
+    handle_top_nav_query()
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
-    top_navbar(user)
+
+    top_nav(user)
 
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
