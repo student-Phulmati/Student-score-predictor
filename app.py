@@ -249,9 +249,9 @@ def apply_css():
 /* ══════════════════════════════════════════
    TOP NAVIGATION BAR
 ══════════════════════════════════════════ */
-.topbar-shell {
+.topbar-shell {{
     width: 94%;
-    margin: -12px auto 0 auto !important;   /* ← box ko upar karega */
+    margin: -12px auto 0 auto !important;
     background: rgba(255,255,255,0.92) !important;
     border: 1px solid rgba(255,255,255,0.55) !important;
     box-shadow:
@@ -264,7 +264,7 @@ def apply_css():
     position: sticky;
     top: 8px;
     z-index: 9999;
-}
+}}
 
 /* Navigation buttons */
 div[data-testid="stSegmentedControl"] {
