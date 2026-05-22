@@ -1254,7 +1254,7 @@ def apply_professional_header_fix():
             padding: 0 4px !important;
         }
         .dash-page {
-            padding: 10px 16px 20px 16px !important;
+            padding: 10px 18px 20px 18px !important;
         }
     }
     </style>
@@ -2160,25 +2160,59 @@ def report_page(user):
         """, unsafe_allow_html=True)
 
     st.markdown("<br>", unsafe_allow_html=True)
-    st.download_button(
-        "📥 Download PDF Report", data=pdf,
-        file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
-        mime="application/pdf", use_container_width=True
-    )
+    st.markdown("### 📥 Download Complete Report")
 
-    share_text = (
-        f"🎓 {APP_NAME_PLAIN} Report%0A"
-        f"Predicted Score: {score}/100%0A"
-        f"Hours Studied: {inputs.get('Hours_Studied')}%0A"
-        f"Attendance: {inputs.get('Attendance')}%25"
+    download_col1, download_col2, download_col3 = st.columns(3)
+    with download_col1:
+        st.download_button(
+            "📄 Download PDF Report",
+            data=pdf,
+            file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+
+    report_rows = [{"Section": "Predicted Score", "Value": f"{score}/100"}]
+    for key, value in inputs.items():
+        report_rows.append({"Section": key.replace("_", " "), "Value": value})
+    if recs:
+        for index, rec in enumerate(recs, start=1):
+            report_rows.append({"Section": f"Recommendation {index}", "Value": rec})
+    report_df = pd.DataFrame(report_rows)
+    csv_data = report_df.to_csv(index=False).encode("utf-8")
+
+    with download_col2:
+        st.download_button(
+            "📊 Download Report Data",
+            data=csv_data,
+            file_name=f"ScoreWise_Report_Data_{st.session_state.username}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+
+    history_df = pd.DataFrame(records)
+    history_csv = history_df.to_csv(index=False).encode("utf-8") if not history_df.empty else csv_data
+    with download_col3:
+        st.download_button(
+            "🕘 Download History",
+            data=history_csv,
+            file_name=f"ScoreWise_History_{st.session_state.username}.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+
+    share_message = (
+        f"🎓 {APP_NAME_PLAIN} PDF Report\n"
+        f"Predicted Score: {score}/100\n"
+        f"Please attach the downloaded PDF report in this WhatsApp chat."
     )
-    wa_url = "https://wa.me/?text=" + share_text
+    wa_url = "https://wa.me/?text=" + urllib.parse.quote(share_message)
     st.markdown(f"""
-    <div style='text-align:center;margin:16px 0'>
-      <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
+    <div style='text-align:center;margin:16px 0 6px 0'>
+      <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Open WhatsApp to Share PDF</a>
     </div>
     """, unsafe_allow_html=True)
-    st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
+    st.caption("WhatsApp browser link PDF ko automatic attach nahi kar sakta. Pehle PDF download hoga, phir WhatsApp open karke wahi PDF attach karke send karein.")
 
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
