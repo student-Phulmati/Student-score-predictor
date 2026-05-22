@@ -24,7 +24,7 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-# =====================================================
+# ====================================================
 # CONSTANTS
 # =====================================================
 APP_NAME         = "🎓 ScoreWise AI"
