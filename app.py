@@ -189,15 +189,40 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Keep Streamlit header available so sidebar arrow works ── */
+    /* ── Streamlit header + toolbar visible fix ── */
     .stApp > header {{
         background: transparent !important;
-        height: 0rem !important;
+        height: auto !important;
+        min-height: 2.6rem !important;
         display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
         z-index: 99999 !important;
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden; height: 0; }}
+    #MainMenu, footer {{ visibility: hidden !important; height: 0 !important; }}
+
+    /* Keep Streamlit top toolbar visible: Share / GitHub / menu icons */
+    [data-testid="stToolbar"] {{
+        visibility: visible !important;
+        display: flex !important;
+        opacity: 1 !important;
+        height: auto !important;
+        min-height: 2rem !important;
+        position: fixed !important;
+        top: 8px !important;
+        right: 12px !important;
+        z-index: 1000000 !important;
+        background: transparent !important;
+        pointer-events: auto !important;
+    }}
+    [data-testid="stToolbar"] button,
+    [data-testid="stToolbar"] a {{
+        visibility: visible !important;
+        display: inline-flex !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }}
 
     /* ── Background ── */
     .stApp {{
@@ -333,13 +358,13 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle fixed TOP-RIGHT ── */
+    /* ── Theme toggle fixed TOP-RIGHT, below Streamlit toolbar ── */
     .theme-btn-wrap {{
-        position: fixed;
-        top: 18px;
-        right: 24px;
-        left: auto;
-        z-index: 999998;
+        position: fixed !important;
+        top: 56px !important;
+        right: 24px !important;
+        left: auto !important;
+        z-index: 999998 !important;
     }}
     .theme-btn-wrap button {{
         width: 40px !important;
