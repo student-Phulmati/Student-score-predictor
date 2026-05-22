@@ -271,13 +271,14 @@ def apply_css():
     ══════════════════════════════════════════ */
     .topbar-shell {{
         width: 100%;
-        background: {topbar_bg};
-        border-bottom: 1px solid {topbar_border};
-        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
-        padding: 10px 20px 8px 20px;
-        position: sticky;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 4px 5vw 0 5vw !important;
+        margin: 0 !important;
+        position: relative;
         top: 0;
         z-index: 9999;
     }}
@@ -351,22 +352,43 @@ def apply_css():
         border-radius: 10px 10px 0 0 !important;
     }}
 
+    .compact-nav-note {{
+        font-size: 0.72rem;
+        color: {topbar_role};
+        font-weight: 800;
+        margin: 0 0 2px 0;
+        line-height: 1.1;
+    }}
+    .topbar-shell .stHorizontalBlock {{
+        gap: 0.35rem !important;
+    }}
+    .topbar-shell div[data-testid="stSegmentedControl"] {{
+        margin: 0 !important;
+        padding: 0 !important;
+    }}
+    .topbar-shell div[data-testid="stSegmentedControl"] button {{
+        padding: 4px 8px !important;
+        min-height: 32px !important;
+        font-size: 0.78rem !important;
+    }}
+
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA — tight gap below topbar
     ══════════════════════════════════════════ */
     .dash-page {{
         width: 100%;
-        min-height: calc(100vh - 72px);
-        padding: 20px 5vw 28px 5vw;
+        min-height: calc(100vh - 45px);
+        padding: 6px 5vw 22px 5vw !important;
+        margin-top: 0 !important;
     }}
     .dash-title {{
         font-size: clamp(1.8rem, 3vw, 2.5rem);
         font-weight: 900; color: {text_primary};
-        margin: 0 0 4px 0; letter-spacing: -0.6px;
+        margin: 0 0 2px 0; letter-spacing: -0.6px;
     }}
     .dash-subtitle {{
         font-size: 0.95rem; font-weight: 700;
-        color: {text_secondary}; margin-bottom: 20px;
+        color: {text_secondary}; margin-bottom: 10px;
     }}
     .chart-glass {{
         background: {card_bg};
@@ -375,8 +397,8 @@ def apply_css():
         backdrop-filter: blur(18px);
         -webkit-backdrop-filter: blur(18px);
         border-radius: 24px;
-        padding: 18px 18px 4px 18px;
-        margin-top: 16px;
+        padding: 12px 14px 2px 14px;
+        margin-top: 8px;
     }}
 
     .glass {{
@@ -393,7 +415,7 @@ def apply_css():
         font-size: 1.9rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
         color: {text_primary}; letter-spacing: -0.5px;
     }}
-    .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 12px; font-weight: 600; }}
+    .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 8px; font-weight: 600; }}
 
     .metric-card {{
         background: {card_bg};
@@ -1057,60 +1079,34 @@ def auth_page():
 # TOP NAVIGATION BAR
 # =====================================================
 def top_navbar(user):
-    name  = user.get("full_name", st.session_state.username)
-    role  = user.get("role","student").title()
-    icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+    """Compact page switcher only. No big navigation bar / white row."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
     st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
 
-    c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
-        [0.5, 2.0, 6.5, 1.2, 0.5], vertical_alignment="center"
-    )
-
-    with c_back:
-        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-        if st.button("‹", key="top_back_login", help="Back to Login"):
-            st.session_state.logged_in   = False
-            st.session_state.username    = ""
-            st.session_state.role        = ""
-            st.session_state.auth_page   = "login"
-            st.session_state.active_page = "Home"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c_profile:
-        st.markdown(f"""
-        <div class='top-profile'>
-          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
-          <div>
-            <div class='top-name'>{name}</div>
-            <div class='top-role'>{role} Account</div>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+    c_nav, c_sign, c_theme = st.columns([7.4, 1.2, 0.45], vertical_alignment="center")
 
     with c_nav:
-        nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
+        nav_options = ["🏠 Home", "🔮 Prediction", "📄 Report & Share", "📚 History", "👤 Profile"]
         current_label = st.session_state.active_page
-        current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
+        current_full = next((x for x in nav_options if x.split(" ", 1)[1] == current_label), "🏠 Home")
         try:
             selected = st.segmented_control(
                 "nav",
                 nav_options,
                 default=current_full,
                 label_visibility="hidden",
-                key="top_nav"
+                key="top_nav",
             )
         except Exception:
             idx = nav_options.index(current_full) if current_full in nav_options else 0
             selected = st.radio(
                 "nav", nav_options, index=idx,
                 horizontal=True, label_visibility="hidden",
-                key="top_nav_radio"
+                key="top_nav_radio",
             )
         if selected:
-            new_page = selected.split(" ",1)[1]
+            new_page = selected.split(" ", 1)[1]
             if new_page != st.session_state.active_page:
                 st.session_state.active_page = new_page
                 st.rerun()
@@ -1118,9 +1114,10 @@ def top_navbar(user):
     with c_sign:
         st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
         if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.auth_page = "welcome"
+            st.session_state.active_page = "Home"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1162,7 +1159,6 @@ def home_page(user):
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
     if records:
         st.markdown("<div class='chart-glass'>", unsafe_allow_html=True)
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
