@@ -24,7 +24,7 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-# ====================================================
+# =====================================================
 # CONSTANTS
 # =====================================================
 APP_NAME         = "🎓 ScoreWise AI"
@@ -246,20 +246,19 @@ def apply_css():
     }}
 
 /* ══════════════════════════════════════════
-   TOP NAVIGATION BAR — FULL WHITE BAR + LESS GAP
+   TOP NAVIGATION BAR — FULL WIDTH + LESS GAP
 ══════════════════════════════════════════ */
 .topbar-shell {{
     width: 100% !important;
-    margin: 0 auto 0 auto !important;
+    margin: 0 !important;
     background: rgba(255,255,255,0.96) !important;
-    border: 1px solid rgba(255,255,255,0.70) !important;
-    border-left: 0 !important;
-    border-right: 0 !important;
-    box-shadow: 0 10px 30px rgba(2,62,138,0.13) !important;
-    backdrop-filter: blur(24px) !important;
-    -webkit-backdrop-filter: blur(24px) !important;
-    border-radius: 0 0 28px 28px !important;
-    padding: 12px 4.5vw 12px 4.5vw !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(2,62,138,0.10) !important;
+    box-shadow: 0 8px 26px rgba(2,62,138,0.12) !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+    border-radius: 0 !important;
+    padding: 10px 4.5vw !important;
     position: sticky;
     top: 0;
     z-index: 9999;
@@ -268,20 +267,20 @@ def apply_css():
 .top-profile {{
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }}
 
 .top-avatar {{
     width: 58px !important;
     height: 58px !important;
-    border-radius: 50%;
+    border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     background: linear-gradient(135deg,#005bea,#00c6fb) !important;
     border: 3px solid white !important;
-    box-shadow: 0 8px 20px rgba(0,119,182,0.25) !important;
+    box-shadow: 0 8px 20px rgba(0,119,182,0.22) !important;
     flex-shrink: 0;
 }}
 
@@ -293,35 +292,31 @@ def apply_css():
 }}
 
 .top-role {{
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #0077b6 !important;
     margin-top: 2px;
 }}
 
-/* Navigation buttons container */
+/* Navigation box */
 div[data-testid="stSegmentedControl"] {{
-    background: rgba(255,255,255,0.78) !important;
-    padding: 6px !important;
-    border-radius: 18px !important;
+    background: rgba(255,255,255,0.72) !important;
+    padding: 4px !important;
+    border-radius: 16px !important;
     border: 1px solid rgba(2,62,138,0.10) !important;
-    box-shadow: inset 0 2px 8px rgba(0,0,0,0.04) !important;
+    box-shadow: inset 0 2px 8px rgba(2,62,138,0.04) !important;
 }}
 
 /* Navigation buttons */
 div[data-testid="stSegmentedControl"] button {{
-    border-radius: 14px !important;
+    border-radius: 12px !important;
     background: transparent !important;
     color: #03045e !important;
     border: none !important;
     font-weight: 800 !important;
-    font-size: 0.90rem !important;
-    padding: 10px 16px !important;
+    font-size: 0.88rem !important;
+    padding: 9px 14px !important;
     transition: all 0.18s ease !important;
-}}
-
-div[data-testid="stSegmentedControl"] button:hover {{
-    background: rgba(0,119,182,0.08) !important;
 }}
 
 /* Active navigation button */
@@ -329,35 +324,34 @@ div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
     background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
     color: #0077b6 !important;
     box-shadow: 0 4px 14px rgba(0,119,182,0.14) !important;
-    border: 1px solid rgba(0,119,182,0.15) !important;
+    border: 1px solid rgba(0,119,182,0.18) !important;
 }}
 
-/* Signout button */
+/* Sign out button */
 .signout-top-btn .stButton > button {{
-    height: 48px !important;
+    height: 46px !important;
     border-radius: 999px !important;
-    padding: 0 1.6rem !important;
-    font-size: 0.95rem !important;
-    font-weight: 800 !important;
+    padding: 0 1.5rem !important;
+    font-size: 0.92rem !important;
+    font-weight: 900 !important;
     background: linear-gradient(135deg,#005bea,#00c6fb) !important;
     color: white !important;
     border: none !important;
     box-shadow: 0 8px 18px rgba(0,119,182,0.25) !important;
 }}
 
-/* Theme + back button */
+/* Back + theme buttons */
 .back-icon-btn .stButton > button,
 .theme-top-btn .stButton > button {{
-    width: 48px !important;
-    min-width: 48px !important;
-    height: 48px !important;
-    border-radius: 16px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    height: 46px !important;
+    border-radius: 14px !important;
     padding: 0 !important;
-    background: rgba(255,255,255,0.90) !important;
+    background: rgba(255,255,255,0.88) !important;
     border: 1px solid rgba(2,62,138,0.12) !important;
     color: #03045e !important;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
-    font-size: 1.1rem !important;
+    box-shadow: 0 4px 14px rgba(2,62,138,0.08) !important;
 }}
 
 .back-icon-btn .stButton > button:hover,
@@ -544,7 +538,7 @@ div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
         backdrop-filter: blur(16px);
     }}
 
-    hr {{ border-color: {border_color} !important; margin: 10px 0 !important; }}
+    hr {{ border-color: {border_color} !important; }}
     .stAlert {{ border-radius: 16px !important; }}
     .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
