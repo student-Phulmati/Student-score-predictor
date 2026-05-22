@@ -926,36 +926,36 @@ def apply_css():
     /* =====================================================
        FINAL CLEAN LAYOUT UPDATE
        ===================================================== */
-    .topbar-shell.clean-header {
+    .topbar-shell.clean-header {{
         background: transparent !important;
         border-bottom: 0 !important;
         box-shadow: none !important;
         padding: 10px 4.6vw 8px 4.6vw !important;
         min-height: 62px !important;
-    }
-    .header-spacer {
+    }}
+    .header-spacer {{
         height: 1px !important;
-    }
-    .nav-pill, .nav-pill-active {
+    }}
+    .nav-pill, .nav-pill-active {{
         display: none !important;
-    }
-    .dash-page {
+    }}
+    .dash-page {{
         padding-top: 12px !important;
-    }
-    .auth-page-shell {
+    }}
+    .auth-page-shell {{
         padding-top: 0 !important;
         margin-top: 0 !important;
-    }
-    .glass {
+    }}
+    .glass {{
         margin-top: 0 !important;
-    }
-    .prediction-action-row {
+    }}
+    .prediction-action-row {{
         margin-top: 18px !important;
         padding-top: 10px !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(> div.element-container div[style*="height: 70px"]) {
+    }}
+    div[data-testid="stVerticalBlock"]:has(> div.element-container div[style*="height: 70px"]) {{
         display:none !important;
-    }
+    }}
 </style>
     """, unsafe_allow_html=True)
 
