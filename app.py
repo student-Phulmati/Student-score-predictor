@@ -144,7 +144,7 @@ def init_state():
         "username":          "",
         "role":              "",
         "auth_page":         "welcome",
-        "theme":             "dark",
+        "theme":             "light",
         "active_page":       "Home",
         "last_score":        None,
         "last_pdf":          None,
@@ -593,6 +593,212 @@ def apply_css():
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         color: white !important;
     }}
+
+    /* ══════════════════════════════════════════
+       WEBSITE STYLE DASHBOARD TOPBAR OVERRIDES
+    ══════════════════════════════════════════ */
+    .topbar-shell {{
+        width: 100% !important;
+        background: rgba(255,255,255,0.98) !important;
+        border-bottom: 1px solid rgba(2,62,138,0.08) !important;
+        box-shadow: 0 8px 28px rgba(3,4,94,0.10) !important;
+        padding: 14px 18px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9999 !important;
+    }}
+
+    .brand-wrap {{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        min-width:230px;
+    }}
+    .brand-logo {{
+        width:54px;
+        height:54px;
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:linear-gradient(135deg,#004aad,#00b4d8);
+        box-shadow:0 7px 20px rgba(0,119,182,0.25);
+        color:white;
+        font-size:1.55rem;
+        flex-shrink:0;
+    }}
+    .brand-title {{
+        color:#03045e;
+        font-weight:900;
+        font-size:1.55rem;
+        line-height:1;
+        letter-spacing:-0.5px;
+    }}
+    .brand-sub {{
+        color:#023e8a;
+        font-weight:600;
+        font-size:0.72rem;
+        margin-top:5px;
+    }}
+
+    .back-icon-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:12px !important;
+        background:#ffffff !important;
+        color:#03045e !important;
+        border:1.5px solid rgba(2,62,138,0.14) !important;
+        box-shadow:0 8px 20px rgba(3,4,94,0.08) !important;
+        font-size:1.25rem !important;
+        font-weight:900 !important;
+    }}
+    .back-icon-btn .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#004aad !important;
+        transform:translateX(-2px) !important;
+        border-color:rgba(0,119,182,0.25) !important;
+    }}
+
+    .nav-pill .stButton > button {{
+        width:100% !important;
+        min-height:52px !important;
+        padding:0 16px !important;
+        border-radius:12px !important;
+        background:transparent !important;
+        color:#1f3266 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:0.98rem !important;
+        font-weight:800 !important;
+    }}
+    .nav-pill .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#0057c7 !important;
+        transform:none !important;
+        box-shadow:none !important;
+    }}
+    .nav-pill-active .stButton > button {{
+        background:#e8f3ff !important;
+        color:#0057c7 !important;
+        box-shadow:0 6px 18px rgba(0,119,182,0.09) !important;
+    }}
+
+    .signout-top-btn .stButton > button {{
+        height:52px !important;
+        border-radius:18px !important;
+        padding:0 24px !important;
+        background:linear-gradient(135deg,#004aad,#0066d9) !important;
+        color:white !important;
+        font-size:0.95rem !important;
+        font-weight:900 !important;
+        box-shadow:0 10px 22px rgba(0,74,173,0.25) !important;
+        white-space:nowrap !important;
+    }}
+
+    .theme-top-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:50% !important;
+        background:#eaf4ff !important;
+        color:#0057c7 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:1.1rem !important;
+    }}
+
+    .top-profile {{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:10px !important;
+        min-width:130px !important;
+    }}
+    .top-avatar {{
+        width:52px !important;
+        height:52px !important;
+        border-radius:50% !important;
+        background:linear-gradient(135deg,#0077b6,#90e0ef) !important;
+        color:white !important;
+        border:0 !important;
+        box-shadow:0 7px 20px rgba(0,119,182,0.20) !important;
+        font-size:1.45rem !important;
+    }}
+    .top-name {{
+        color:#03045e !important;
+        font-size:1.02rem !important;
+        font-weight:900 !important;
+        line-height:1.05 !important;
+    }}
+    .top-role {{
+        color:#334b78 !important;
+        font-size:0.72rem !important;
+        font-weight:600 !important;
+        margin-top:4px !important;
+        white-space:nowrap !important;
+    }}
+
+    .dash-page {{
+        padding:54px 3.8vw 34px 3.8vw !important;
+        min-height:calc(100vh - 82px) !important;
+    }}
+    .dash-title {{
+        color:#03045e !important;
+        font-size:clamp(2.0rem,3.1vw,2.8rem) !important;
+        margin-bottom:16px !important;
+    }}
+    .dash-subtitle {{
+        color:#1f3266 !important;
+        font-size:1.02rem !important;
+        margin-bottom:38px !important;
+    }}
+    .metric-card {{
+        min-height:164px !important;
+        border-radius:24px !important;
+        background:rgba(255,255,255,0.78) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }}
+    .metric-value {{
+        color:#0066d9 !important;
+        font-size:2.8rem !important;
+        line-height:1 !important;
+    }}
+    .metric-label {{
+        color:#334b78 !important;
+        font-size:0.92rem !important;
+        margin-top:20px !important;
+        letter-spacing:0 !important;
+    }}
+    .metric-accent {{
+        width:64px;
+        height:4px;
+        border-radius:999px;
+        margin:22px auto 0 auto;
+    }}
+    .chart-glass {{
+        background:rgba(255,255,255,0.76) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        border-radius:24px !important;
+        padding:18px 24px 8px 24px !important;
+        margin-top:34px !important;
+    }}
+
+    @media (max-width: 900px) {{
+        .brand-sub {{ display:none; }}
+        .brand-title {{ font-size:1.15rem; }}
+        .nav-pill .stButton > button {{ font-size:0.78rem !important; padding:0 6px !important; }}
+        .dash-page {{ padding-left:22px !important; padding-right:22px !important; }}
+    }}
+
     </style>
     """, unsafe_allow_html=True)
 
@@ -1068,22 +1274,67 @@ def top_navbar(user):
     name  = user.get("full_name", st.session_state.username)
     role  = user.get("role","student").title()
     icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
-    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
+    emoji = "🌙" if st.session_state.theme == "light" else "☀️"
 
     st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
 
-    c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
-        [0.5, 2.0, 6.5, 1.2, 0.5], vertical_alignment="center"
+    c_back, c_brand, c_nav, c_sign, c_theme, c_profile = st.columns(
+        [0.55, 2.55, 5.8, 1.25, 0.55, 1.45], vertical_alignment="center"
     )
 
     with c_back:
         st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
-        if st.button("‹", key="top_back_login", help="Back to Login"):
+        if st.button("←", key="top_back_login", help="Back to Login"):
             st.session_state.logged_in   = False
             st.session_state.username    = ""
             st.session_state.role        = ""
             st.session_state.auth_page   = "login"
             st.session_state.active_page = "Home"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_brand:
+        st.markdown(f"""
+        <div class="brand-wrap">
+            <div class="brand-logo">🎓</div>
+            <div>
+                <div class="brand-title">{APP_NAME_PLAIN}</div>
+                <div class="brand-sub">{TAGLINE}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_nav:
+        nav_options = [
+            ("🏠 Home", "Home"),
+            ("📈 Prediction", "Prediction"),
+            ("📄 Report & Share", "Report & Share"),
+            ("◔ History", "History"),
+            ("👤 Profile", "Profile"),
+        ]
+        nav_cols = st.columns([1, 1.15, 1.55, 1, 1], gap="small")
+        for col, (label, page_name) in zip(nav_cols, nav_options):
+            with col:
+                active_cls = " nav-pill-active" if st.session_state.active_page == page_name else ""
+                st.markdown(f'<div class="nav-pill{active_cls}">', unsafe_allow_html=True)
+                if st.button(label, key=f"nav_{page_name}", use_container_width=True):
+                    st.session_state.active_page = page_name
+                    st.rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
+
+    with c_sign:
+        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
+        if st.button("↪ Sign Out", key="top_signout", use_container_width=True):
+            st.session_state.logged_in  = False
+            st.session_state.username   = ""
+            st.session_state.auth_page  = "welcome"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_theme:
+        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="top_theme", help="Toggle Theme"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1097,46 +1348,6 @@ def top_navbar(user):
           </div>
         </div>
         """, unsafe_allow_html=True)
-
-    with c_nav:
-        nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-        current_label = st.session_state.active_page
-        current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
-        try:
-            selected = st.segmented_control(
-                "Navigation", nav_options,
-                default=current_full,
-                label_visibility="collapsed",
-                key="top_nav"
-            )
-        except Exception:
-            idx = nav_options.index(current_full) if current_full in nav_options else 0
-            selected = st.radio(
-                "Navigation", nav_options, index=idx,
-                horizontal=True, label_visibility="collapsed",
-                key="top_nav_radio"
-            )
-        if selected:
-            new_page = selected.split(" ",1)[1]
-            if new_page != st.session_state.active_page:
-                st.session_state.active_page = new_page
-                st.rerun()
-
-    with c_sign:
-        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
-        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with c_theme:
-        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
-        if st.button(emoji, key="top_theme", help="Toggle Theme"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1163,10 +1374,13 @@ def home_page(user):
     ]
     for col, (label, val) in zip([c1,c2,c3,c4], metrics):
         with col:
+            accent_colors = ["#0066d9", "#20c970", "#9b42ff", "#ff8a00"]
+            accent = accent_colors[[c1,c2,c3,c4].index(col)]
             st.markdown(f"""
             <div class='metric-card'>
               <div class='metric-value'>{val}</div>
               <div class='metric-label'>{label}</div>
+              <div class='metric-accent' style='background:{accent}'></div>
             </div>
             """, unsafe_allow_html=True)
 
