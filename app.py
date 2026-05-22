@@ -249,140 +249,88 @@ def apply_css():
 /* ══════════════════════════════════════════
    TOP NAVIGATION BAR
 ══════════════════════════════════════════ */
-.topbar-shell {{
-    width: 100%;
-    background: transparent !important;
-    border-bottom: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    padding: 10px 20px 8px 20px;
+.topbar-shell {
+    width: 94%;
+    margin: -12px auto 0 auto !important;   /* ← box ko upar karega */
+    background: rgba(255,255,255,0.92) !important;
+    border: 1px solid rgba(255,255,255,0.55) !important;
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.10),
+        0 2px 10px rgba(255,255,255,0.35) inset !important;
+    backdrop-filter: blur(22px) !important;
+    -webkit-backdrop-filter: blur(22px) !important;
+    border-radius: 30px !important;
+    padding: 16px 24px 14px 24px !important;
     position: sticky;
-    top: 0;
+    top: 8px;
     z-index: 9999;
-}}
-
-/* REMOVE WHITE ROW / LINE */
-hr {{
-    display: none !important;
-}}
-
-/* Remove top spacing */
-.main .block-container {{
-    padding-top: 0rem !important;
-    margin-top: 0rem !important;
-    max-width: 100% !important;
-}}
-
-/* Remove Streamlit white header */
-.stApp > header {{
-    background: transparent !important;
-    height: 0rem !important;
-}}
-
-[data-testid="stHeader"] {{
-    background: transparent !important;
-    height: 0px !important;
-}}
-
-[data-testid="stToolbar"] {{
-    display: none !important;
-}}
-
-[data-testid="stDecoration"] {{
-    display: none !important;
-}}
-
-/* Profile section */
-.top-profile {{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}}
-
-.top-avatar {{
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
-    font-size: 1.5rem;
-    box-shadow: 0 4px 14px rgba(0,119,182,0.30);
-    border: 2px solid {accent2};
-    flex-shrink: 0;
-}}
-
-.top-name {{
-    font-size: 1.05rem;
-    font-weight: 900;
-    color: {topbar_text};
-    line-height: 1.1;
-}}
-
-.top-role {{
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: {topbar_role};
-    margin-top: 2px;
-}}
-
-/* Back icon button and theme button */
-.back-icon-btn .stButton > button,
-.theme-top-btn .stButton > button {{
-    width: 42px !important;
-    min-width: 42px !important;
-    height: 42px !important;
-    border-radius: 12px !important;
-    padding: 0 !important;
-    background: rgba(255,255,255,0.10) !important;
-    color: {topbar_text} !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-    font-size: 1.1rem !important;
-    transition: all 0.18s ease !important;
-}}
-
-.back-icon-btn .stButton > button:hover,
-.theme-top-btn .stButton > button:hover {{
-    background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-    color: white !important;
-    transform: scale(1.06) !important;
-}}
-
-/* Signout button */
-.signout-top-btn .stButton > button {{
-    height: 42px !important;
-    border-radius: 999px !important;
-    padding: 0 1.1rem !important;
-    font-size: 0.85rem !important;
-}}
+}
 
 /* Navigation buttons */
-div[data-testid="stSegmentedControl"] {{
-    background: transparent !important;
-}}
+div[data-testid="stSegmentedControl"] {
+    background: rgba(255,255,255,0.65) !important;
+    padding: 6px !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
+}
 
-div[data-testid="stSegmentedControl"] button {{
-    border-radius: 10px !important;
+/* Nav button */
+div[data-testid="stSegmentedControl"] button {
+    border-radius: 14px !important;
     background: transparent !important;
-    color: {topbar_role} !important;
-    box-shadow: none !important;
-    border: 0 !important;
+    color: #1d3557 !important;
+    border: none !important;
     font-weight: 700 !important;
-    font-size: 0.82rem !important;
-    padding: 6px 10px !important;
-    transition: all 0.15s ease !important;
-}}
+    font-size: 0.92rem !important;
+    padding: 12px 18px !important;
+    transition: all 0.18s ease !important;
+}
 
-div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
-    color: #52b6e8 !important;
-    background: rgba(82,182,232,0.14) !important;
-    border-bottom: 2px solid #52b6e8 !important;
-    border-radius: 10px 10px 0 0 !important;
-}}
+/* Active nav button */
+div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
+    background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
+    color: #0077b6 !important;
+    box-shadow:
+        0 4px 14px rgba(0,119,182,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.85) !important;
+    border: 1px solid rgba(0,119,182,0.12) !important;
+}
+
+/* Profile avatar */
+.top-avatar {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,#005bea,#00c6fb);
+    border: 3px solid white;
+    box-shadow: 0 8px 20px rgba(0,119,182,0.25);
+}
+
+/* Signout button */
+.signout-top-btn .stButton > button {
+    height: 48px !important;
+    border-radius: 999px !important;
+    padding: 0 1.6rem !important;
+    font-size: 0.95rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg,#005bea,#00c6fb) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 8px 18px rgba(0,119,182,0.25) !important;
+}
+
+/* Theme + back button */
+.back-icon-btn .stButton > button,
+.theme-top-btn .stButton > button {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 16px !important;
+    background: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(0,0,0,0.06) !important;
+    color: #1d3557 !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
+}
 
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
