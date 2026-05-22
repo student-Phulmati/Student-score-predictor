@@ -42,7 +42,7 @@ st.set_page_config(
     page_title=APP_NAME,
     page_icon=" ",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 def load_json(path, default):
@@ -189,18 +189,16 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Hide Streamlit top white header completely ── */
-    header[data-testid="stHeader"],
+    /* ── Keep Streamlit header minimal ── */
     .stApp > header {{
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        min-height: 0 !important;
         background: transparent !important;
+        height: 0rem !important;
+        display: block !important;
+        z-index: 99999 !important;
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden !important; display: none !important; height: 0 !important; }}
-    [data-testid="stToolbar"] {{ display: none !important; visibility: hidden !important; height: 0px !important; position: fixed !important; }}
+    #MainMenu, footer {{ visibility: hidden; height: 0; }}
+    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
 
     /* ── Background ── */
     .stApp {{
@@ -211,9 +209,8 @@ def apply_css():
         color: {text_primary};
         min-height: 100vh;
     }}
-    .main .block-container,
-    [data-testid="stMainBlockContainer"] {{
-        padding-top: 0rem !important;
+    .main .block-container {{
+        padding-top: 0.5rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
         margin-top: 0 !important;
@@ -229,160 +226,96 @@ def apply_css():
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
 
     /* ══════════════════════════════════════════
-       SIDEBAR DOUBLE ARROWS — FINAL FIX
-       Sidebar open   → « button hides sidebar
-       Sidebar closed → » button opens sidebar
+       SIDEBAR ARROWS — FIX 3
+       Sidebar open  → « collapse button (inside sidebar, top-right)
+       Sidebar closed → » expand button (fixed, top-left)
     ══════════════════════════════════════════ */
 
-    /* Keep sidebar visible and styled */
-    [data-testid="stSidebar"] {{
-        background: {sidebar_bg} !important;
-        border-right: 1px solid {border_color} !important;
-        backdrop-filter: blur(28px) !important;
-        -webkit-backdrop-filter: blur(28px) !important;
-        overflow: visible !important;
-        z-index: 99999 !important;
-    }}
-
-    [data-testid="stSidebarContent"] {{
-        padding-top: 58px !important;
-    }}
-
-    /* Hide Streamlit default icon/text inside sidebar buttons */
-    [data-testid="stSidebarCollapseButton"],
+    /* Hide raw text / SVG from Streamlit buttons */
     [data-testid="stSidebarCollapseButton"] button,
-    [data-testid="collapsedControl"],
-    [data-testid="collapsedControl"] button {{
+    [data-testid="collapsedControl"] {{
         font-size: 0 !important;
         color: transparent !important;
         overflow: hidden !important;
     }}
-
     [data-testid="stSidebarCollapseButton"] svg,
-    [data-testid="stSidebarCollapseButton"] span,
-    [data-testid="stSidebarCollapseButton"] p,
     [data-testid="collapsedControl"] svg,
-    [data-testid="collapsedControl"] span,
-    [data-testid="collapsedControl"] p {{
+    [data-testid="stSidebarCollapseButton"] span,
+    [data-testid="collapsedControl"] span {{
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
-        width: 0 !important;
-        height: 0 !important;
         font-size: 0 !important;
         color: transparent !important;
     }}
 
-    /* Sidebar open: show « inside sidebar */
+    /* Sidebar open: collapse «  */
     [data-testid="stSidebarCollapseButton"] {{
         position: absolute !important;
-        top: 16px !important;
-        right: 16px !important;
-        z-index: 9999999 !important;
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        border-radius: 13px !important;
-        background: rgba(5,10,50,0.94) !important;
-        border: 1.5px solid rgba(255,255,255,0.24) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 7px 22px rgba(0,0,0,0.30) !important;
+        top: 14px !important;
+        right: 14px !important;
+        z-index: 999999 !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.90) !important;
+        border: 1.5px solid rgba(255,255,255,0.20) !important;
+        display: flex !important; visibility: visible !important; opacity: 1 !important;
+        align-items: center !important; justify-content: center !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
         cursor: pointer !important;
         transition: all 0.18s ease !important;
     }}
-
     [data-testid="stSidebarCollapseButton"] button {{
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        border-radius: 13px !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        padding: 0 !important; margin: 0 !important;
+        border: none !important; border-radius: 10px !important;
+        background: transparent !important; box-shadow: none !important;
+        display: flex !important; align-items: center !important;
+        justify-content: center !important; cursor: pointer !important;
     }}
-
+    /* « arrow via pseudo-element */
     [data-testid="stSidebarCollapseButton"] button::before {{
         content: "«" !important;
+        font-size: 22px !important; line-height: 1 !important;
+        font-weight: 900 !important; color: white !important;
         display: block !important;
-        font-size: 26px !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        font-family: Arial, sans-serif !important;
     }}
-
     [data-testid="stSidebarCollapseButton"]:hover,
     [data-testid="stSidebarCollapseButton"] button:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.06) !important;
-        box-shadow: 0 10px 28px rgba(0,180,216,0.38) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
     }}
 
-    /* Sidebar closed: show » on left side */
+    /* Sidebar closed: expand »  */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
-        top: 16px !important;
-        left: 16px !important;
-        z-index: 9999999 !important;
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        border-radius: 13px !important;
-        background: rgba(5,10,50,0.94) !important;
-        border: 1.5px solid rgba(255,255,255,0.24) !important;
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 7px 22px rgba(0,0,0,0.30) !important;
+        top: 14px !important; left: 14px !important;
+        z-index: 999999 !important;
+        width: 36px !important; height: 36px !important;
+        min-width: 36px !important; min-height: 36px !important;
+        border-radius: 10px !important;
+        background: rgba(8,15,60,0.90) !important;
+        border: 1.5px solid rgba(255,255,255,0.20) !important;
+        display: flex !important; visibility: visible !important; opacity: 1 !important;
+        align-items: center !important; justify-content: center !important;
+        box-shadow: 0 4px 18px rgba(0,0,0,0.28) !important;
         cursor: pointer !important;
         transition: all 0.18s ease !important;
     }}
-
-    [data-testid="collapsedControl"] button {{
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        min-height: 40px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        border-radius: 13px !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        cursor: pointer !important;
-    }}
-
-    [data-testid="collapsedControl"]::before,
-    [data-testid="collapsedControl"] button::before {{
+    /* » arrow via pseudo-element */
+    [data-testid="collapsedControl"]::before {{
         content: "»" !important;
+        font-size: 22px !important; line-height: 1 !important;
+        font-weight: 900 !important; color: white !important;
         display: block !important;
-        font-size: 26px !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-        color: #ffffff !important;
-        font-family: Arial, sans-serif !important;
     }}
-
-    [data-testid="collapsedControl"]:hover,
-    [data-testid="collapsedControl"] button:hover {{
+    [data-testid="collapsedControl"]:hover {{
         background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
         transform: scale(1.06) !important;
-        box-shadow: 0 10px 28px rgba(0,180,216,0.38) !important;
+        box-shadow: 0 8px 24px rgba(0,180,216,0.35) !important;
     }}
 
     /* ══════════════════════════════════════════
@@ -390,14 +323,14 @@ def apply_css():
     ══════════════════════════════════════════ */
     .theme-row {{
         position: fixed !important;
-        top: 12px !important; right: 18px !important; left: auto !important;
+        top: 14px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
         width: 58px !important; height: 46px !important;
         display: flex !important; justify-content: flex-end !important; align-items: center !important;
     }}
     .theme-row .stButton {{
         position: fixed !important;
-        top: 12px !important; right: 18px !important; left: auto !important;
+        top: 14px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
     }}
     .theme-row button,
@@ -732,20 +665,151 @@ def apply_css():
     .stat-chip-num {{ font-size: 1.08rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
     .stat-chip-lbl {{ font-size: 0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
     .welcome-footer {{ text-align: center; font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding: 6px 0 10px 0; font-weight: 600; }}
+
+
+    /* ══════════════════════════════════════════
+       TOP NAV DASHBOARD LAYOUT — no sidebar
+    ══════════════════════════════════════════ */
+    [data-testid="stSidebar"], [data-testid="stSidebarNav"], [data-testid="stSidebarCollapseButton"], [data-testid="collapsedControl"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        min-width: 0 !important;
+    }
+    .main .block-container {
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+    }
+    .topbar-shell {
+        width: 100%;
+        min-height: 86px;
+        background: rgba(255,255,255,0.96);
+        border-bottom: 1px solid rgba(2,62,138,0.10);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        padding: 14px 24px 10px 24px;
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+    }
+    .top-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 180px;
+    }
+    .top-avatar {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(135deg,#caf0f8,#48cae4);
+        font-size: 1.6rem;
+        box-shadow: 0 6px 18px rgba(0,119,182,0.16);
+    }
+    .top-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .top-name {
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: #0b163f;
+        line-height: 1.1;
+    }
+    .top-role {
+        font-size: 0.80rem;
+        font-weight: 600;
+        color: #1c2d57;
+        margin-top: 4px;
+    }
+    .dash-page {
+        width: 100%;
+        min-height: calc(100vh - 86px);
+        padding: 54px 5vw 28px 5vw;
+        background: linear-gradient(90deg, rgba(3,10,36,0.78), rgba(9,34,78,0.72)), url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85');
+        background-size: cover;
+        background-position: center;
+    }
+    .dash-title {
+        font-size: clamp(2rem, 3vw, 2.7rem);
+        font-weight: 900;
+        color: #ffffff;
+        margin: 0 0 8px 0;
+        letter-spacing: -0.8px;
+    }
+    .dash-subtitle {
+        font-size: 1rem;
+        font-weight: 700;
+        color: rgba(255,255,255,0.88);
+        margin-bottom: 34px;
+    }
+    .chart-glass {
+        background: rgba(13,31,68,0.58);
+        border: 1px solid rgba(173,232,244,0.16);
+        box-shadow: 0 18px 50px rgba(0,0,0,0.30);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 24px;
+        padding: 18px 18px 4px 18px;
+        margin-top: 28px;
+    }
+    .top-spacer { height: 0px; }
+    .back-icon-btn .stButton > button,
+    .theme-top-btn .stButton > button {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        border-radius: 12px !important;
+        padding: 0 !important;
+        background: rgba(255,255,255,0.92) !important;
+        color: #0b265f !important;
+        border: 1px solid rgba(2,62,138,0.15) !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.10) !important;
+        font-size: 1.15rem !important;
+    }
+    .signout-top-btn .stButton > button {
+        height: 44px !important;
+        border-radius: 999px !important;
+        padding: 0.45rem 1.2rem !important;
+    }
+    div[data-testid="stSegmentedControl"] button {
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: #0b163f !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        font-weight: 800 !important;
+    }
+    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
+        color: #005bbb !important;
+        border-bottom: 3px solid #0077b6 !important;
+    }
+
     </style>
     """, unsafe_allow_html=True)
 
 apply_css()
 
 
-def theme_toggle_button(page_key=""):
-    """Render light/dark mode button at the top-right corner."""
+def theme_toggle_button(page_key="", welcome=False):
+    """Render light/dark mode button."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    st.markdown('<div class="theme-row">', unsafe_allow_html=True)
-    if st.button(emoji, key=f"theme_{page_key}"):
-        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    if welcome:
+        # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
+        st.markdown('<div class="welcome-icon-abs">', unsafe_allow_html=True)
+        if st.button(emoji, key=f"theme_{page_key}"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="theme-row">', unsafe_allow_html=True)
+        if st.button(emoji, key=f"theme_{page_key}"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
 
 def back_to_login_button(key_name="back_login"):
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -1021,15 +1085,25 @@ def welcome_page():
     card_desc = "#b8e0f7" if dark else "#0077b6"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # Mode icon fixed at top-right
-    theme_toggle_button("welcome")
+    # ── Title row: relative container so theme icon can be absolute-right ──
+    # We use a single st.columns([1, auto, tiny]) where tiny col holds the icon
+    title_col, icon_col = st.columns([15, 1])
 
-    st.markdown(f"""
-    <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
-      <h1 class='hero-title'>{APP_NAME}</h1>
-      <p class='hero-tagline'>{TAGLINE} ✨</p>
-    </div>
-    """, unsafe_allow_html=True)
+    with title_col:
+        st.markdown(f"""
+        <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
+          <h1 class='hero-title'>{APP_NAME}</h1>
+          <p class='hero-tagline'>{TAGLINE} ✨</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with icon_col:
+        # Minimal vertical centering — push button down to align with title center
+        st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
+        if st.button(emoji, key="theme_welcome"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # ── Content: no extra top/bottom gaps ──
     st.markdown(f"""
@@ -1088,14 +1162,19 @@ def auth_page():
     # ── Top bar: Back button LEFT, theme icon RIGHT — same row ──
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    theme_toggle_button("auth")
-
-    left_col, spacer_col = st.columns([2, 9])
+    left_col, spacer_col, right_col = st.columns([2, 8, 1])
 
     with left_col:
         st.markdown('<div class="auth-topbar-left">', unsafe_allow_html=True)
         if st.button("← Back to Home", key="auth_back"):
             st.session_state.auth_page = "welcome"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with right_col:
+        st.markdown('<div class="auth-topbar-right">', unsafe_allow_html=True)
+        if st.button(emoji, key="theme_auth"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1179,41 +1258,76 @@ def auth_page():
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# SIDEBAR
+# TOP NAVIGATION BAR  (matches your reference image)
 # =====================================================
-def sidebar(user):
-    with st.sidebar:
-        icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
-        st.markdown(f"<div class='avatar-circle'>{profile_pic_html(st.session_state.username, icon)}</div>", unsafe_allow_html=True)
-        st.markdown(f"<h3 style='text-align:center;margin:10px 0 2px'>{user.get('full_name', st.session_state.username)}</h3>", unsafe_allow_html=True)
-        st.markdown(f"<p class='subtext' style='text-align:center;margin-bottom:12px'>{user.get('role','student').title()} Account</p>", unsafe_allow_html=True)
-        st.markdown("---")
+def top_navbar(user):
+    name = user.get("full_name", st.session_state.username)
+    role = user.get("role", "student").title()
+    icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
+    emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-        pages  = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
-        labels = [p.split(" ",1)[1] for p in pages]
-        sel_idx = 0
-        for i, label in enumerate(labels):
-            if st.session_state.active_page == label:
-                sel_idx = i
-        selected = st.radio("Navigation", pages, index=sel_idx)
-        st.session_state.active_page = selected.split(" ",1)[1]
+    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
+    c_back, c_profile, c_nav, c_sign, c_theme = st.columns([0.55, 2.2, 6.4, 1.25, 0.55], vertical_alignment="center")
 
-        st.markdown("---")
-        if st.button("🚪 Sign Out", use_container_width=True):
-            st.session_state.logged_in  = False
-            st.session_state.username   = ""
-            st.session_state.auth_page  = "welcome"
+    with c_back:
+        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
+        if st.button("‹", key="top_back_login", help="Back to Login"):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.role = ""
+            st.session_state.auth_page = "login"
+            st.session_state.active_page = "Home"
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_profile:
+        st.markdown(f"""
+        <div class='top-profile'>
+          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
+          <div>
+            <div class='top-name'>{name}</div>
+            <div class='top-role'>{role} Account</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_nav:
+        nav_options = ["🏠 Home", "🔮 Prediction", "📄 Report & Share", "📚 History", "👤 Profile"]
+        current = next((x for x in nav_options if x.endswith(st.session_state.active_page)), "🏠 Home")
+        try:
+            selected = st.segmented_control("Navigation", nav_options, default=current, label_visibility="collapsed", key="top_nav")
+        except Exception:
+            selected = st.radio("Navigation", nav_options, index=nav_options.index(current), horizontal=True, label_visibility="collapsed", key="top_nav_radio")
+        if selected:
+            st.session_state.active_page = selected.split(" ", 1)[1]
+
+    with c_sign:
+        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
+        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
+            st.session_state.logged_in = False
+            st.session_state.username = ""
+            st.session_state.auth_page = "welcome"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_theme:
+        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="top_theme", help="Change Mode"):
+            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
 # =====================================================
 def home_page(user):
-    theme_toggle_button("home")
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
-    st.markdown(f"<div class='page-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
+    st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
+    st.markdown(f"<div class='dash-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
+    st.markdown("<div class='dash-subtitle'>Your academic performance dashboard — all insights in one place.</div>", unsafe_allow_html=True)
 
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
@@ -1224,13 +1338,15 @@ def home_page(user):
             st.markdown(f"<div class='metric-card'><div class='metric-value'>{val}</div><div class='metric-label'>{label}</div></div>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     if records:
+        st.markdown("<div class='chart-glass'>", unsafe_allow_html=True)
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.info("🚀 Go to the Prediction page and generate your first score!")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def prediction_page(user):
-    theme_toggle_button("pred")
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Enter academic details and get an AI-based predicted score.</p>", unsafe_allow_html=True)
 
@@ -1298,7 +1414,6 @@ def prediction_page(user):
 
 
 def report_page(user):
-    theme_toggle_button("report")
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp or email.</p>", unsafe_allow_html=True)
 
@@ -1341,7 +1456,6 @@ def report_page(user):
 
 
 def history_page(user):
-    theme_toggle_button("hist")
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
     records = user_history(st.session_state.username)
@@ -1360,7 +1474,6 @@ def history_page(user):
 
 
 def profile_page(user):
-    theme_toggle_button("prof")
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
 
@@ -1463,9 +1576,7 @@ def profile_page(user):
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
-    sidebar(user)
-
-    back_to_login_button("dashboard_back_login")
+    top_navbar(user)
 
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
