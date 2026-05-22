@@ -189,16 +189,18 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Keep Streamlit header minimal ── */
+    /* ── Hide Streamlit top white header completely ── */
+    header[data-testid="stHeader"],
     .stApp > header {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        min-height: 0 !important;
         background: transparent !important;
-        height: 0rem !important;
-        display: block !important;
-        z-index: 99999 !important;
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden; height: 0; }}
-    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
+    #MainMenu, footer {{ visibility: hidden !important; display: none !important; height: 0 !important; }}
+    [data-testid="stToolbar"] {{ display: none !important; visibility: hidden !important; height: 0px !important; position: fixed !important; }}
 
     /* ── Background ── */
     .stApp {{
@@ -209,8 +211,9 @@ def apply_css():
         color: {text_primary};
         min-height: 100vh;
     }}
-    .main .block-container {{
-        padding-top: 0.5rem !important;
+    .main .block-container,
+    [data-testid="stMainBlockContainer"] {{
+        padding-top: 0rem !important;
         padding-bottom: 1rem !important;
         max-width: 1180px;
         margin-top: 0 !important;
@@ -323,14 +326,14 @@ def apply_css():
     ══════════════════════════════════════════ */
     .theme-row {{
         position: fixed !important;
-        top: 14px !important; right: 18px !important; left: auto !important;
+        top: 12px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
         width: 58px !important; height: 46px !important;
         display: flex !important; justify-content: flex-end !important; align-items: center !important;
     }}
     .theme-row .stButton {{
         position: fixed !important;
-        top: 14px !important; right: 18px !important; left: auto !important;
+        top: 12px !important; right: 18px !important; left: auto !important;
         z-index: 999999 !important;
     }}
     .theme-row button,
@@ -671,23 +674,14 @@ def apply_css():
 apply_css()
 
 
-def theme_toggle_button(page_key="", welcome=False):
-    """Render light/dark mode button."""
+def theme_toggle_button(page_key=""):
+    """Render light/dark mode button at the top-right corner."""
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    if welcome:
-        # Welcome page: uses .welcome-icon-abs wrapper placed via HTML
-        st.markdown('<div class="welcome-icon-abs">', unsafe_allow_html=True)
-        if st.button(emoji, key=f"theme_{page_key}"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        st.markdown('<div class="theme-row">', unsafe_allow_html=True)
-        if st.button(emoji, key=f"theme_{page_key}"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
+    st.markdown('<div class="theme-row">', unsafe_allow_html=True)
+    if st.button(emoji, key=f"theme_{page_key}"):
+        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def back_to_login_button(key_name="back_login"):
     st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -963,25 +957,15 @@ def welcome_page():
     card_desc = "#b8e0f7" if dark else "#0077b6"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    # ── Title row: relative container so theme icon can be absolute-right ──
-    # We use a single st.columns([1, auto, tiny]) where tiny col holds the icon
-    title_col, icon_col = st.columns([15, 1])
+    # Mode icon fixed at top-right
+    theme_toggle_button("welcome")
 
-    with title_col:
-        st.markdown(f"""
-        <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
-          <h1 class='hero-title'>{APP_NAME}</h1>
-          <p class='hero-tagline'>{TAGLINE} ✨</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with icon_col:
-        # Minimal vertical centering — push button down to align with title center
-        st.markdown("<div style='padding-top:14px'>", unsafe_allow_html=True)
-        if st.button(emoji, key="theme_welcome"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="text-align:center; padding: 10px 0 4px 0; margin:0;">
+      <h1 class='hero-title'>{APP_NAME}</h1>
+      <p class='hero-tagline'>{TAGLINE} ✨</p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # ── Content: no extra top/bottom gaps ──
     st.markdown(f"""
@@ -1040,19 +1024,14 @@ def auth_page():
     # ── Top bar: Back button LEFT, theme icon RIGHT — same row ──
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
 
-    left_col, spacer_col, right_col = st.columns([2, 8, 1])
+    theme_toggle_button("auth")
+
+    left_col, spacer_col = st.columns([2, 9])
 
     with left_col:
         st.markdown('<div class="auth-topbar-left">', unsafe_allow_html=True)
         if st.button("← Back to Home", key="auth_back"):
             st.session_state.auth_page = "welcome"
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    with right_col:
-        st.markdown('<div class="auth-topbar-right">', unsafe_allow_html=True)
-        if st.button(emoji, key="theme_auth"):
-            st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
