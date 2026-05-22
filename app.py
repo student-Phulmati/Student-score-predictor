@@ -245,7 +245,7 @@ def apply_css():
         margin-top: 0 !important;
     }}
 
-  ```python
+```python
 /* ══════════════════════════════════════════
    TOP NAVIGATION BAR
 ══════════════════════════════════════════ */
@@ -266,17 +266,17 @@ def apply_css():
     z-index: 9999;
 }}
 
-/* Navigation buttons */
-div[data-testid="stSegmentedControl"] {
+/* Navigation buttons container */
+div[data-testid="stSegmentedControl"] {{
     background: rgba(255,255,255,0.65) !important;
     padding: 6px !important;
     border-radius: 18px !important;
     border: 1px solid rgba(0,0,0,0.05) !important;
     box-shadow: inset 0 2px 8px rgba(0,0,0,0.04);
-}
+}}
 
-/* Nav button */
-div[data-testid="stSegmentedControl"] button {
+/* Navigation buttons */
+div[data-testid="stSegmentedControl"] button {{
     border-radius: 14px !important;
     background: transparent !important;
     color: #1d3557 !important;
@@ -285,30 +285,30 @@ div[data-testid="stSegmentedControl"] button {
     font-size: 0.92rem !important;
     padding: 12px 18px !important;
     transition: all 0.18s ease !important;
-}
+}}
 
-/* Active nav button */
-div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
+/* Active navigation button */
+div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
     background: linear-gradient(135deg,#e3f2fd,#ffffff) !important;
     color: #0077b6 !important;
     box-shadow:
         0 4px 14px rgba(0,119,182,0.14),
         inset 0 1px 0 rgba(255,255,255,0.85) !important;
     border: 1px solid rgba(0,119,182,0.12) !important;
-}
+}}
 
 /* Profile avatar */
-.top-avatar {
+.top-avatar {{
     width: 62px;
     height: 62px;
     border-radius: 50%;
     background: linear-gradient(135deg,#005bea,#00c6fb);
     border: 3px solid white;
     box-shadow: 0 8px 20px rgba(0,119,182,0.25);
-}
+}}
 
 /* Signout button */
-.signout-top-btn .stButton > button {
+.signout-top-btn .stButton > button {{
     height: 48px !important;
     border-radius: 999px !important;
     padding: 0 1.6rem !important;
@@ -318,11 +318,11 @@ div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
     color: white !important;
     border: none !important;
     box-shadow: 0 8px 18px rgba(0,119,182,0.25) !important;
-}
+}}
 
 /* Theme + back button */
 .back-icon-btn .stButton > button,
-.theme-top-btn .stButton > button {
+.theme-top-btn .stButton > button {{
     width: 48px !important;
     height: 48px !important;
     border-radius: 16px !important;
@@ -330,7 +330,9 @@ div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
     border: 1px solid rgba(0,0,0,0.06) !important;
     color: #1d3557 !important;
     box-shadow: 0 4px 14px rgba(0,0,0,0.08) !important;
-}
+}}
+```
+
 
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
