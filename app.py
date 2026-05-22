@@ -1,3 +1,12 @@
+
+st.markdown("""
+<style>
+div[data-testid="stHorizontalBlock"] > div:has(div[style*='background: white']) {
+    display:none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 import streamlit as st
 import pandas as pd
 import numpy as np
