@@ -1651,6 +1651,136 @@ apply_header_title_active_fix()
 
 
 # =====================================================
+# FINAL WELCOME TEXT STYLE FIX — smaller welcome title + styled subtitle
+# =====================================================
+def apply_final_welcome_text_style_fix():
+    st.markdown("""
+    <style>
+    /* Welcome heading: smaller than ScoreWise AI title, cleaner premium style */
+    .dash-title,
+    .page-title {
+        font-family: "Trebuchet MS", "Plus Jakarta Sans", sans-serif !important;
+        font-size: clamp(1.18rem, 2.05vw, 1.82rem) !important;
+        line-height: 1.12 !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.35px !important;
+        margin-top: 4px !important;
+        margin-bottom: 0 !important;
+        color: #03045e !important;
+        text-shadow: 0 3px 14px rgba(255,255,255,0.56) !important;
+    }
+
+    /* Subtitle under Welcome: different text style, clear spacing, professional look */
+    .dash-subtitle,
+    .subtext {
+        font-family: "Segoe UI", "Plus Jakarta Sans", sans-serif !important;
+        display: block !important;
+        max-width: 760px !important;
+        margin-top: 14px !important;
+        margin-bottom: 18px !important;
+        font-size: clamp(0.82rem, 0.95vw, 0.94rem) !important;
+        line-height: 1.65 !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.15px !important;
+        color: #1f3266 !important;
+        text-shadow: 0 2px 10px rgba(255,255,255,0.45) !important;
+    }
+
+    /* Keep ScoreWise AI brand bigger than Welcome */
+    .header-app {
+        font-size: clamp(1.65rem, 2.55vw, 2.45rem) !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.75px !important;
+    }
+
+    @media (max-width: 1050px) {
+        .dash-title,
+        .page-title {
+            font-size: 1.55rem !important;
+        }
+        .dash-subtitle,
+        .subtext {
+            font-size: 0.84rem !important;
+            margin-top: 12px !important;
+        }
+    }
+
+    @media (max-width: 760px) {
+        .dash-title,
+        .page-title {
+            font-size: 1.35rem !important;
+        }
+        .dash-subtitle,
+        .subtext {
+            font-size: 0.78rem !important;
+            line-height: 1.55 !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_final_welcome_text_style_fix()
+
+
+# =====================================================
+# FINAL ACTIVE NAV COLOR FIX — active page shown by button color only
+# =====================================================
+def apply_active_nav_color_fix():
+    st.markdown("""
+    <style>
+    /* Inactive top navigation buttons: clean glass look */
+    .nav-tab .stButton > button {
+        background: rgba(255,255,255,0.62) !important;
+        color: #023e8a !important;
+        border: 1px solid rgba(0,119,182,0.18) !important;
+        box-shadow: 0 6px 16px rgba(3,4,94,0.08) !important;
+        transform: none !important;
+    }
+
+    .nav-tab .stButton > button:hover {
+        background: rgba(234,246,255,0.92) !important;
+        color: #004aad !important;
+        border-color: rgba(0,119,182,0.32) !important;
+        box-shadow: 0 8px 18px rgba(0,119,182,0.14) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Active page highlight: changed color so current page is clearly visible */
+    .nav-tab-active .stButton > button {
+        position: relative !important;
+        background: linear-gradient(135deg,#ff8a00,#ffb703,#ffd166) !important;
+        color: #03045e !important;
+        border: 1px solid rgba(255,255,255,0.70) !important;
+        box-shadow: 0 12px 28px rgba(255,183,3,0.34) !important;
+        transform: translateY(-1px) !important;
+        font-weight: 900 !important;
+    }
+
+    /* Remove old blue underline from active button and use soft glow only */
+    .nav-tab-active .stButton > button::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 26% !important;
+        right: 26% !important;
+        bottom: -6px !important;
+        height: 4px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg,#ff8a00,#ffb703,#ffd166) !important;
+        box-shadow: 0 6px 14px rgba(255,183,3,0.36) !important;
+    }
+
+    .nav-tab-active .stButton > button:hover {
+        background: linear-gradient(135deg,#ff9f1c,#ffb703,#ffe08a) !important;
+        color: #03045e !important;
+        transform: translateY(-1px) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_active_nav_color_fix()
+
+
+# =====================================================
 # MODEL AND PREDICTION
 # =====================================================
 @st.cache_resource
