@@ -1263,6 +1263,157 @@ def apply_professional_header_fix():
 apply_professional_header_fix()
 
 
+def apply_final_no_gap_header_fix():
+    st.markdown("""
+    <style>
+    /* ===== 10X FINAL FIX: remove blank white strip + tighten top/left gaps ===== */
+    .stApp > header,
+    header[data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        visibility: hidden !important;
+    }
+
+    html, body, .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stAppViewContainer"] > .main,
+    .main {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-top: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* This removes the empty white box created above the navbar */
+    .pro-header {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    /* Keep Streamlit rows tight so navbar and content stay close */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.15rem !important;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.65rem !important;
+        align-items: center !important;
+    }
+
+    /* Header column row arrangement */
+    .back-top-btn,
+    .nav-tab,
+    .nav-tab-active,
+    .circle-tool-btn,
+    .logout-small-btn {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .header-title-wrap {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.05 !important;
+    }
+
+    .back-top-btn .stButton > button {
+        width: 38px !important;
+        min-width: 38px !important;
+        height: 38px !important;
+        border-radius: 12px !important;
+        margin: 0 !important;
+    }
+
+    .nav-tab .stButton > button,
+    .nav-tab-active .stButton > button {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 10px !important;
+        font-size: 0.76rem !important;
+        margin: 0 !important;
+    }
+
+    .circle-tool-btn .stButton > button {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        margin: 0 !important;
+    }
+
+    .logout-small-btn .stButton > button {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 12px !important;
+        margin: 0 !important;
+    }
+
+    .corner-user {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .corner-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .dash-page {
+        padding: 10px 5.2vw 22px 5.2vw !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+
+    .dash-title,
+    .page-title {
+        margin-top: 0 !important;
+        margin-bottom: 3px !important;
+    }
+
+    .dash-subtitle,
+    .subtext {
+        margin-top: 0 !important;
+        margin-bottom: 10px !important;
+    }
+
+    .metric-card {
+        min-height: 96px !important;
+        padding: 10px 8px !important;
+    }
+
+    .chart-glass {
+        margin-top: 10px !important;
+    }
+
+    @media (max-width: 1050px) {
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.64rem !important;
+            padding: 0 5px !important;
+        }
+        .corner-name {
+            max-width: 62px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_final_no_gap_header_fix()
+
 # =====================================================
 # MODEL AND PREDICTION
 # =====================================================
@@ -1759,7 +1910,6 @@ def top_navbar(user):
         "Profile": "User account details",
     }
 
-    st.markdown('<div class="pro-header">', unsafe_allow_html=True)
     c_back, c_title, c_home, c_pred, c_report, c_hist, c_prof, c_user, c_theme, c_sign = st.columns(
         [0.55, 2.15, 0.72, 0.92, 0.92, 0.82, 0.82, 1.35, 0.48, 0.72],
         gap="small",
@@ -1833,7 +1983,6 @@ def top_navbar(user):
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
