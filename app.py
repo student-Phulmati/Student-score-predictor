@@ -24,9 +24,6 @@ from reportlab.graphics.shapes import Drawing, Line, String
 import plotly.graph_objects as go
 import plotly.express as px
 
-# =====================================================
-# CONSTANTS
-# =====================================================
 APP_NAME         = "🎓 ScoreWise AI"
 APP_NAME_PLAIN   = "ScoreWise AI"
 TAGLINE          = "Smart Student Performance Predictor"
@@ -37,7 +34,6 @@ PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 
-# ── Set your Gmail credentials here ──
 EMAIL_SENDER   = "your_email@gmail.com"
 EMAIL_PASSWORD = "your_gmail_app_password"
 
@@ -50,9 +46,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# =====================================================
-# UTILITY FUNCTIONS
-# =====================================================
 def load_json(path, default):
     if os.path.exists(path):
         try:
@@ -88,9 +81,6 @@ def profile_pic_html(username, fallback="🎓"):
         return f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
     return fallback
 
-# =====================================================
-# OTP FUNCTIONS
-# =====================================================
 def generate_otp():
     return str(random.randint(100000, 999999))
 
@@ -135,9 +125,6 @@ def send_otp_email(receiver, otp, name="User"):
     except Exception as e:
         return False, str(e)
 
-# =====================================================
-# SESSION STATE INIT
-# =====================================================
 def init_state():
     defaults = {
         "logged_in":         False,
@@ -159,9 +146,6 @@ def init_state():
 
 init_state()
 
-# =====================================================
-# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
-# =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
@@ -212,11 +196,13 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Hide Streamlit chrome ── */
-    .stApp > header {{ background: transparent !important; height: 0rem !important; }}
+    /* ── Hide Streamlit chrome completely ── */
+    .stApp > header {{ display: none !important; height: 0 !important; }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden; height: 0; }}
-    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
+    [data-testid="stHeader"] {{ display: none !important; height: 0 !important; }}
+    #MainMenu {{ display: none !important; }}
+    footer {{ display: none !important; height: 0 !important; }}
+    [data-testid="stToolbar"] {{ display: none !important; height: 0px !important; }}
     [data-testid="stSidebar"],
     [data-testid="stSidebarNav"],
     [data-testid="stSidebarCollapseButton"],
@@ -227,7 +213,7 @@ def apply_css():
         min-width: 0 !important;
     }}
 
-    /* ── App background ── */
+    /* ── Remove ALL top padding/margin from app ── */
     .stApp {{
         background: {app_bg} !important;
         background-size: cover !important;
@@ -235,7 +221,11 @@ def apply_css():
         background-attachment: fixed !important;
         color: {text_primary};
         min-height: 100vh;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
     }}
+
+    /* ── Block container: zero top padding ── */
     .main .block-container {{
         padding-top: 0 !important;
         padding-bottom: 1rem !important;
@@ -243,6 +233,37 @@ def apply_css():
         padding-right: 0 !important;
         max-width: 100% !important;
         margin-top: 0 !important;
+    }}
+
+    /* ── Remove stVerticalBlock gaps at top ── */
+    .stVerticalBlock > div:first-child {{
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }}
+
+    /* ── Kill the empty element gap that Streamlit injects ── */
+    section[data-testid="stMain"] > div {{
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }}
+    section[data-testid="stMain"] {{
+        padding-top: 0 !important;
+    }}
+
+    /* ── Segmented control white box killer ── */
+    [data-testid="stSegmentedControl"] > div:first-child {{
+        display: none !important;
+    }}
+    div[data-testid="stSegmentedControl"] {{
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }}
+    /* Hide the label of segmented control (causes white box) */
+    div[data-testid="stSegmentedControl"] label,
+    div[data-testid="stSegmentedControl"] > label {{
+        display: none !important;
     }}
 
     /* ══════════════════════════════════════════
@@ -285,7 +306,6 @@ def apply_css():
         color: {topbar_role}; margin-top: 2px;
     }}
 
-    /* Back icon button and theme button in topbar */
     .back-icon-btn .stButton > button,
     .theme-top-btn .stButton > button {{
         width: 42px !important; min-width: 42px !important;
@@ -312,10 +332,7 @@ def apply_css():
         font-size: 0.85rem !important;
     }}
 
-    /* Segmented control nav */
-    div[data-testid="stSegmentedControl"] {{
-        background: transparent !important;
-    }}
+    /* Segmented control nav buttons */
     div[data-testid="stSegmentedControl"] button {{
         border-radius: 10px !important;
         background: transparent !important;
@@ -335,12 +352,12 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       DASHBOARD PAGE AREA
+       DASHBOARD PAGE AREA — tight gap below topbar
     ══════════════════════════════════════════ */
     .dash-page {{
         width: 100%;
         min-height: calc(100vh - 72px);
-        padding: 36px 5vw 28px 5vw;
+        padding: 20px 5vw 28px 5vw;
     }}
     .dash-title {{
         font-size: clamp(1.8rem, 3vw, 2.5rem);
@@ -349,7 +366,7 @@ def apply_css():
     }}
     .dash-subtitle {{
         font-size: 0.95rem; font-weight: 700;
-        color: {text_secondary}; margin-bottom: 28px;
+        color: {text_secondary}; margin-bottom: 20px;
     }}
     .chart-glass {{
         background: {card_bg};
@@ -359,10 +376,9 @@ def apply_css():
         -webkit-backdrop-filter: blur(18px);
         border-radius: 24px;
         padding: 18px 18px 4px 18px;
-        margin-top: 20px;
+        margin-top: 16px;
     }}
 
-    /* ── Glass cards ── */
     .glass {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -373,14 +389,12 @@ def apply_css():
         padding: 26px;
     }}
 
-    /* ── Page title ── */
     .page-title {{
         font-size: 1.9rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
         color: {text_primary}; letter-spacing: -0.5px;
     }}
     .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 12px; font-weight: 600; }}
 
-    /* ── Metric cards ── */
     .metric-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -392,7 +406,6 @@ def apply_css():
     .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
     .metric-label {{ font-size: 0.72rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
 
-    /* ── Avatar ── */
     .avatar-circle {{
         width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
@@ -404,7 +417,6 @@ def apply_css():
     }}
     .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }}
 
-    /* ── All buttons default ── */
     .stButton > button,
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
@@ -425,7 +437,6 @@ def apply_css():
         color: white !important;
     }}
 
-    /* ── Inputs ── */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -461,7 +472,6 @@ def apply_css():
         background: {input_bg} !important;
     }}
 
-    /* Labels */
     label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
@@ -471,12 +481,10 @@ def apply_css():
         font-size: 0.87rem !important;
     }}
 
-    /* ── Tabs ── */
     [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
     [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
     [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
 
-    /* ── WhatsApp button ── */
     .whatsapp-btn {{
         display: inline-block; border-radius: 999px; padding: 11px 22px;
         color: white !important; text-decoration: none; font-weight: 900;
@@ -485,7 +493,6 @@ def apply_css():
         background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
-    /* ── Profile card ── */
     .profile-info-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -500,7 +507,6 @@ def apply_css():
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
     .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
-    /* ── Score badge ── */
     .score-badge {{
         display: inline-block; font-size: 3.4rem; font-weight: 900;
         color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
@@ -598,9 +604,6 @@ def apply_css():
 
 apply_css()
 
-# =====================================================
-# MODEL AND PREDICTION
-# =====================================================
 @st.cache_resource
 def load_model_files():
     if os.path.exists(MODEL_FILE) and os.path.exists(COLUMNS_FILE):
@@ -634,9 +637,6 @@ def get_recommendations(d):
     if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
-# =====================================================
-# HISTORY AND PDF
-# =====================================================
 def user_history(username):
     all_h = load_json(HISTORY_FILE, {})
     return all_h.get(username, [])
@@ -763,9 +763,6 @@ def generate_pdf(username, user_data, score, inputs, recs):
     buffer.seek(0)
     return buffer.read()
 
-# =====================================================
-# CHART HELPERS
-# =====================================================
 def get_chart_colors():
     dark = st.session_state.theme == "dark"
     return {
@@ -932,14 +929,13 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  (Login + OTP Signup)
+# AUTH PAGE
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
-    # Top bar: Back | spacer | Theme
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -954,7 +950,6 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
@@ -963,7 +958,6 @@ def auth_page():
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
-        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -977,7 +971,6 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
-        # ── SIGNUP WITH OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -1001,7 +994,6 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            # Send OTP button
             if st.button("📨 Send OTP to Email", key="send_otp_btn", use_container_width=True):
                 if not email:
                     st.warning("Please enter your email first.")
@@ -1104,16 +1096,17 @@ def top_navbar(user):
         current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
         try:
             selected = st.segmented_control(
-                "Navigation", nav_options,
+                "nav",
+                nav_options,
                 default=current_full,
-                label_visibility="collapsed",
+                label_visibility="hidden",
                 key="top_nav"
             )
         except Exception:
             idx = nav_options.index(current_full) if current_full in nav_options else 0
             selected = st.radio(
-                "Navigation", nav_options, index=idx,
-                horizontal=True, label_visibility="collapsed",
+                "nav", nav_options, index=idx,
+                horizontal=True, label_visibility="hidden",
                 key="top_nav_radio"
             )
         if selected:
@@ -1144,7 +1137,6 @@ def top_navbar(user):
 # INNER PAGES
 # =====================================================
 
-# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
@@ -1181,7 +1173,6 @@ def home_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
@@ -1269,7 +1260,6 @@ def prediction_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
@@ -1339,7 +1329,6 @@ def report_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
@@ -1363,7 +1352,6 @@ def history_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
@@ -1389,7 +1377,6 @@ def profile_page(user):
         edit = st.session_state.profile_edit_mode
 
         if not edit:
-            # View mode
             st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
@@ -1424,7 +1411,6 @@ def profile_page(user):
                 st.rerun()
 
         else:
-            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
@@ -1501,7 +1487,7 @@ def profile_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# MAIN APP SHELL  (Top Navbar + Page Router)
+# MAIN APP SHELL
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
