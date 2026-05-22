@@ -37,6 +37,7 @@ PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 
+# ── Set your Gmail credentials here ──
 EMAIL_SENDER   = "your_email@gmail.com"
 EMAIL_PASSWORD = "your_gmail_app_password"
 
@@ -151,7 +152,7 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
-        "saved_inputs":      {},
+        "saved_prediction_inputs": {},
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -160,7 +161,7 @@ def init_state():
 init_state()
 
 # =====================================================
-# CSS
+# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
 # =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
@@ -182,6 +183,10 @@ def apply_css():
         accent1       = "#52b6e8"
         accent2       = "#38a8dc"
         accent3       = "#1a95cc"
+        topbar_bg     = "rgba(8,18,60,0.96)"
+        topbar_border = "rgba(82,182,232,0.18)"
+        topbar_text   = "#eaf4ff"
+        topbar_role   = "#88c0e8"
         shadow        = "0 16px 50px rgba(0,0,0,0.28)"
     else:
         app_bg        = f"linear-gradient(135deg,rgba(240,250,255,0.84) 0%,rgba(220,242,255,0.88) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(245,252,255,0.50) 0%,rgba(210,240,255,0.40) 100%), url('{BG_IMAGE}')"
@@ -197,6 +202,10 @@ def apply_css():
         accent1       = "#0077b6"
         accent2       = "#0096c7"
         accent3       = "#00b4d8"
+        topbar_bg     = "rgba(255,255,255,0.97)"
+        topbar_border = "rgba(2,62,138,0.12)"
+        topbar_text   = "#03045e"
+        topbar_role   = "#0077b6"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
 
     st.markdown(f"""
@@ -204,27 +213,11 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Hide ALL Streamlit chrome — header box, toolbar, decoration ── */
-    .stApp > header,
-    [data-testid="stHeader"],
-    [data-testid="stDecoration"],
-    [data-testid="stToolbar"],
-    [data-testid="stStatusWidget"],
-    #MainMenu,
-    footer,
-    header {{
-        display: none !important;
-        visibility: hidden !important;
-        height: 0px !important;
-        min-height: 0px !important;
-        max-height: 0px !important;
-        overflow: hidden !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        pointer-events: none !important;
-    }}
-
-    /* ── Hide sidebar ── */
+    /* ── Hide Streamlit chrome ── */
+    .stApp > header {{ background: transparent !important; height: 0rem !important; }}
+    [data-testid="stDecoration"] {{ display: none !important; }}
+    #MainMenu, footer {{ visibility: hidden; height: 0; }}
+    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
     [data-testid="stSidebar"],
     [data-testid="stSidebarNav"],
     [data-testid="stSidebarCollapseButton"],
@@ -235,13 +228,6 @@ def apply_css():
         min-width: 0 !important;
     }}
 
-    /* ── Root reset ── */
-    html, body {{
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow-x: hidden !important;
-    }}
-
     /* ── App background ── */
     .stApp {{
         background: {app_bg} !important;
@@ -250,355 +236,727 @@ def apply_css():
         background-attachment: fixed !important;
         color: {text_primary};
         min-height: 100vh;
-        margin-top: 0 !important;
-        padding-top: 0 !important;
     }}
-
-    /* ── Remove all top padding from Streamlit containers ── */
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container,
-    [data-testid="stMainBlockContainer"],
-    [data-testid="stAppViewContainer"],
-    [data-testid="stMain"],
-    section[data-testid="stMain"] > div:first-child {{
+    .main .block-container {{
         padding-top: 0 !important;
-        margin-top: 0 !important;
-    }}
-    .main .block-container,
-    [data-testid="stMainBlockContainer"] {{
         padding-bottom: 1rem !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
         max-width: 100% !important;
+        margin-top: 0 !important;
     }}
 
     /* ══════════════════════════════════════════
        TOP NAVIGATION BAR
     ══════════════════════════════════════════ */
     .topbar-shell {{
-        width: 100vw !important;
-        background: rgba(255,255,255,0.98) !important;
-        border-bottom: 1px solid rgba(2,62,138,0.08) !important;
-        box-shadow: 0 4px 18px rgba(3,4,94,0.10) !important;
-        backdrop-filter: blur(28px) !important;
-        -webkit-backdrop-filter: blur(28px) !important;
-        padding: 8px 14px !important;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 999999 !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        min-height: 62px !important;
-    }}
-    .brand-wrap {{
-        display:flex; align-items:center; gap:9px; min-width:0;
-    }}
-    .brand-logo {{
-        width:42px; height:42px; border-radius:50%;
-        display:flex; align-items:center; justify-content:center;
-        background:linear-gradient(135deg,#004aad,#00b4d8);
-        box-shadow:0 5px 16px rgba(0,119,182,0.25);
-        color:white; font-size:1.22rem; flex-shrink:0;
-    }}
-    .brand-title {{
-        color:#03045e; font-weight:900; font-size:1.18rem;
-        line-height:1; letter-spacing:-0.5px; white-space:nowrap;
-    }}
-    .brand-sub {{
-        color:#023e8a; font-weight:600; font-size:0.62rem;
-        margin-top:4px; white-space:nowrap;
+        width: 100%;
+        background: {topbar_bg};
+        border-bottom: 1px solid {topbar_border};
+        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        padding: 10px 20px 8px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 9999;
     }}
     .top-profile {{
-        display:flex; align-items:center; gap:7px; min-width:0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }}
     .top-avatar {{
-        width:42px; height:42px; border-radius:50%;
-        display:flex; align-items:center; justify-content:center; overflow:hidden;
-        background:linear-gradient(135deg,#0077b6,#90e0ef);
-        font-size:1.3rem; box-shadow:0 4px 14px rgba(0,119,182,0.20);
-        border:2px solid {accent2}; flex-shrink:0;
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
+        font-size: 1.5rem;
+        box-shadow: 0 4px 14px rgba(0,119,182,0.30);
+        border: 2px solid {accent2};
+        flex-shrink: 0;
     }}
     .top-name {{
-        font-size:0.82rem; font-weight:900; color:#03045e; line-height:1.1;
-        max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+        font-size: 1.05rem; font-weight: 900;
+        color: {topbar_text}; line-height: 1.1;
     }}
     .top-role {{
-        font-size:0.58rem; font-weight:600; color:#334b78; margin-top:3px; white-space:nowrap;
+        font-size: 0.75rem; font-weight: 600;
+        color: {topbar_role}; margin-top: 2px;
     }}
-    .back-icon-btn .stButton > button {{
-        width:42px !important; min-width:42px !important; height:42px !important;
-        border-radius:12px !important; padding:0 !important;
-        background:#ffffff !important; color:#03045e !important;
-        border:1.5px solid rgba(2,62,138,0.14) !important;
-        box-shadow:0 4px 12px rgba(3,4,94,0.08) !important;
-        font-size:1.15rem !important; font-weight:900 !important;
-        transition:all 0.18s ease !important;
+
+    /* Back icon button and theme button in topbar */
+    .back-icon-btn .stButton > button,
+    .theme-top-btn .stButton > button {{
+        width: 42px !important; min-width: 42px !important;
+        height: 42px !important; border-radius: 12px !important;
+        padding: 0 !important;
+        background: {'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'} !important;
+        color: {topbar_text} !important;
+        border: 1px solid {topbar_border} !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+        font-size: 1.1rem !important;
+        transition: all 0.18s ease !important;
     }}
-    .back-icon-btn .stButton > button:hover {{
-        background:#eef7ff !important; color:#004aad !important;
-        transform:translateX(-2px) !important;
-    }}
-    .nav-pill .stButton > button {{
-        width:100% !important; min-height:42px !important; height:42px !important;
-        padding:0 8px !important; border-radius:11px !important;
-        background:transparent !important; color:#1f3266 !important;
-        border:0 !important; box-shadow:none !important;
-        font-size:0.80rem !important; font-weight:800 !important;
-        line-height:1 !important; white-space:nowrap !important;
-        transition:all 0.15s ease !important;
-    }}
-    .nav-pill .stButton > button:hover {{
-        background:#eef7ff !important; color:#0057c7 !important;
-        transform:none !important; box-shadow:none !important;
-    }}
-    .nav-pill-active .stButton > button {{
-        background:#e8f3ff !important; color:#0057c7 !important;
-        box-shadow:0 4px 12px rgba(0,119,182,0.09) !important;
+    .back-icon-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
     }}
     .signout-top-btn .stButton > button {{
-        height:42px !important; min-height:42px !important;
-        border-radius:13px !important; padding:0 12px !important;
-        background:linear-gradient(135deg,#004aad,#0066d9) !important;
-        color:white !important; font-size:0.78rem !important; font-weight:900 !important;
-        box-shadow:0 6px 16px rgba(0,74,173,0.22) !important; white-space:nowrap !important;
+        height: 42px !important;
+        border-radius: 999px !important;
+        padding: 0 1.1rem !important;
+        font-size: 0.85rem !important;
     }}
-    .theme-top-btn .stButton > button {{
-        width:42px !important; min-width:42px !important; height:42px !important;
-        padding:0 !important; border-radius:50% !important;
-        background:#eaf4ff !important; color:#0057c7 !important;
-        border:0 !important; box-shadow:none !important; font-size:1.05rem !important;
+
+    /* Segmented control nav */
+    div[data-testid="stSegmentedControl"] {{
+        background: transparent !important;
+    }}
+    div[data-testid="stSegmentedControl"] button {{
+        border-radius: 10px !important;
+        background: transparent !important;
+        color: {topbar_role} !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        padding: 6px 10px !important;
+        transition: all 0.15s ease !important;
+    }}
+    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+        color: {'#52b6e8' if dark else '#0077b6'} !important;
+        background: {'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'} !important;
+        border-bottom: 2px solid {'#52b6e8' if dark else '#0077b6'} !important;
+        border-radius: 10px 10px 0 0 !important;
     }}
 
     /* ══════════════════════════════════════════
        DASHBOARD PAGE AREA
     ══════════════════════════════════════════ */
     .dash-page {{
-        width:100%;
-        padding:20px 3.5vw 28px 3.5vw !important;
-        min-height:calc(100vh - 62px) !important;
+        width: 100%;
+        min-height: calc(100vh - 72px);
+        padding: 36px 5vw 28px 5vw;
     }}
     .dash-title {{
-        font-size:clamp(1.5rem,2.6vw,2.2rem); font-weight:900;
-        color:{text_primary}; margin:0 0 4px 0; letter-spacing:-0.5px;
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 900; color: {text_primary};
+        margin: 0 0 4px 0; letter-spacing: -0.6px;
     }}
     .dash-subtitle {{
-        font-size:0.90rem; font-weight:700;
-        color:{text_secondary}; margin-bottom:20px;
+        font-size: 0.95rem; font-weight: 700;
+        color: {text_secondary}; margin-bottom: 28px;
     }}
     .chart-glass {{
-        background:{card_bg}; border:1px solid {border_color};
-        box-shadow:{shadow}; backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
-        border-radius:24px; padding:18px 18px 4px 18px; margin-top:16px;
+        background: {card_bg};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 24px;
+        padding: 18px 18px 4px 18px;
+        margin-top: 20px;
     }}
-    .glass {{
-        background:{card_bg}; border:1px solid {border_color};
-        box-shadow:{shadow}; backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-        border-radius:24px; padding:26px;
-    }}
-    .page-title {{
-        font-size:1.7rem; font-weight:900; margin-bottom:2px; margin-top:0;
-        color:{text_primary}; letter-spacing:-0.5px;
-    }}
-    .subtext {{ color:{text_secondary}; font-size:0.88rem; margin-bottom:14px; font-weight:600; }}
-    .metric-card {{
-        background:{card_bg}; border:1px solid {border_color};
-        box-shadow:{shadow}; backdrop-filter:blur(18px);
-        border-radius:20px; padding:16px 12px; text-align:center;
-        transition:0.22s ease; min-height:118px !important;
-        display:flex; flex-direction:column; align-items:center; justify-content:center;
-    }}
-    .metric-card:hover {{ transform:translateY(-3px); }}
-    .metric-value {{ font-size:2.05rem; font-weight:900; color:{accent1}; line-height:1; }}
-    .metric-label {{ font-size:0.76rem; color:{text_muted}; text-transform:uppercase;
-        letter-spacing:1px; margin-top:10px; font-weight:800; }}
-    .metric-accent {{ width:52px; height:3px; border-radius:999px; margin:12px auto 0 auto; }}
-    .avatar-circle {{
-        width:86px; height:86px; border-radius:50%;
-        display:flex; align-items:center; justify-content:center;
-        overflow:hidden; margin:auto; border:3px solid {accent2};
-        background:linear-gradient(135deg,{accent1},{accent3});
-        font-size:2rem; box-shadow:0 10px 30px rgba(0,0,0,0.20);
-    }}
-    .avatar-circle img {{ width:100%; height:100%; object-fit:cover; border-radius:50%; }}
 
-    /* All buttons default */
+    /* ── Glass cards ── */
+    .glass {{
+        background: {card_bg};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 26px;
+    }}
+
+    /* ── Page title ── */
+    .page-title {{
+        font-size: 1.9rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
+        color: {text_primary}; letter-spacing: -0.5px;
+    }}
+    .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 12px; font-weight: 600; }}
+
+    /* ── Metric cards ── */
+    .metric-card {{
+        background: {card_bg};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(18px);
+        border-radius: 20px; padding: 20px 12px; text-align: center; transition: 0.22s ease;
+    }}
+    .metric-card:hover {{ transform: translateY(-3px); background: {soft_card_bg}; }}
+    .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
+    .metric-label {{ font-size: 0.72rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
+
+    /* ── Avatar ── */
+    .avatar-circle {{
+        width: 86px; height: 86px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; margin: auto;
+        border: 3px solid {accent2};
+        background: linear-gradient(135deg,{accent1},{accent3});
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
+    }}
+    .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }}
+
+    /* ── All buttons default ── */
     .stButton > button,
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
-        border-radius:999px !important; border:0 !important;
-        font-weight:800 !important; cursor:pointer !important;
-        padding:0.60rem 1.4rem !important;
-        background:linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8) !important;
-        color:white !important;
-        box-shadow:0 8px 22px rgba(0,119,182,0.28) !important;
-        transition:all 0.20s ease !important;
+        border-radius: 999px !important; border: 0 !important;
+        font-weight: 800 !important; cursor: pointer !important;
+        padding: 0.60rem 1.4rem !important;
+        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8) !important;
+        color: white !important;
+        box-shadow: 0 8px 22px rgba(0,119,182,0.28) !important;
+        transition: all 0.20s ease !important;
     }}
     .stButton > button:hover,
     [data-testid="stDownloadButton"] button:hover,
     .stFormSubmitButton > button:hover {{
-        transform:translateY(-2px) scale(1.01) !important;
-        box-shadow:0 14px 32px rgba(0,180,216,0.36) !important;
-        background:linear-gradient(135deg,#0077b6,#00b4d8,#7dd8f5) !important;
-        color:white !important;
+        transform: translateY(-2px) scale(1.01) !important;
+        box-shadow: 0 14px 32px rgba(0,180,216,0.36) !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8,#7dd8f5) !important;
+        color: white !important;
     }}
 
-    /* Inputs */
-    .stTextInput input, .stNumberInput input, .stDateInput input,
-    .stPasswordInput input, textarea {{
-        background:{input_bg} !important; color:{input_text} !important;
-        border:1.5px solid {input_border} !important;
-        border-radius:12px !important; font-weight:600 !important;
-        caret-color:{input_text} !important;
+    /* ── Inputs ── */
+    .stTextInput input,
+    .stNumberInput input,
+    .stDateInput input,
+    .stPasswordInput input,
+    textarea {{
+        background: {input_bg} !important;
+        color: {input_text} !important;
+        border: 1.5px solid {input_border} !important;
+        border-radius: 12px !important;
+        font-weight: 600 !important;
+        caret-color: {input_text} !important;
     }}
-    .stTextInput input::placeholder, .stPasswordInput input::placeholder {{
-        color:rgba(10,15,60,0.45) !important;
+    .stTextInput input::placeholder,
+    .stPasswordInput input::placeholder {{
+        color: rgba(10,15,60,0.45) !important;
     }}
     .stSelectbox [data-baseweb="select"] > div {{
-        background:{input_bg} !important; color:{input_text} !important;
-        border:1.5px solid {input_border} !important; border-radius:12px !important;
+        background: {input_bg} !important;
+        color: {input_text} !important;
+        border: 1.5px solid {input_border} !important;
+        border-radius: 12px !important;
     }}
     .stSelectbox [data-baseweb="select"] span,
     .stSelectbox [data-baseweb="select"] div,
-    .stSelectbox [data-baseweb="select"] input {{ color:{input_text} !important; }}
-    [data-baseweb="menu"] {{ background:{input_bg} !important; }}
-    [data-baseweb="menu"] li {{ color:{input_text} !important; font-weight:600 !important; }}
-    [data-baseweb="menu"] li:hover {{ background:rgba(0,150,220,0.14) !important; }}
+    .stSelectbox [data-baseweb="select"] input {{
+        color: {input_text} !important;
+    }}
+    [data-baseweb="menu"] {{ background: {input_bg} !important; }}
+    [data-baseweb="menu"] li {{ color: {input_text} !important; font-weight: 600 !important; }}
+    [data-baseweb="menu"] li:hover {{ background: rgba(0,150,220,0.14) !important; }}
     [data-testid="stNumberInputField"] input {{
-        color:{input_text} !important; background:{input_bg} !important;
+        color: {input_text} !important;
+        background: {input_bg} !important;
     }}
 
     /* Labels */
-    label, p {{ color:{text_primary} !important; }}
+    label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
     [data-baseweb="form-control"] label, .stSlider label {{
-        color:{text_primary} !important; font-weight:700 !important; font-size:0.87rem !important;
+        color: {text_primary} !important;
+        font-weight: 700 !important;
+        font-size: 0.87rem !important;
     }}
 
-    /* Tabs */
-    [data-baseweb="tab-list"] {{ background:transparent !important; border-bottom:1px solid {border_color} !important; }}
-    [data-baseweb="tab"] {{ color:{text_muted} !important; font-weight:800 !important; }}
-    [aria-selected="true"][data-baseweb="tab"] {{ color:{accent1} !important; border-bottom:3px solid {accent1} !important; }}
+    /* ── Tabs ── */
+    [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
+    [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
+    [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
 
-    /* WhatsApp button */
+    /* ── WhatsApp button ── */
     .whatsapp-btn {{
-        display:inline-block; border-radius:999px; padding:11px 22px;
-        color:white !important; text-decoration:none; font-weight:900;
-        margin:6px 4px; font-size:0.92rem;
-        box-shadow:0 8px 22px rgba(0,0,0,0.18);
-        background:linear-gradient(135deg,#25D366,#128C7E);
+        display: inline-block; border-radius: 999px; padding: 11px 22px;
+        color: white !important; text-decoration: none; font-weight: 900;
+        margin: 6px 4px; font-size: 0.92rem;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+        background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
-    /* Profile card */
+    /* ── Profile card ── */
     .profile-info-card {{
-        background:{card_bg}; border:1px solid {border_color};
-        backdrop-filter:blur(18px); border-radius:20px; padding:22px;
+        background: {card_bg};
+        border: 1px solid {border_color};
+        backdrop-filter: blur(18px);
+        border-radius: 20px; padding: 22px;
     }}
     .profile-field {{
-        display:flex; justify-content:space-between; gap:14px;
-        padding:10px 0; border-bottom:1px solid {border_color}; font-size:0.92rem;
+        display: flex; justify-content: space-between; gap: 14px;
+        padding: 10px 0; border-bottom: 1px solid {border_color}; font-size: 0.92rem;
     }}
-    .profile-field:last-child {{ border-bottom:none; }}
-    .pf-label {{ color:{text_muted}; font-weight:800; }}
-    .pf-value {{ color:{text_primary}; font-weight:900; }}
+    .profile-field:last-child {{ border-bottom: none; }}
+    .pf-label {{ color: {text_muted}; font-weight: 800; }}
+    .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
-    /* Score badge */
+    /* ── Score badge ── */
     .score-badge {{
-        display:inline-block; font-size:3.4rem; font-weight:900;
-        color:{accent1}; padding:16px 32px; border-radius:22px; text-align:center;
-        background:{card_bg}; border:1px solid {border_color}; backdrop-filter:blur(16px);
+        display: inline-block; font-size: 3.4rem; font-weight: 900;
+        color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
+        background: {card_bg};
+        border: 1px solid {border_color};
+        backdrop-filter: blur(16px);
     }}
 
-    hr {{ border-color:{border_color} !important; }}
-    .stAlert {{ border-radius:16px !important; }}
-    .stDataFrame {{ border-radius:16px; overflow:hidden; }}
+    hr {{ border-color: {border_color} !important; }}
+    .stAlert {{ border-radius: 16px !important; }}
+    .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
 
     /* ══════════════════════════════════════════
        WELCOME PAGE
     ══════════════════════════════════════════ */
     .hero-title {{
-        font-size:clamp(2.2rem,4.5vw,3.4rem); font-weight:900;
-        color:{'white' if dark else '#03045e'}; margin:0;
-        letter-spacing:-1px; text-shadow:0 3px 18px rgba(0,0,0,0.25); line-height:1.05;
+        font-size: clamp(2.2rem,4.5vw,3.4rem); font-weight: 900;
+        color: {'white' if dark else '#03045e'}; margin: 0;
+        letter-spacing: -1px; text-shadow: 0 3px 18px rgba(0,0,0,0.25); line-height: 1.05;
     }}
     .hero-tagline {{
-        font-size:1.02rem; color:{'#b8e0f7' if dark else '#0077b6'};
-        font-weight:600; margin:6px 0 0 0;
+        font-size: 1.02rem; color: {'#b8e0f7' if dark else '#0077b6'};
+        font-weight: 600; margin: 6px 0 0 0;
     }}
     .welcome-divider {{
-        border:0; height:1px;
-        background:{'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
-        margin:10px auto 14px auto; max-width:600px;
+        border: 0; height: 1px;
+        background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
+        margin: 10px auto 14px auto; max-width: 600px;
     }}
-    .feature-cards-row {{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; margin:0 0 18px 0; }}
+    .feature-cards-row {{ display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 0 0 18px 0; }}
     .feat-card {{
-        flex:1 1 200px; max-width:250px;
-        background:{'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};
-        border:1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};
-        border-radius:18px; padding:20px 16px 16px 16px;
-        text-align:center; backdrop-filter:blur(16px);
-        box-shadow:0 10px 30px rgba(0,0,0,0.14); transition:transform 0.20s ease;
+        flex: 1 1 200px; max-width: 250px;
+        background: {'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};
+        border: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};
+        border-radius: 18px; padding: 20px 16px 16px 16px;
+        text-align: center; backdrop-filter: blur(16px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.14); transition: transform 0.20s ease;
     }}
-    .feat-card:hover {{ transform:translateY(-4px); }}
-    .feat-icon {{ font-size:2rem; display:block; margin-bottom:7px; }}
-    .feat-title {{ font-size:1rem; font-weight:900; color:{'white' if dark else '#03045e'}; margin:0 0 4px 0; }}
-    .feat-sep {{ width:32px; height:3px; background:linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius:99px; margin:0 auto 8px auto; }}
-    .feat-desc {{ font-size:0.78rem; color:{'#b8e0f7' if dark else '#0077b6'}; font-weight:600; line-height:1.55; }}
-    .used-for-row {{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:0 0 6px 0; }}
-    .used-item {{ text-align:center; padding:4px 8px; }}
-    .used-icon {{ font-size:1.4rem; display:block; margin-bottom:2px; }}
-    .used-label {{ font-size:0.67rem; font-weight:800; color:{'#b8e0f7' if dark else '#023e8a'}; text-transform:uppercase; letter-spacing:0.6px; }}
+    .feat-card:hover {{ transform: translateY(-4px); }}
+    .feat-icon {{ font-size: 2rem; display:block; margin-bottom:7px; }}
+    .feat-title {{ font-size: 1rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 4px 0; }}
+    .feat-sep {{ width: 32px; height: 3px; background: linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius: 99px; margin: 0 auto 8px auto; }}
+    .feat-desc {{ font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; font-weight: 600; line-height: 1.55; }}
+    .used-for-row {{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 6px 0; }}
+    .used-item {{ text-align: center; padding: 4px 8px; }}
+    .used-icon {{ font-size: 1.4rem; display:block; margin-bottom:2px; }}
+    .used-label {{ font-size: 0.67rem; font-weight: 800; color: {'#b8e0f7' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
     .stats-strip {{
-        display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
-        padding:12px 10px;
-        border-top:1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
-        border-bottom:1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
-        margin:12px 0 16px 0;
+        display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
+        padding: 12px 10px;
+        border-top: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
+        border-bottom: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
+        margin: 12px 0 16px 0;
     }}
     .stat-chip {{
-        display:flex; align-items:center; gap:6px; padding:6px 12px;
-        border-radius:999px; background:rgba(0,180,216,0.12);
-        border:1px solid rgba(0,180,216,0.22);
+        display: flex; align-items: center; gap: 6px; padding: 6px 12px;
+        border-radius: 999px; background: rgba(0,180,216,0.12);
+        border: 1px solid rgba(0,180,216,0.22);
     }}
-    .stat-chip-num {{ font-size:1.08rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
-    .stat-chip-lbl {{ font-size:0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
-    .welcome-footer {{ text-align:center; font-size:0.78rem; color:{'#b8e0f7' if dark else '#0077b6'}; padding:6px 0 10px 0; font-weight:600; }}
+    .stat-chip-num {{ font-size: 1.08rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
+    .stat-chip-lbl {{ font-size: 0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
+    .welcome-footer {{ text-align: center; font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding: 6px 0 10px 0; font-weight: 600; }}
 
-    /* Auth page buttons */
+    /* ── Auth page back button ── */
     .back-btn-wrap .stButton > button {{
-        background:{card_bg} !important; border:1.5px solid {border_color} !important;
-        color:{text_primary} !important; box-shadow:0 2px 10px rgba(0,0,0,0.12) !important;
-        padding:0.38rem 1.1rem !important; font-size:0.88rem !important; border-radius:999px !important;
+        background: {card_bg} !important;
+        border: 1.5px solid {border_color} !important;
+        color: {text_primary} !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important;
+        padding: 0.38rem 1.1rem !important;
+        font-size: 0.88rem !important;
+        border-radius: 999px !important;
     }}
     .back-btn-wrap .stButton > button:hover {{
-        background:{soft_card_bg} !important; transform:translateX(-2px) !important;
+        background: {soft_card_bg} !important;
+        transform: translateX(-2px) !important;
     }}
     .auth-theme-btn .stButton > button {{
-        width:46px !important; height:40px !important; min-width:46px !important;
-        border-radius:12px !important; padding:0 !important; font-size:1.1rem !important;
-        background:{'rgba(8,15,60,0.85)' if dark else 'rgba(255,255,255,0.85)'} !important;
-        border:1.4px solid {border_color} !important;
-        box-shadow:0 4px 14px rgba(0,0,0,0.18) !important; color:{text_primary} !important;
+        width: 46px !important; height: 40px !important;
+        min-width: 46px !important; border-radius: 12px !important;
+        padding: 0 !important; font-size: 1.1rem !important;
+        background: {'rgba(8,15,60,0.85)' if dark else 'rgba(255,255,255,0.85)'} !important;
+        border: 1.4px solid {border_color} !important;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
+        color: {text_primary} !important;
     }}
     .auth-theme-btn .stButton > button:hover {{
-        transform:scale(1.06) !important; border-color:#00b4d8 !important;
-        background:linear-gradient(135deg,#0077b6,#00b4d8) !important; color:white !important;
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
     }}
 
-    @media (max-width:1100px) {{
-        .brand-sub, .top-role {{ display:none !important; }}
-        .brand-title {{ font-size:1.00rem !important; }}
-        .nav-pill .stButton > button {{ font-size:0.72rem !important; padding:0 4px !important; }}
-        .signout-top-btn .stButton > button {{ font-size:0.70rem !important; padding:0 8px !important; }}
-        .top-name {{ max-width:65px !important; font-size:0.74rem !important; }}
+    /* ══════════════════════════════════════════
+       WEBSITE STYLE DASHBOARD TOPBAR OVERRIDES
+    ══════════════════════════════════════════ */
+    .topbar-shell {{
+        width: 100% !important;
+        background: rgba(255,255,255,0.98) !important;
+        border-bottom: 1px solid rgba(2,62,138,0.08) !important;
+        box-shadow: 0 8px 28px rgba(3,4,94,0.10) !important;
+        padding: 14px 18px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9999 !important;
     }}
-    @media (max-width:760px) {{
-        .brand-title {{ display:none !important; }}
-        .nav-pill .stButton > button {{ font-size:0.66rem !important; }}
-        .top-profile {{ display:none !important; }}
-        .dash-page {{ padding:12px 16px 22px 16px !important; }}
+
+    .brand-wrap {{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        min-width:230px;
     }}
-    </style>
+    .brand-logo {{
+        width:54px;
+        height:54px;
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:linear-gradient(135deg,#004aad,#00b4d8);
+        box-shadow:0 7px 20px rgba(0,119,182,0.25);
+        color:white;
+        font-size:1.55rem;
+        flex-shrink:0;
+    }}
+    .brand-title {{
+        color:#03045e;
+        font-weight:900;
+        font-size:1.55rem;
+        line-height:1;
+        letter-spacing:-0.5px;
+    }}
+    .brand-sub {{
+        color:#023e8a;
+        font-weight:600;
+        font-size:0.72rem;
+        margin-top:5px;
+    }}
+
+    .back-icon-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:12px !important;
+        background:#ffffff !important;
+        color:#03045e !important;
+        border:1.5px solid rgba(2,62,138,0.14) !important;
+        box-shadow:0 8px 20px rgba(3,4,94,0.08) !important;
+        font-size:1.25rem !important;
+        font-weight:900 !important;
+    }}
+    .back-icon-btn .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#004aad !important;
+        transform:translateX(-2px) !important;
+        border-color:rgba(0,119,182,0.25) !important;
+    }}
+
+    .nav-pill .stButton > button {{
+        width:100% !important;
+        min-height:52px !important;
+        padding:0 16px !important;
+        border-radius:12px !important;
+        background:transparent !important;
+        color:#1f3266 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:0.98rem !important;
+        font-weight:800 !important;
+    }}
+    .nav-pill .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#0057c7 !important;
+        transform:none !important;
+        box-shadow:none !important;
+    }}
+    .nav-pill-active .stButton > button {{
+        background:#e8f3ff !important;
+        color:#0057c7 !important;
+        box-shadow:0 6px 18px rgba(0,119,182,0.09) !important;
+    }}
+
+    .signout-top-btn .stButton > button {{
+        height:52px !important;
+        border-radius:18px !important;
+        padding:0 24px !important;
+        background:linear-gradient(135deg,#004aad,#0066d9) !important;
+        color:white !important;
+        font-size:0.95rem !important;
+        font-weight:900 !important;
+        box-shadow:0 10px 22px rgba(0,74,173,0.25) !important;
+        white-space:nowrap !important;
+    }}
+
+    .theme-top-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:50% !important;
+        background:#eaf4ff !important;
+        color:#0057c7 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:1.1rem !important;
+    }}
+
+    .top-profile {{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:10px !important;
+        min-width:130px !important;
+    }}
+    .top-avatar {{
+        width:52px !important;
+        height:52px !important;
+        border-radius:50% !important;
+        background:linear-gradient(135deg,#0077b6,#90e0ef) !important;
+        color:white !important;
+        border:0 !important;
+        box-shadow:0 7px 20px rgba(0,119,182,0.20) !important;
+        font-size:1.45rem !important;
+    }}
+    .top-name {{
+        color:#03045e !important;
+        font-size:1.02rem !important;
+        font-weight:900 !important;
+        line-height:1.05 !important;
+    }}
+    .top-role {{
+        color:#334b78 !important;
+        font-size:0.72rem !important;
+        font-weight:600 !important;
+        margin-top:4px !important;
+        white-space:nowrap !important;
+    }}
+
+    .dash-page {{
+        padding:54px 3.8vw 34px 3.8vw !important;
+        min-height:calc(100vh - 82px) !important;
+    }}
+    .dash-title {{
+        color:#03045e !important;
+        font-size:clamp(2.0rem,3.1vw,2.8rem) !important;
+        margin-bottom:16px !important;
+    }}
+    .dash-subtitle {{
+        color:#1f3266 !important;
+        font-size:1.02rem !important;
+        margin-bottom:38px !important;
+    }}
+    .metric-card {{
+        min-height:164px !important;
+        border-radius:24px !important;
+        background:rgba(255,255,255,0.78) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }}
+    .metric-value {{
+        color:#0066d9 !important;
+        font-size:2.8rem !important;
+        line-height:1 !important;
+    }}
+    .metric-label {{
+        color:#334b78 !important;
+        font-size:0.92rem !important;
+        margin-top:20px !important;
+        letter-spacing:0 !important;
+    }}
+    .metric-accent {{
+        width:64px;
+        height:4px;
+        border-radius:999px;
+        margin:22px auto 0 auto;
+    }}
+    .chart-glass {{
+        background:rgba(255,255,255,0.76) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        border-radius:24px !important;
+        padding:18px 24px 8px 24px !important;
+        margin-top:34px !important;
+    }}
+
+    @media (max-width: 900px) {{
+        .brand-sub {{ display:none; }}
+        .brand-title {{ font-size:1.15rem; }}
+        .nav-pill .stButton > button {{ font-size:0.78rem !important; padding:0 6px !important; }}
+        .dash-page {{ padding-left:22px !important; padding-right:22px !important; }}
+    }}
+
+
+
+    /* =====================================================
+       FINAL STREAMLIT FIT FIX — compact navbar + no big gap
+       ===================================================== */
+    html, body, .stApp {{
+        overflow-x: hidden !important;
+    }}
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {{
+        padding-top: 0rem !important;
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
+        max-width: 100% !important;
+    }}
+    .topbar-shell {{
+        width: 100vw !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 8px 14px !important;
+        min-height: 66px !important;
+        display: block !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999999 !important;
+    }}
+    .brand-wrap {{
+        min-width: 0 !important;
+        gap: 9px !important;
+    }}
+    .brand-logo,
+    .top-avatar,
+    .theme-top-btn .stButton > button,
+    .back-icon-btn .stButton > button {{
+        width: 42px !important;
+        min-width: 42px !important;
+        height: 42px !important;
+    }}
+    .brand-logo {{ font-size: 1.22rem !important; }}
+    .brand-title {{
+        font-size: 1.18rem !important;
+        white-space: nowrap !important;
+    }}
+    .brand-sub {{
+        font-size: 0.62rem !important;
+        white-space: nowrap !important;
+    }}
+    .nav-pill .stButton > button,
+    .nav-pill-active .stButton > button {{
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 8px !important;
+        border-radius: 11px !important;
+        font-size: 0.80rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }}
+    .signout-top-btn .stButton > button {{
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 13px !important;
+        padding: 0 12px !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+    }}
+    .top-profile {{ min-width: 0 !important; gap: 7px !important; }}
+    .top-name {{
+        font-size: 0.82rem !important;
+        max-width: 92px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }}
+    .top-role {{
+        font-size: 0.58rem !important;
+        max-width: 92px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }}
+    .dash-page {{
+        padding: 16px 3.2vw 26px 3.2vw !important;
+        min-height: calc(100vh - 66px) !important;
+    }}
+    .dash-title {{
+        margin-top: 0 !important;
+        margin-bottom: 6px !important;
+        font-size: clamp(1.45rem, 2.4vw, 2.1rem) !important;
+    }}
+    .dash-subtitle {{
+        margin-bottom: 18px !important;
+        font-size: 0.90rem !important;
+    }}
+    .metric-card {{
+        min-height: 118px !important;
+        padding: 14px 8px !important;
+    }}
+    .metric-value {{ font-size: 2.05rem !important; }}
+    .metric-label {{
+        font-size: 0.76rem !important;
+        margin-top: 10px !important;
+    }}
+    .metric-accent {{
+        margin-top: 12px !important;
+        height: 3px !important;
+    }}
+    .chart-glass {{ margin-top: 18px !important; }}
+
+    @media (max-width: 1100px) {{
+        .brand-sub, .top-role {{ display: none !important; }}
+        .brand-title {{ font-size: 1.00rem !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.72rem !important; padding: 0 4px !important; }}
+        .signout-top-btn .stButton > button {{ font-size: 0.70rem !important; padding: 0 8px !important; }}
+        .top-name {{ max-width: 65px !important; font-size: 0.74rem !important; }}
+    }}
+    @media (max-width: 760px) {{
+        .brand-title {{ display: none !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.66rem !important; }}
+        .top-profile {{ display: none !important; }}
+        .dash-page {{ padding: 12px 16px 22px 16px !important; }}
+    }}
+    
+
+    /* =====================================================
+       FINAL CLEAN LAYOUT UPDATE
+       ===================================================== */
+    .topbar-shell.clean-header {
+        background: transparent !important;
+        border-bottom: 0 !important;
+        box-shadow: none !important;
+        padding: 10px 4.6vw 8px 4.6vw !important;
+        min-height: 62px !important;
+    }
+    .header-spacer {
+        height: 1px !important;
+    }
+    .nav-pill, .nav-pill-active {
+        display: none !important;
+    }
+    .dash-page {
+        padding-top: 12px !important;
+    }
+    .auth-page-shell {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    .glass {
+        margin-top: 0 !important;
+    }
+    .prediction-action-row {
+        margin-top: 18px !important;
+        padding-top: 10px !important;
+    }
+    div[data-testid="stVerticalBlock"]:has(> div.element-container div[style*="height: 70px"]) {
+        display:none !important;
+    }
+</style>
     """, unsafe_allow_html=True)
 
 apply_css()
@@ -630,13 +988,13 @@ def predict_score(data):
 
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:            recs.append("📚 Improve daily study hours to 6–8 hours.")
-    if d["Attendance"] < 80:              recs.append("🏫 Keep attendance above 80% for stronger performance.")
-    if d["Sleep_Hours"] < 7:              recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
-    if d["Motivation_Level"] == "Low":    recs.append("🎯 Set small daily goals and track your progress.")
-    if d["Internet_Access"] == "No":      recs.append("📖 Use offline notes, library support, and teacher guidance.")
-    if d["Learning_Resources"] == "Low":  recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
-    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
+    if d["Hours_Studied"] < 6:           recs.append("📚 Improve daily study hours to 6–8 hours.")
+    if d["Attendance"] < 80:             recs.append("🏫 Keep attendance above 80% for stronger performance.")
+    if d["Sleep_Hours"] < 7:             recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
+    if d["Motivation_Level"] == "Low":   recs.append("🎯 Set small daily goals and track your progress.")
+    if d["Internet_Access"] == "No":     recs.append("📖 Use offline notes, library support, and teacher guidance.")
+    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
+    if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
 # =====================================================
@@ -937,14 +1295,15 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE
+# AUTH PAGE  (Login + OTP Signup)
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
-    left_col, spacer_col, right_col = st.columns([2, 8, 1])
+    st.markdown("<div class='auth-page-shell'>", unsafe_allow_html=True)
+    left_col, right_col = st.columns([8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
         if st.button("← Back to Home", key="auth_back"):
@@ -958,6 +1317,7 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
@@ -966,7 +1326,7 @@ def auth_page():
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
-        # LOGIN
+        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -980,7 +1340,7 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
-        # SIGNUP WITH OTP
+        # ── SIGNUP WITH OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -1004,6 +1364,7 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
+            # Send OTP button
             if st.button("📨 Send OTP to Email", key="send_otp_btn", use_container_width=True):
                 if not email:
                     st.warning("Please enter your email first.")
@@ -1062,6 +1423,7 @@ def auth_page():
                         st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
 # TOP NAVIGATION BAR
@@ -1072,10 +1434,11 @@ def top_navbar(user):
     icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
     emoji = "🌙" if st.session_state.theme == "light" else "☀️"
 
-    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
+    st.markdown('<div class="topbar-shell clean-header">', unsafe_allow_html=True)
 
-    c_back, c_brand, c_nav, c_sign, c_theme, c_profile = st.columns(
-        [0.45, 2.10, 6.10, 1.15, 0.50, 1.25], vertical_alignment="center"
+    # Only fixed upper content. Navigation menu buttons are removed.
+    c_back, c_brand, c_space, c_sign, c_theme, c_profile = st.columns(
+        [0.55, 2.55, 5.20, 1.20, 0.55, 1.55], vertical_alignment="center"
     )
 
     with c_back:
@@ -1100,23 +1463,8 @@ def top_navbar(user):
         </div>
         """, unsafe_allow_html=True)
 
-    with c_nav:
-        nav_options = [
-            ("🏠 Home", "Home"),
-            ("📈 Predict", "Prediction"),
-            ("📄 Report", "Report & Share"),
-            ("◔ History", "History"),
-            ("👤 Profile", "Profile"),
-        ]
-        nav_cols = st.columns([1, 1.15, 1.55, 1, 1], gap="small")
-        for col, (label, page_name) in zip(nav_cols, nav_options):
-            with col:
-                active_cls = " nav-pill-active" if st.session_state.active_page == page_name else ""
-                st.markdown(f'<div class="nav-pill{active_cls}">', unsafe_allow_html=True)
-                if st.button(label, key=f"nav_{page_name}", use_container_width=True):
-                    st.session_state.active_page = page_name
-                    st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
+    with c_space:
+        st.markdown("<div class='header-spacer'></div>", unsafe_allow_html=True)
 
     with c_sign:
         st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
@@ -1124,6 +1472,7 @@ def top_navbar(user):
             st.session_state.logged_in  = False
             st.session_state.username   = ""
             st.session_state.auth_page  = "welcome"
+            st.session_state.active_page = "Home"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1151,7 +1500,7 @@ def top_navbar(user):
 # INNER PAGES
 # =====================================================
 
-# HOME
+# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
@@ -1160,10 +1509,28 @@ def home_page(user):
     st.markdown(f"<div class='dash-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
     st.markdown("<p class='dash-subtitle'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
 
+    qa1, qa2, qa3, qa4 = st.columns(4)
+    with qa1:
+        if st.button("📈 Prediction", use_container_width=True, key="home_to_prediction"):
+            st.session_state.active_page = "Prediction"
+            st.rerun()
+    with qa2:
+        if st.button("📄 Report", use_container_width=True, key="home_to_report"):
+            st.session_state.active_page = "Report & Share"
+            st.rerun()
+    with qa3:
+        if st.button("◔ History", use_container_width=True, key="home_to_history"):
+            st.session_state.active_page = "History"
+            st.rerun()
+    with qa4:
+        if st.button("👤 Profile", use_container_width=True, key="home_to_profile"):
+            st.session_state.active_page = "Profile"
+            st.rerun()
+
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
     metrics = [
-        ("🎯 Attempts",   len(records)),
+        ("🎯 Attempts",  len(records)),
         ("🏆 Best Score", max(scores) if scores else 0),
         ("📊 Average",    int(np.mean(scores)) if scores else 0),
         ("🕐 Last Score", scores[-1] if scores else 0),
@@ -1191,111 +1558,84 @@ def home_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# PREDICTION PAGE
-# — Save button: sirf session me data save karta hai (page change nahi hoti)
-# — Predict button: score predict karke Report & Share page par redirect karta hai
+# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
-    st.markdown("<p class='subtext'>Fill details, save your data, then click Predict to see your full report.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='subtext'>Enter academic details. Use Save Values to store form values, or Predict & Generate Report to open the full report page.</p>", unsafe_allow_html=True)
 
-    # Pehle se saved values default me dikhao
-    saved = st.session_state.get("saved_inputs", {})
+    saved = st.session_state.get("saved_prediction_inputs", {}) or {}
 
-    col1, col2 = st.columns(2)
-    with col1:
-        hours       = st.number_input("📖 Hours Studied (per day)", 0, 24,
-                                      saved.get("Hours_Studied", 5), 1, key="pi_hours")
-        attendance  = st.number_input("🏫 Attendance (%)", 0, 100,
-                                      saved.get("Attendance", 75), 1, key="pi_att")
-        previous    = st.number_input("📝 Previous Score", 0, 100,
-                                      saved.get("Previous_Scores", 60), 1, key="pi_prev")
-        sleep       = st.number_input("😴 Sleep Hours", 0, 12,
-                                      saved.get("Sleep_Hours", 7), 1, key="pi_sleep")
-        motivation  = st.selectbox("💡 Motivation Level", ["Low","Medium","High"],
-                                   index=["Low","Medium","High"].index(saved.get("Motivation_Level","Medium")),
-                                   key="pi_mot")
-        teacher     = st.selectbox("👨‍🏫 Teacher Quality", ["Poor","Average","Good"],
-                                   index=["Poor","Average","Good"].index(saved.get("Teacher_Quality","Average")),
-                                   key="pi_teach")
-        school_type = st.selectbox("🏢 School Type", ["Public","Private"],
-                                   index=["Public","Private"].index(saved.get("School_Type","Public")),
-                                   key="pi_stype")
-    with col2:
-        internet    = st.selectbox("🌐 Internet Access", ["Yes","No"],
-                                   index=["Yes","No"].index(saved.get("Internet_Access","Yes")),
-                                   key="pi_net")
-        income      = st.selectbox("💰 Family Income", ["Low","Medium","High"],
-                                   index=["Low","Medium","High"].index(saved.get("Family_Income","Medium")),
-                                   key="pi_inc")
-        parental    = st.selectbox("👨‍👩‍👦 Parental Involvement", ["Low","Medium","High"],
-                                   index=["Low","Medium","High"].index(saved.get("Parental_Involvement","Medium")),
-                                   key="pi_par")
-        education   = st.selectbox("🎓 Parent Education", ["School","College"],
-                                   index=["School","College"].index(saved.get("Parental_Education_Level","School")),
-                                   key="pi_edu")
-        peer        = st.selectbox("🤝 Peer Influence", ["Negative","Neutral","Positive"],
-                                   index=["Negative","Neutral","Positive"].index(saved.get("Peer_Influence","Neutral")),
-                                   key="pi_peer")
-        resources   = st.selectbox("📚 Learning Resources", ["Low","Medium","High"],
-                                   index=["Low","Medium","High"].index(saved.get("Learning_Resources","Medium")),
-                                   key="pi_res")
-        activities  = st.selectbox("⚽ Extracurricular", ["Yes","No"],
-                                   index=["Yes","No"].index(saved.get("Extracurricular_Activities","Yes")),
-                                   key="pi_act")
+    with st.form("prediction_form"):
+        col1, col2 = st.columns(2)
+        with col1:
+            hours       = st.number_input("📖 Hours Studied (per day)", 0, 24, int(saved.get("Hours_Studied", 5)), 1)
+            attendance  = st.number_input("🏫 Attendance (%)",           0, 100, int(saved.get("Attendance", 75)), 1)
+            previous    = st.number_input("📝 Previous Score",           0, 100, int(saved.get("Previous_Scores", 60)), 1)
+            sleep       = st.number_input("😴 Sleep Hours",              0, 12, int(saved.get("Sleep_Hours", 7)), 1)
+            motivation  = st.selectbox("💡 Motivation Level",  ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Motivation_Level", "Medium")) if saved.get("Motivation_Level", "Medium") in ["Low","Medium","High"] else 1)
+            teacher     = st.selectbox("👨‍🏫 Teacher Quality",   ["Poor","Average","Good"], index=["Poor","Average","Good"].index(saved.get("Teacher_Quality", "Average")) if saved.get("Teacher_Quality", "Average") in ["Poor","Average","Good"] else 1)
+            school_type = st.selectbox("🏢 School Type",        ["Public","Private"], index=["Public","Private"].index(saved.get("School_Type", "Public")) if saved.get("School_Type", "Public") in ["Public","Private"] else 0)
+        with col2:
+            internet    = st.selectbox("🌐 Internet Access",    ["Yes","No"], index=["Yes","No"].index(saved.get("Internet_Access", "Yes")) if saved.get("Internet_Access", "Yes") in ["Yes","No"] else 0)
+            income      = st.selectbox("💰 Family Income",      ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Family_Income", "Medium")) if saved.get("Family_Income", "Medium") in ["Low","Medium","High"] else 1)
+            parental    = st.selectbox("👨‍👩‍👦 Parental Involvement",["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Parental_Involvement", "Medium")) if saved.get("Parental_Involvement", "Medium") in ["Low","Medium","High"] else 1)
+            education   = st.selectbox("🎓 Parent Education",   ["School","College"], index=["School","College"].index(saved.get("Parental_Education_Level", "School")) if saved.get("Parental_Education_Level", "School") in ["School","College"] else 0)
+            peer        = st.selectbox("🤝 Peer Influence",     ["Negative","Neutral","Positive"], index=["Negative","Neutral","Positive"].index(saved.get("Peer_Influence", "Neutral")) if saved.get("Peer_Influence", "Neutral") in ["Negative","Neutral","Positive"] else 1)
+            resources   = st.selectbox("📚 Learning Resources", ["Low","Medium","High"], index=["Low","Medium","High"].index(saved.get("Learning_Resources", "Medium")) if saved.get("Learning_Resources", "Medium") in ["Low","Medium","High"] else 1)
+            activities  = st.selectbox("⚽ Extracurricular",    ["Yes","No"], index=["Yes","No"].index(saved.get("Extracurricular_Activities", "Yes")) if saved.get("Extracurricular_Activities", "Yes") in ["Yes","No"] else 0)
 
-    # Abhi ke values dict
-    current_data = {
-        "Hours_Studied":              int(hours),
-        "Attendance":                 int(attendance),
-        "Previous_Scores":            int(previous),
-        "Sleep_Hours":                int(sleep),
-        "Motivation_Level":           motivation,
-        "Teacher_Quality":            teacher,
-        "School_Type":                school_type,
-        "Internet_Access":            internet,
-        "Family_Income":              income,
-        "Parental_Involvement":       parental,
-        "Parental_Education_Level":   education,
-        "Peer_Influence":             peer,
-        "Learning_Resources":         resources,
+        st.markdown("<div class='prediction-action-row'>", unsafe_allow_html=True)
+        col_save, col_predict = st.columns(2)
+        with col_save:
+            save_clicked = st.form_submit_button("💾 Save Values", use_container_width=True)
+        with col_predict:
+            predict_clicked = st.form_submit_button("🚀 Predict & Generate Report", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    data = {
+        "Hours_Studied":          int(hours),
+        "Attendance":             int(attendance),
+        "Previous_Scores":        int(previous),
+        "Sleep_Hours":            int(sleep),
+        "Motivation_Level":       motivation,
+        "Teacher_Quality":        teacher,
+        "School_Type":            school_type,
+        "Internet_Access":        internet,
+        "Family_Income":          income,
+        "Parental_Involvement":   parental,
+        "Parental_Education_Level": education,
+        "Peer_Influence":         peer,
+        "Learning_Resources":     resources,
         "Extracurricular_Activities": activities,
     }
 
-    st.markdown("<br>", unsafe_allow_html=True)
+    if save_clicked:
+        st.session_state.saved_prediction_inputs = data
+        st.success("✅ Values saved. You can come back and continue from these values.")
 
-    # Do buttons: Save aur Predict — side by side (beech mein spacer)
-    btn_l, btn_save, btn_space, btn_predict, btn_r = st.columns([0.5, 2, 0.4, 2, 0.5])
-
-    with btn_save:
-        if st.button("💾 Save Data", use_container_width=True, key="save_data_btn"):
-            st.session_state.saved_inputs = current_data
-            st.success("✅ Data saved! Values will remain when you come back.")
-
-    with btn_predict:
-        if st.button("🚀 Predict My Score", use_container_width=True, key="predict_btn"):
-            score  = predict_score(current_data)
-            recs   = get_recommendations(current_data)
-            record = {
-                "date":            datetime.now().strftime("%d-%m-%Y %H:%M"),
-                "score":           score,
-                "inputs":          current_data,
-                "recommendations": recs
-            }
-            save_prediction(st.session_state.username, record)
-            st.session_state.last_score  = score
-            st.session_state.last_inputs = current_data
-            st.session_state.last_recs   = recs
-            st.session_state.last_pdf    = generate_pdf(
-                st.session_state.username, user, score, current_data, recs)
-            # Seedha Report & Share page par bhejo
-            st.session_state.active_page = "Report & Share"
-            st.rerun()
+    if predict_clicked:
+        st.session_state.saved_prediction_inputs = data
+        score  = predict_score(data)
+        recs   = get_recommendations(data)
+        record = {
+            "date":            datetime.now().strftime("%d-%m-%Y %H:%M"),
+            "score":           score,
+            "inputs":          data,
+            "recommendations": recs
+        }
+        save_prediction(st.session_state.username, record)
+        st.session_state.last_score  = score
+        st.session_state.last_inputs = data
+        st.session_state.last_recs   = recs
+        st.session_state.last_pdf    = generate_pdf(st.session_state.username, user, score, data, recs)
+        st.session_state.active_page = "Report & Share"
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# REPORT & SHARE
+# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
@@ -1318,42 +1658,37 @@ def report_page(user):
     pdf    = st.session_state.last_pdf or generate_pdf(
                  st.session_state.username, user, score, inputs, recs)
 
-    # Score display
-    status = "🌟 Excellent!" if score>=85 else ("👍 Good" if score>=70 else "📈 Needs Work")
-    st.markdown(f"""
-    <div style='text-align:center;padding:18px 0 10px 0'>
-      <div class='score-badge'>{score}<span style='font-size:1.2rem'>/100</span></div>
-      <p style='margin-top:10px;font-size:1.05rem;font-weight:700'>{status}</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Download + WhatsApp side by side
-    dl_col, wa_col = st.columns([1, 1])
-    with dl_col:
-        st.download_button(
-            "📥 Download PDF Report", data=pdf,
-            file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
-            mime="application/pdf", use_container_width=True
-        )
-    with wa_col:
-        share_text = (
-            f"🎓 {APP_NAME_PLAIN} Report%0A"
-            f"Predicted Score: {score}/100%0A"
-            f"Hours Studied: {inputs.get('Hours_Studied')}%0A"
-            f"Attendance: {inputs.get('Attendance')}%25"
-        )
-        wa_url = "https://wa.me/?text=" + share_text
+    col1, col2, col3 = st.columns([1,1,1])
+    with col2:
         st.markdown(f"""
-        <div style='text-align:center;padding-top:6px'>
-          <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
+        <div class='metric-card'>
+          <div class='metric-label'>Predicted Score</div>
+          <div class='metric-value'>{score}/100</div>
         </div>
         """, unsafe_allow_html=True)
 
-    st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.download_button(
+        "📥 Download PDF Report", data=pdf,
+        file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
+        mime="application/pdf", use_container_width=True
+    )
 
-    # Graphs
-    st.markdown("### 📊 Performance Analysis")
+    share_text = (
+        f"🎓 {APP_NAME_PLAIN} Report%0A"
+        f"Predicted Score: {score}/100%0A"
+        f"Hours Studied: {inputs.get('Hours_Studied')}%0A"
+        f"Attendance: {inputs.get('Attendance')}%25"
+    )
+    wa_url = "https://wa.me/?text=" + share_text
+    st.markdown(f"""
+    <div style='text-align:center;margin:16px 0'>
+      <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Share on WhatsApp</a>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption("Note: PDF attachment ke liye pehle download karein, phir WhatsApp me manually attach karein.")
+
+    st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
     with col_g1:
         st.plotly_chart(radar_chart(inputs), use_container_width=True)
@@ -1370,7 +1705,7 @@ def report_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# HISTORY
+# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
@@ -1394,7 +1729,7 @@ def history_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
-# PROFILE
+# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
@@ -1420,6 +1755,7 @@ def profile_page(user):
         edit = st.session_state.profile_edit_mode
 
         if not edit:
+            # View mode
             st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
@@ -1454,6 +1790,7 @@ def profile_page(user):
                 st.rerun()
 
         else:
+            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
@@ -1530,7 +1867,7 @@ def profile_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# MAIN APP SHELL
+# MAIN APP SHELL  (Top Navbar + Page Router)
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
