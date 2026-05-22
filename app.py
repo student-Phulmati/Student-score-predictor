@@ -37,6 +37,7 @@ PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 
+# ── Set your Gmail credentials here ──
 EMAIL_SENDER   = "your_email@gmail.com"
 EMAIL_PASSWORD = "your_gmail_app_password"
 
@@ -79,16 +80,11 @@ def save_profile_pic(username, image_bytes):
     with open(path, "wb") as f:
         f.write(image_bytes)
 
-def profile_pic_b64(username):
+def profile_pic_html(username, fallback="🎓"):
     path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
     if os.path.exists(path):
         with open(path, "rb") as f:
-            return base64.b64encode(f.read()).decode()
-    return None
-
-def profile_pic_html(username, fallback="🎓"):
-    b64 = profile_pic_b64(username)
-    if b64:
+            b64 = base64.b64encode(f.read()).decode()
         return f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
     return fallback
 
@@ -164,7 +160,7 @@ def init_state():
 init_state()
 
 # =====================================================
-# CSS
+# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
 # =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
@@ -187,12 +183,9 @@ def apply_css():
         accent2       = "#38a8dc"
         accent3       = "#1a95cc"
         topbar_bg     = "rgba(8,18,60,0.96)"
-        topbar_border = "rgba(82,182,232,0.25)"
+        topbar_border = "rgba(82,182,232,0.18)"
         topbar_text   = "#eaf4ff"
         topbar_role   = "#88c0e8"
-        nav_active_bg = "rgba(82,182,232,0.18)"
-        nav_active_color = "#52b6e8"
-        nav_hover_bg  = "rgba(82,182,232,0.10)"
         shadow        = "0 16px 50px rgba(0,0,0,0.28)"
     else:
         app_bg        = f"linear-gradient(135deg,rgba(240,250,255,0.84) 0%,rgba(220,242,255,0.88) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(245,252,255,0.50) 0%,rgba(210,240,255,0.40) 100%), url('{BG_IMAGE}')"
@@ -209,12 +202,9 @@ def apply_css():
         accent2       = "#0096c7"
         accent3       = "#00b4d8"
         topbar_bg     = "rgba(255,255,255,0.97)"
-        topbar_border = "rgba(2,62,138,0.18)"
+        topbar_border = "rgba(2,62,138,0.12)"
         topbar_text   = "#03045e"
         topbar_role   = "#0077b6"
-        nav_active_bg = "rgba(0,119,182,0.12)"
-        nav_active_color = "#0077b6"
-        nav_hover_bg  = "rgba(0,119,182,0.07)"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
 
     st.markdown(f"""
@@ -256,135 +246,92 @@ def apply_css():
     }}
 
     /* ══════════════════════════════════════════
-       TOP NAVIGATION BAR — FULLY HTML BASED
+       TOP NAVIGATION BAR
     ══════════════════════════════════════════ */
     .topbar-shell {{
         width: 100%;
         background: {topbar_bg};
         border-bottom: 1px solid {topbar_border};
-        box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
+        padding: 10px 20px 8px 20px;
         position: sticky;
         top: 0;
         z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 18px;
-        height: 70px;
-        gap: 12px;
     }}
-
-    /* Profile section */
-    .topbar-profile {{
+    .top-profile {{
         display: flex;
         align-items: center;
         gap: 10px;
-        flex-shrink: 0;
-        min-width: 160px;
     }}
-    .topbar-avatar {{
-        width: 46px; height: 46px;
+    .top-avatar {{
+        width: 52px; height: 52px;
         border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden;
         background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
-        font-size: 1.4rem;
+        font-size: 1.5rem;
         box-shadow: 0 4px 14px rgba(0,119,182,0.30);
         border: 2px solid {accent2};
         flex-shrink: 0;
     }}
-    .topbar-name {{
-        font-size: 0.95rem; font-weight: 900;
+    .top-name {{
+        font-size: 1.05rem; font-weight: 900;
         color: {topbar_text}; line-height: 1.1;
     }}
-    .topbar-role {{
-        font-size: 0.70rem; font-weight: 600;
-        color: {topbar_role}; margin-top: 1px;
+    .top-role {{
+        font-size: 0.75rem; font-weight: 600;
+        color: {topbar_role}; margin-top: 2px;
     }}
 
-    /* ── HTML Nav Links ── */
-    .topbar-nav {{
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        flex: 1;
-        justify-content: center;
+    /* Back icon button and theme button in topbar */
+    .back-icon-btn .stButton > button,
+    .theme-top-btn .stButton > button {{
+        width: 42px !important; min-width: 42px !important;
+        height: 42px !important; border-radius: 12px !important;
+        padding: 0 !important;
+        background: {'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'} !important;
+        color: {topbar_text} !important;
+        border: 1px solid {topbar_border} !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+        font-size: 1.1rem !important;
+        transition: all 0.18s ease !important;
     }}
-    .nav-link {{
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 14px;
-        border-radius: 12px;
-        font-size: 0.82rem;
-        font-weight: 700;
-        color: {topbar_role};
-        cursor: pointer;
-        border: none;
-        background: transparent;
-        transition: all 0.18s ease;
-        text-decoration: none;
-        white-space: nowrap;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    .back-icon-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
     }}
-    .nav-link:hover {{
-        background: {nav_hover_bg};
-        color: {nav_active_color};
-        transform: translateY(-1px);
-    }}
-    .nav-link.active {{
-        background: {nav_active_bg};
-        color: {nav_active_color};
-        border-bottom: 2px solid {nav_active_color};
-        border-radius: 12px 12px 0 0;
+    .signout-top-btn .stButton > button {{
+        height: 42px !important;
+        border-radius: 999px !important;
+        padding: 0 1.1rem !important;
+        font-size: 0.85rem !important;
     }}
 
-    /* Right side buttons */
-    .topbar-right {{
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-shrink: 0;
+    /* Segmented control nav */
+    div[data-testid="stSegmentedControl"] {{
+        background: transparent !important;
     }}
-    .topbar-icon-btn {{
-        width: 40px; height: 40px;
-        border-radius: 12px;
-        border: 1px solid {topbar_border};
-        background: {'rgba(255,255,255,0.08)' if dark else 'rgba(2,62,138,0.07)'};
-        color: {topbar_text};
-        font-size: 1.05rem;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center;
-        transition: all 0.18s ease;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    div[data-testid="stSegmentedControl"] button {{
+        border-radius: 10px !important;
+        background: transparent !important;
+        color: {topbar_role} !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        padding: 6px 10px !important;
+        transition: all 0.15s ease !important;
     }}
-    .topbar-icon-btn:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8);
-        color: white;
-        border-color: #00b4d8;
-        transform: scale(1.06);
-    }}
-    .topbar-signout-btn {{
-        height: 40px;
-        padding: 0 16px;
-        border-radius: 999px;
-        border: none;
-        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
-        color: white;
-        font-size: 0.82rem;
-        font-weight: 800;
-        cursor: pointer;
-        box-shadow: 0 4px 14px rgba(0,119,182,0.28);
-        transition: all 0.18s ease;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        white-space: nowrap;
-    }}
-    .topbar-signout-btn:hover {{
-        transform: translateY(-2px);
-        box-shadow: 0 8px 22px rgba(0,180,216,0.36);
-        background: linear-gradient(135deg,#0077b6,#00b4d8);
+    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+        color: {'#52b6e8' if dark else '#0077b6'} !important;
+        background: {'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'} !important;
+        border-bottom: 2px solid {'#52b6e8' if dark else '#0077b6'} !important;
+        border-radius: 10px 10px 0 0 !important;
     }}
 
     /* ══════════════════════════════════════════
@@ -392,7 +339,7 @@ def apply_css():
     ══════════════════════════════════════════ */
     .dash-page {{
         width: 100%;
-        min-height: calc(100vh - 70px);
+        min-height: calc(100vh - 72px);
         padding: 36px 5vw 28px 5vw;
     }}
     .dash-title {{
@@ -415,6 +362,7 @@ def apply_css():
         margin-top: 20px;
     }}
 
+    /* ── Glass cards ── */
     .glass {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -425,12 +373,14 @@ def apply_css():
         padding: 26px;
     }}
 
+    /* ── Page title ── */
     .page-title {{
         font-size: 1.9rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
         color: {text_primary}; letter-spacing: -0.5px;
     }}
     .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 12px; font-weight: 600; }}
 
+    /* ── Metric cards ── */
     .metric-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -442,6 +392,7 @@ def apply_css():
     .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
     .metric-label {{ font-size: 0.72rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
 
+    /* ── Avatar ── */
     .avatar-circle {{
         width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
@@ -453,6 +404,7 @@ def apply_css():
     }}
     .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }}
 
+    /* ── All buttons default ── */
     .stButton > button,
     [data-testid="stDownloadButton"] button,
     .stFormSubmitButton > button {{
@@ -473,6 +425,7 @@ def apply_css():
         color: white !important;
     }}
 
+    /* ── Inputs ── */
     .stTextInput input,
     .stNumberInput input,
     .stDateInput input,
@@ -508,6 +461,7 @@ def apply_css():
         background: {input_bg} !important;
     }}
 
+    /* Labels */
     label, p {{ color: {text_primary} !important; }}
     .stTextInput label, .stNumberInput label, .stSelectbox label,
     .stDateInput label, .stRadio label, .stCheckbox label,
@@ -517,10 +471,12 @@ def apply_css():
         font-size: 0.87rem !important;
     }}
 
+    /* ── Tabs ── */
     [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
     [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
     [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
 
+    /* ── WhatsApp button ── */
     .whatsapp-btn {{
         display: inline-block; border-radius: 999px; padding: 11px 22px;
         color: white !important; text-decoration: none; font-weight: 900;
@@ -529,6 +485,7 @@ def apply_css():
         background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
+    /* ── Profile card ── */
     .profile-info-card {{
         background: {card_bg};
         border: 1px solid {border_color};
@@ -543,6 +500,7 @@ def apply_css():
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
     .pf-value {{ color: {text_primary}; font-weight: 900; }}
 
+    /* ── Score badge ── */
     .score-badge {{
         display: inline-block; font-size: 3.4rem; font-weight: 900;
         color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
@@ -606,6 +564,7 @@ def apply_css():
     .stat-chip-lbl {{ font-size: 0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
     .welcome-footer {{ text-align: center; font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding: 6px 0 10px 0; font-weight: 600; }}
 
+    /* ── Auth page back button ── */
     .back-btn-wrap .stButton > button {{
         background: {card_bg} !important;
         border: 1.5px solid {border_color} !important;
@@ -666,13 +625,13 @@ def predict_score(data):
 
 def get_recommendations(d):
     recs = []
-    if d["Hours_Studied"] < 6:            recs.append("📚 Improve daily study hours to 6–8 hours.")
-    if d["Attendance"] < 80:              recs.append("🏫 Keep attendance above 80% for stronger performance.")
-    if d["Sleep_Hours"] < 7:              recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
-    if d["Motivation_Level"] == "Low":    recs.append("🎯 Set small daily goals and track your progress.")
-    if d["Internet_Access"] == "No":      recs.append("📖 Use offline notes, library support, and teacher guidance.")
-    if d["Learning_Resources"] == "Low":  recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
-    if d["Peer_Influence"] == "Negative": recs.append("🤝 Build a positive peer group to improve academic consistency.")
+    if d["Hours_Studied"] < 6:           recs.append("📚 Improve daily study hours to 6–8 hours.")
+    if d["Attendance"] < 80:             recs.append("🏫 Keep attendance above 80% for stronger performance.")
+    if d["Sleep_Hours"] < 7:             recs.append("😴 Maintain 7–8 hours of sleep to improve concentration.")
+    if d["Motivation_Level"] == "Low":   recs.append("🎯 Set small daily goals and track your progress.")
+    if d["Internet_Access"] == "No":     recs.append("📖 Use offline notes, library support, and teacher guidance.")
+    if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
+    if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
 
 # =====================================================
@@ -973,13 +932,14 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE
+# AUTH PAGE  (Login + OTP Signup)
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
+    # Top bar: Back | spacer | Theme
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -994,6 +954,7 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("<div class='glass'>", unsafe_allow_html=True)
@@ -1002,6 +963,7 @@ def auth_page():
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
+        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -1015,6 +977,7 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
+        # ── SIGNUP WITH OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -1038,6 +1001,7 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
+            # Send OTP button
             if st.button("📨 Send OTP to Email", key="send_otp_btn", use_container_width=True):
                 if not email:
                     st.warning("Please enter your email first.")
@@ -1050,7 +1014,8 @@ def auth_page():
                     else:
                         st.warning(f"⚠️ Email not configured. For testing, your OTP is: **{otp}**")
 
-            otp_entered = st.text_input("Enter OTP", max_chars=6, key="su_otp", placeholder="6-digit OTP")
+            otp_entered = st.text_input("Enter OTP", max_chars=6, key="su_otp",
+                                        placeholder="6-digit OTP")
 
             if st.button("✅ Verify OTP & Create Account", key="verify_otp_btn", use_container_width=True):
                 if not username or not email or not password or not full_name:
@@ -1072,11 +1037,18 @@ def auth_page():
                             "created_at": datetime.now().isoformat()
                         }
                         if role == "student":
-                            data.update({"dob": str(dob), "age": calculate_age(dob),
-                                         "grade": grade, "school": school})
+                            data.update({
+                                "dob":    str(dob),
+                                "age":    calculate_age(dob),
+                                "grade":  grade,
+                                "school": school
+                            })
                         else:
-                            data.update({"child_name": child_name, "child_grade": grade,
-                                         "relation": relation})
+                            data.update({
+                                "child_name":  child_name,
+                                "child_grade": grade,
+                                "relation":    relation
+                            })
                         users[username] = data
                         save_json(USER_DB_FILE, users)
                         st.session_state.logged_in   = True
@@ -1090,152 +1062,89 @@ def auth_page():
         st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# TOP NAVIGATION BAR — PURE HTML (no Streamlit widgets inside)
+# TOP NAVIGATION BAR
 # =====================================================
 def top_navbar(user):
     name  = user.get("full_name", st.session_state.username)
     role  = user.get("role","student").title()
     icon  = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
     emoji = "☀️" if st.session_state.theme == "dark" else "🌙"
-    dark  = st.session_state.theme == "dark"
 
-    # Build avatar HTML
-    b64 = profile_pic_b64(st.session_state.username)
-    if b64:
-        avatar_html = f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
-    else:
-        avatar_html = icon
+    st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
 
-    # Nav items
-    pages = [
-        ("🏠", "Home"),
-        ("🔮", "Prediction"),
-        ("📄", "Report & Share"),
-        ("📚", "History"),
-        ("👤", "Profile"),
-    ]
-    current = st.session_state.active_page
+    c_back, c_profile, c_nav, c_sign, c_theme = st.columns(
+        [0.5, 2.0, 6.5, 1.2, 0.5], vertical_alignment="center"
+    )
 
-    nav_links_html = ""
-    for pg_icon, pg_name in pages:
-        active_class = "active" if current == pg_name else ""
-        nav_links_html += f"""
-        <button class="nav-link {active_class}" onclick="navigateTo('{pg_name}')">
-            {pg_icon} {pg_name}
-        </button>
-        """
-
-    st.markdown(f"""
-    <div class="topbar-shell">
-
-        <!-- Back + Profile -->
-        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-            <button class="topbar-icon-btn" onclick="goBack()" title="Back to Login">‹</button>
-            <div class="topbar-profile">
-                <div class="topbar-avatar">{avatar_html}</div>
-                <div>
-                    <div class="topbar-name">{name}</div>
-                    <div class="topbar-role">{role} Account</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="topbar-nav">
-            {nav_links_html}
-        </nav>
-
-        <!-- Right: Sign Out + Theme -->
-        <div class="topbar-right">
-            <button class="topbar-signout-btn" onclick="signOut()">🚪 Sign Out</button>
-            <button class="topbar-icon-btn" onclick="toggleTheme()" title="Toggle Theme">{emoji}</button>
-        </div>
-
-    </div>
-
-    <script>
-    function navigateTo(page) {{
-        // Send message to Streamlit via query param trick
-        const url = new URL(window.location.href);
-        url.searchParams.set('nav', page);
-        window.history.replaceState(null, '', url);
-        // Use Streamlit's internal communication
-        window.parent.postMessage({{type: 'streamlit:setComponentValue', value: page}}, '*');
-        // Fallback: find and click hidden Streamlit button
-        const btns = window.parent.document.querySelectorAll('button');
-        for(let b of btns) {{
-            if(b.getAttribute('data-nav') === page) {{ b.click(); break; }}
-        }}
-    }}
-    function goBack() {{
-        const btns = window.parent.document.querySelectorAll('button');
-        for(let b of btns) {{ if(b.getAttribute('data-nav') === 'back') {{ b.click(); break; }} }}
-    }}
-    function signOut() {{
-        const btns = window.parent.document.querySelectorAll('button');
-        for(let b of btns) {{ if(b.getAttribute('data-nav') === 'signout') {{ b.click(); break; }} }}
-    }}
-    function toggleTheme() {{
-        const btns = window.parent.document.querySelectorAll('button');
-        for(let b of btns) {{ if(b.getAttribute('data-nav') === 'theme') {{ b.click(); break; }} }}
-    }}
-    </script>
-    """, unsafe_allow_html=True)
-
-    # Hidden Streamlit buttons that HTML calls via JS
-    # These are visually hidden but functional
-    st.markdown("""
-    <style>
-    .hidden-nav-btns { position: absolute; opacity: 0; pointer-events: none; height: 0; overflow: hidden; }
-    </style>
-    <div class="hidden-nav-btns">
-    """, unsafe_allow_html=True)
-
-    cols = st.columns(9)
-    with cols[0]:
-        if st.button("‹", key="hid_back", help="back", kwargs={"data-nav": "back"}):
+    with c_back:
+        st.markdown('<div class="back-icon-btn">', unsafe_allow_html=True)
+        if st.button("‹", key="top_back_login", help="Back to Login"):
             st.session_state.logged_in   = False
             st.session_state.username    = ""
             st.session_state.role        = ""
             st.session_state.auth_page   = "login"
             st.session_state.active_page = "Home"
             st.rerun()
-    with cols[1]:
-        if st.button("Home", key="hid_home"):
-            st.session_state.active_page = "Home"; st.rerun()
-    with cols[2]:
-        if st.button("Prediction", key="hid_pred"):
-            st.session_state.active_page = "Prediction"; st.rerun()
-    with cols[3]:
-        if st.button("Report & Share", key="hid_rep"):
-            st.session_state.active_page = "Report & Share"; st.rerun()
-    with cols[4]:
-        if st.button("History", key="hid_hist"):
-            st.session_state.active_page = "History"; st.rerun()
-    with cols[5]:
-        if st.button("Profile", key="hid_prof"):
-            st.session_state.active_page = "Profile"; st.rerun()
-    with cols[6]:
-        if st.button("signout", key="hid_signout"):
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_profile:
+        st.markdown(f"""
+        <div class='top-profile'>
+          <div class='top-avatar'>{profile_pic_html(st.session_state.username, icon)}</div>
+          <div>
+            <div class='top-name'>{name}</div>
+            <div class='top-role'>{role} Account</div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c_nav:
+        nav_options = ["🏠 Home","🔮 Prediction","📄 Report & Share","📚 History","👤 Profile"]
+        current_label = st.session_state.active_page
+        current_full  = next((x for x in nav_options if x.split(" ",1)[1] == current_label), "🏠 Home")
+        try:
+            selected = st.segmented_control(
+                "Navigation", nav_options,
+                default=current_full,
+                label_visibility="collapsed",
+                key="top_nav"
+            )
+        except Exception:
+            idx = nav_options.index(current_full) if current_full in nav_options else 0
+            selected = st.radio(
+                "Navigation", nav_options, index=idx,
+                horizontal=True, label_visibility="collapsed",
+                key="top_nav_radio"
+            )
+        if selected:
+            new_page = selected.split(" ",1)[1]
+            if new_page != st.session_state.active_page:
+                st.session_state.active_page = new_page
+                st.rerun()
+
+    with c_sign:
+        st.markdown('<div class="signout-top-btn">', unsafe_allow_html=True)
+        if st.button("🚪 Sign Out", key="top_signout", use_container_width=True):
             st.session_state.logged_in  = False
             st.session_state.username   = ""
             st.session_state.auth_page  = "welcome"
             st.rerun()
-    with cols[7]:
-        if st.button(emoji, key="hid_theme"):
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with c_theme:
+        st.markdown('<div class="theme-top-btn">', unsafe_allow_html=True)
+        if st.button(emoji, key="top_theme", help="Toggle Theme"):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Handle URL-based navigation (from HTML buttons clicking hidden Streamlit buttons)
-    # The hidden buttons above handle the actual navigation via st.rerun()
-
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # =====================================================
 # INNER PAGES
 # =====================================================
 
+# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
@@ -1247,7 +1156,7 @@ def home_page(user):
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
     metrics = [
-        ("🎯 Attempts",   len(records)),
+        ("🎯 Attempts",  len(records)),
         ("🏆 Best Score", max(scores) if scores else 0),
         ("📊 Average",    int(np.mean(scores)) if scores else 0),
         ("🕐 Last Score", scores[-1] if scores else 0),
@@ -1272,6 +1181,7 @@ def home_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
@@ -1359,6 +1269,7 @@ def prediction_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
@@ -1428,6 +1339,7 @@ def report_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
@@ -1451,6 +1363,7 @@ def history_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
@@ -1476,6 +1389,7 @@ def profile_page(user):
         edit = st.session_state.profile_edit_mode
 
         if not edit:
+            # View mode
             st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
@@ -1510,6 +1424,7 @@ def profile_page(user):
                 st.rerun()
 
         else:
+            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
@@ -1586,7 +1501,7 @@ def profile_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# MAIN APP SHELL
+# MAIN APP SHELL  (Top Navbar + Page Router)
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
@@ -1610,4 +1525,3 @@ elif st.session_state.auth_page == "welcome":
     welcome_page()
 else:
     auth_page()
-    
