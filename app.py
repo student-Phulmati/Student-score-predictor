@@ -1266,7 +1266,7 @@ apply_professional_header_fix()
 def apply_final_no_gap_header_fix():
     st.markdown("""
     <style>
-    /* ===== 10X FINAL FIX: remove blank white strip + tighten top/left gaps ===== */
+    /* ===== FINAL LAYOUT FIX: remove top gap, remove left/right gap, improve title spacing ===== */
     .stApp > header,
     header[data-testid="stHeader"],
     [data-testid="stToolbar"],
@@ -1287,7 +1287,9 @@ def apply_final_no_gap_header_fix():
     }
 
     .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container {
+    [data-testid="stAppViewContainer"] .main .block-container,
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stAppViewBlockContainer"] {
         padding-top: 0 !important;
         padding-left: 0 !important;
         padding-right: 0 !important;
@@ -1295,7 +1297,8 @@ def apply_final_no_gap_header_fix():
         max-width: 100% !important;
     }
 
-    /* This removes the empty white box created above the navbar */
+    /* Remove hidden/empty custom header space */
+    .topbar-shell,
     .pro-header {
         display: none !important;
         height: 0 !important;
@@ -1307,28 +1310,36 @@ def apply_final_no_gap_header_fix():
         background: transparent !important;
     }
 
-    /* Keep Streamlit rows tight so navbar and content stay close */
+    /* Tight Streamlit row spacing */
     div[data-testid="stVerticalBlock"] {
-        gap: 0.15rem !important;
+        gap: 0.08rem !important;
     }
     div[data-testid="stHorizontalBlock"] {
-        gap: 0.65rem !important;
+        gap: 0.55rem !important;
         align-items: center !important;
     }
 
-    /* Header column row arrangement */
+    /* Pull the first header row to the very top */
+    .element-container:empty {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .back-top-btn,
     .nav-tab,
     .nav-tab-active,
     .circle-tool-btn,
-    .logout-small-btn {
+    .logout-small-btn,
+    .header-title-wrap,
+    .corner-user {
         margin: 0 !important;
         padding: 0 !important;
     }
 
     .header-title-wrap {
-        margin: 0 !important;
-        padding: 0 !important;
         line-height: 1.05 !important;
     }
 
@@ -1363,40 +1374,46 @@ def apply_final_no_gap_header_fix():
         margin: 0 !important;
     }
 
-    .corner-user {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
     .corner-avatar {
         width: 36px !important;
         height: 36px !important;
     }
 
+    /* Main page spacing: less top gap and less left/right gap */
     .dash-page {
-        padding: 10px 5.2vw 22px 5.2vw !important;
+        padding: 4px 1.35vw 20px 1.35vw !important;
         margin: 0 !important;
         min-height: auto !important;
     }
 
+    /* Bigger welcome/page title */
     .dash-title,
     .page-title {
         margin-top: 0 !important;
-        margin-bottom: 3px !important;
+        margin-bottom: 8px !important;
+        font-size: clamp(1.95rem, 3vw, 2.75rem) !important;
+        line-height: 1.08 !important;
+        font-weight: 900 !important;
     }
 
+    /* Add clear spacing under Welcome title text */
     .dash-subtitle,
     .subtext {
-        margin-top: 0 !important;
-        margin-bottom: 10px !important;
+        display: block !important;
+        margin-top: 8px !important;
+        margin-bottom: 16px !important;
+        line-height: 1.45 !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
     }
 
     .metric-card {
-        min-height: 96px !important;
+        min-height: 100px !important;
         padding: 10px 8px !important;
     }
 
     .chart-glass {
-        margin-top: 10px !important;
+        margin-top: 8px !important;
     }
 
     @media (max-width: 1050px) {
@@ -1407,6 +1424,10 @@ def apply_final_no_gap_header_fix():
         }
         .corner-name {
             max-width: 62px !important;
+        }
+        .dash-page {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
         }
     }
     </style>
@@ -2017,7 +2038,6 @@ def home_page(user):
             </div>
             """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
     if records:
         st.markdown("<div class='chart-glass'>", unsafe_allow_html=True)
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
