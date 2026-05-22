@@ -189,39 +189,32 @@ def apply_css():
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
     * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
 
-    /* ── Streamlit header + toolbar visible fix ── */
+    /* ── Keep Streamlit header available so sidebar arrow works ── */
     .stApp > header {{
         background: transparent !important;
         height: auto !important;
-        min-height: 2.6rem !important;
         display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
         z-index: 99999 !important;
     }}
     [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden !important; height: 0 !important; }}
+    #MainMenu, footer {{ visibility: hidden; height: 0; }}
 
-    /* Keep Streamlit top toolbar visible: Share / GitHub / menu icons */
+    /* Keep Streamlit toolbar visible */
     [data-testid="stToolbar"] {{
         visibility: visible !important;
         display: flex !important;
         opacity: 1 !important;
         height: auto !important;
-        min-height: 2rem !important;
         position: fixed !important;
-        top: 8px !important;
-        right: 12px !important;
-        z-index: 1000000 !important;
+        top: 10px !important;
+        right: 15px !important;
+        z-index: 999999 !important;
         background: transparent !important;
-        pointer-events: auto !important;
     }}
-    [data-testid="stToolbar"] button,
-    [data-testid="stToolbar"] a {{
+    [data-testid="stToolbar"] button {{
         visibility: visible !important;
-        display: inline-flex !important;
         opacity: 1 !important;
-        pointer-events: auto !important;
+        display: inline-flex !important;
     }}
 
     /* ── Background ── */
@@ -239,14 +232,21 @@ def apply_css():
         max-width: 1180px;
     }}
 
-    /* ── Sidebar ── */
+    /* ── Sidebar: starts below top header line ── */
     [data-testid="stSidebar"] {{
+        position: fixed !important;
+        top: 60px !important;
+        height: calc(100vh - 60px) !important;
         background: {sidebar_bg} !important;
         border-right: 1px solid {border_color};
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
+        overflow: visible !important;
     }}
     [data-testid="stSidebar"] * {{ color: {text_primary} !important; }}
+    [data-testid="stSidebarContent"] {{
+        padding-top: 18px !important;
+    }}
 
     /* ── Working sidebar IN / OUT arrow - no raw keyboard text ── */
 
@@ -310,7 +310,7 @@ def apply_css():
     /* Sidebar closed: expand button outside */
     [data-testid="collapsedControl"] {{
         position: fixed !important;
-        top: 14px !important;
+        top: 60px !important;
         left: 14px !important;
         z-index: 999999 !important;
         width: 34px !important;
@@ -358,13 +358,13 @@ def apply_css():
         color: transparent !important;
     }}
 
-    /* ── Theme toggle fixed TOP-RIGHT, below Streamlit toolbar ── */
+    /* ── Theme toggle fixed TOP-RIGHT ── */
     .theme-btn-wrap {{
-        position: fixed !important;
-        top: 56px !important;
-        right: 24px !important;
-        left: auto !important;
-        z-index: 999998 !important;
+        position: fixed;
+        top: 18px;
+        right: 24px;
+        left: auto;
+        z-index: 999998;
     }}
     .theme-btn-wrap button {{
         width: 40px !important;
