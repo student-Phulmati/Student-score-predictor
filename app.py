@@ -749,10 +749,10 @@ def apply_css():
 
 
     /* TOP NAV BUTTON BAR - clickable Streamlit buttons */
-    .top-nav-spacer { height: 0px; }
-    .main .block-container > div:first-child { padding-top: 0 !important; }
+    .top-nav-spacer {{ height: 0px; }}
+    .main .block-container > div:first-child {{ padding-top: 0 !important; }}
 
-    div[data-testid="stHorizontalBlock"]:has(.top-profile-card) {
+    div[data-testid="stHorizontalBlock"]:has(.top-profile-card) {{
         position: fixed !important;
         top: 0 !important;
         left: 0 !important;
@@ -766,26 +766,26 @@ def apply_css():
         box-shadow: 0 4px 24px rgba(0,0,0,0.05) !important;
         padding: 14px 24px 10px 24px !important;
         align-items: center !important;
-    }
+    }}
 
-    .top-profile-card {
+    .top-profile-card {{
         display: flex;
         align-items: center;
         gap: 14px;
         height: 64px;
-    }
-    .top-avatar {
+    }}
+    .top-avatar {{
         width: 60px; height: 60px; border-radius: 50%;
         overflow:hidden; display:flex; align-items:center; justify-content:center;
         background: linear-gradient(135deg,#90e0ef,#0096c7);
         font-size: 29px; color:white; flex: 0 0 auto;
         box-shadow: 0 7px 22px rgba(0,119,182,0.20);
-    }
-    .top-avatar img { width:100%; height:100%; object-fit:cover; }
-    .top-user-name { color:#0b1f3a; font-size:19px; font-weight:900; line-height:1.1; }
-    .top-user-role { color:#34445c; font-size:13px; font-weight:700; margin-top:5px; }
+    }}
+    .top-avatar img {{ width:100%; height:100%; object-fit:cover; }}
+    .top-user-name {{ color:#0b1f3a; font-size:19px; font-weight:900; line-height:1.1; }}
+    .top-user-role {{ color:#34445c; font-size:13px; font-weight:700; margin-top:5px; }}
 
-    .top-nav-btn-wrap .stButton > button {
+    .top-nav-btn-wrap .stButton > button {{
         background: transparent !important;
         color: #0b1f3a !important;
         border-radius: 0 !important;
@@ -795,19 +795,19 @@ def apply_css():
         font-weight: 900 !important;
         border-bottom: 3px solid transparent !important;
         white-space: nowrap !important;
-    }
-    .top-nav-btn-wrap .stButton > button:hover {
+    }}
+    .top-nav-btn-wrap .stButton > button:hover {{
         transform: none !important;
         background: rgba(0,180,216,0.08) !important;
         color: #005bea !important;
         border-bottom: 3px solid #00b4d8 !important;
-    }
-    .top-active-nav .stButton > button {
+    }}
+    .top-active-nav .stButton > button {{
         color: #005bea !important;
         border-bottom: 3px solid #0077b6 !important;
         background: rgba(0,180,216,0.09) !important;
-    }
-    .top-signout-wrap .stButton > button {
+    }}
+    .top-signout-wrap .stButton > button {{
         background: linear-gradient(135deg,#005bea,#00b4d8) !important;
         color:white !important;
         border-radius:999px !important;
@@ -816,8 +816,8 @@ def apply_css():
         font-weight:900 !important;
         box-shadow: 0 8px 24px rgba(0,119,182,0.28) !important;
         white-space: nowrap !important;
-    }
-    .top-theme-wrap .stButton > button {
+    }}
+    .top-theme-wrap .stButton > button {{
         width: 48px !important; height: 48px !important;
         min-width: 48px !important;
         padding: 0 !important;
@@ -826,19 +826,19 @@ def apply_css():
         color:white !important;
         font-size: 21px !important;
         box-shadow:0 8px 24px rgba(0,119,182,0.25) !important;
-    }
+    }}
 
-    section[data-testid="stSidebar"], [data-testid="collapsedControl"] {
+    section[data-testid="stSidebar"], [data-testid="collapsedControl"] {{
         display: none !important;
         visibility: hidden !important;
         width: 0 !important;
-    }
-    .main .block-container {
+    }}
+    .main .block-container {{
         max-width: 100% !important;
         padding-left: 42px !important;
         padding-right: 42px !important;
         padding-top: 116px !important;
-    }
+    }}
     </style>
     """, unsafe_allow_html=True)
 
