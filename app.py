@@ -2276,6 +2276,62 @@ def top_navbar(user):
         st.markdown('</div>', unsafe_allow_html=True)
 
 
+
+
+# =====================================================
+# FINAL WELCOME TEXT STYLE FIX — smaller elegant title + subtitle
+# =====================================================
+def apply_final_welcome_text_style_fix():
+    st.markdown("""
+    <style>
+    /* Make only the Home welcome title smaller and more elegant */
+    .dash-page > .dash-title {
+        font-size: clamp(1.22rem, 2.05vw, 1.82rem) !important;
+        line-height: 1.18 !important;
+        font-weight: 800 !important;
+        letter-spacing: 0.15px !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        color: #03045e !important;
+        text-shadow: 0 2px 10px rgba(255,255,255,0.42) !important;
+        margin-top: 2px !important;
+        margin-bottom: 0 !important;
+    }
+
+    /* Subtitle below Welcome: cleaner, softer, with proper gap */
+    .dash-page > .dash-subtitle {
+        font-size: clamp(0.80rem, 0.98vw, 0.92rem) !important;
+        line-height: 1.62 !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.20px !important;
+        color: #355575 !important;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        margin-top: 11px !important;
+        margin-bottom: 18px !important;
+    }
+
+    /* Dark mode readability for welcome title/subtitle */
+    .stApp .dash-page > .dash-title {
+        color: #eaf4ff !important;
+    }
+    .stApp .dash-page > .dash-subtitle {
+        color: #b8d8f0 !important;
+    }
+
+    @media (max-width: 760px) {
+        .dash-page > .dash-title {
+            font-size: 1.25rem !important;
+        }
+        .dash-page > .dash-subtitle {
+            font-size: 0.78rem !important;
+            margin-top: 9px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_final_welcome_text_style_fix()
+
+
 # =====================================================
 # INNER PAGES
 # =====================================================
