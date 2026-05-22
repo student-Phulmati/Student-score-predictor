@@ -799,6 +799,127 @@ def apply_css():
         .dash-page {{ padding-left:22px !important; padding-right:22px !important; }}
     }}
 
+
+
+    /* =====================================================
+       FINAL STREAMLIT FIT FIX — compact navbar + no big gap
+       ===================================================== */
+    html, body, .stApp {{
+        overflow-x: hidden !important;
+    }}
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {{
+        padding-top: 0rem !important;
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
+        max-width: 100% !important;
+    }}
+    .topbar-shell {{
+        width: 100vw !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 8px 14px !important;
+        min-height: 66px !important;
+        display: block !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999999 !important;
+    }}
+    .brand-wrap {{
+        min-width: 0 !important;
+        gap: 9px !important;
+    }}
+    .brand-logo,
+    .top-avatar,
+    .theme-top-btn .stButton > button,
+    .back-icon-btn .stButton > button {{
+        width: 42px !important;
+        min-width: 42px !important;
+        height: 42px !important;
+    }}
+    .brand-logo {{ font-size: 1.22rem !important; }}
+    .brand-title {{
+        font-size: 1.18rem !important;
+        white-space: nowrap !important;
+    }}
+    .brand-sub {{
+        font-size: 0.62rem !important;
+        white-space: nowrap !important;
+    }}
+    .nav-pill .stButton > button,
+    .nav-pill-active .stButton > button {{
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 8px !important;
+        border-radius: 11px !important;
+        font-size: 0.80rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }}
+    .signout-top-btn .stButton > button {{
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 13px !important;
+        padding: 0 12px !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+    }}
+    .top-profile {{ min-width: 0 !important; gap: 7px !important; }}
+    .top-name {{
+        font-size: 0.82rem !important;
+        max-width: 92px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }}
+    .top-role {{
+        font-size: 0.58rem !important;
+        max-width: 92px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }}
+    .dash-page {{
+        padding: 16px 3.2vw 26px 3.2vw !important;
+        min-height: calc(100vh - 66px) !important;
+    }}
+    .dash-title {{
+        margin-top: 0 !important;
+        margin-bottom: 6px !important;
+        font-size: clamp(1.45rem, 2.4vw, 2.1rem) !important;
+    }}
+    .dash-subtitle {{
+        margin-bottom: 18px !important;
+        font-size: 0.90rem !important;
+    }}
+    .metric-card {{
+        min-height: 118px !important;
+        padding: 14px 8px !important;
+    }}
+    .metric-value {{ font-size: 2.05rem !important; }}
+    .metric-label {{
+        font-size: 0.76rem !important;
+        margin-top: 10px !important;
+    }}
+    .metric-accent {{
+        margin-top: 12px !important;
+        height: 3px !important;
+    }}
+    .chart-glass {{ margin-top: 18px !important; }}
+
+    @media (max-width: 1100px) {{
+        .brand-sub, .top-role {{ display: none !important; }}
+        .brand-title {{ font-size: 1.00rem !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.72rem !important; padding: 0 4px !important; }}
+        .signout-top-btn .stButton > button {{ font-size: 0.70rem !important; padding: 0 8px !important; }}
+        .top-name {{ max-width: 65px !important; font-size: 0.74rem !important; }}
+    }}
+    @media (max-width: 760px) {{
+        .brand-title {{ display: none !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.66rem !important; }}
+        .top-profile {{ display: none !important; }}
+        .dash-page {{ padding: 12px 16px 22px 16px !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -1278,8 +1399,9 @@ def top_navbar(user):
 
     st.markdown('<div class="topbar-shell">', unsafe_allow_html=True)
 
+    # Compact columns: fits properly on Streamlit wide layout without breaking the navbar
     c_back, c_brand, c_nav, c_sign, c_theme, c_profile = st.columns(
-        [0.55, 2.55, 5.8, 1.25, 0.55, 1.45], vertical_alignment="center"
+        [0.45, 2.10, 6.10, 1.15, 0.50, 1.25], vertical_alignment="center"
     )
 
     with c_back:
@@ -1307,8 +1429,8 @@ def top_navbar(user):
     with c_nav:
         nav_options = [
             ("🏠 Home", "Home"),
-            ("📈 Prediction", "Prediction"),
-            ("📄 Report & Share", "Report & Share"),
+            ("📈 Predict", "Prediction"),
+            ("📄 Report", "Report & Share"),
             ("◔ History", "History"),
             ("👤 Profile", "Profile"),
         ]
