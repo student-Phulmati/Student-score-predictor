@@ -2139,7 +2139,6 @@ def auth_page():
     # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<div class='glass'>", unsafe_allow_html=True)
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
         st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
 
@@ -2241,7 +2240,6 @@ def auth_page():
                         st.success("🎉 Account created! Opening your dashboard…")
                         st.rerun()
 
-        st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
 # TOP NAVIGATION BAR
