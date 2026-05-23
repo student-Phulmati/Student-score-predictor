@@ -2309,7 +2309,6 @@ def auth_page():
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
-            st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
             if st.button("Login", key="do_login", use_container_width=True):
                 if username in users and users[username]["password"] == hash_password(password):
                     st.session_state.logged_in   = True
@@ -2344,18 +2343,22 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            # Send OTP button
-            if st.button("📨 Send OTP to Email", key="send_otp_btn", use_container_width=True):
-                if not email:
-                    st.warning("Please enter your email first.")
+            # Sign Up button: send OTP to email first, then create account after verification
+            if st.button("🚀 Sign Up & Send OTP", key="send_otp_btn", use_container_width=True):
+                if not username or not email or not full_name or not password or not confirm:
+                    st.warning("Please fill all required fields first.")
+                elif password != confirm:
+                    st.error("Passwords do not match.")
+                elif username in users:
+                    st.error("Username already exists. Please choose another.")
                 else:
                     otp = generate_otp()
                     store_otp(email, otp)
                     ok, msg = send_otp_email(email, otp, full_name or "User")
                     if ok:
-                        st.success("✅ OTP sent! Check your inbox.")
+                        st.success("✅ OTP sent to your email. Please check your inbox and enter the OTP below.")
                     else:
-                        st.warning(f"⚠️ Email not configured. For testing, your OTP is: **{otp}**")
+                        st.error("OTP email could not be sent. Please check EMAIL_SENDER and EMAIL_PASSWORD Gmail App Password settings.")
 
             otp_entered = st.text_input("Enter OTP", max_chars=6, key="su_otp",
                                         placeholder="6-digit OTP")
