@@ -1721,6 +1721,33 @@ def apply_final_welcome_text_style_fix():
 
 apply_final_welcome_text_style_fix()
 
+# =====================================================
+# FINAL DARK MODE WELCOME TEXT VISIBILITY FIX
+# =====================================================
+def apply_home_welcome_dark_visibility_fix():
+    dark = st.session_state.theme == "dark"
+    title_color = "#f4fbff" if dark else "#03045e"
+    subtitle_color = "#dff4ff" if dark else "#1f3266"
+    title_shadow = "0 3px 16px rgba(0,0,0,0.72)" if dark else "0 3px 14px rgba(255,255,255,0.56)"
+    subtitle_shadow = "0 2px 12px rgba(0,0,0,0.70)" if dark else "0 2px 10px rgba(255,255,255,0.45)"
+
+    st.markdown(f"""
+    <style>
+    /* Home welcome text visibility fix for dark/light mode */
+    .dash-page > .dash-title {{
+        color: {title_color} !important;
+        text-shadow: {title_shadow} !important;
+    }}
+
+    .dash-page > .dash-subtitle {{
+        color: {subtitle_color} !important;
+        text-shadow: {subtitle_shadow} !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_home_welcome_dark_visibility_fix()
+
 
 # =====================================================
 # FINAL ACTIVE NAV COLOR FIX — active page shown by button color only
