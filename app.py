@@ -2004,10 +2004,11 @@ def get_chart_colors():
     return {
         "paper":  "rgba(0,0,0,0)",
         "plot":   "rgba(0,0,0,0)",
-        "line":   "#52b6e8" if dark else "#1e6091",
-        "marker": "#38a8dc" if dark else "#168aad",
-        "text":   "#ffffff" if dark else "#184e77",
-        "grid":   "rgba(82,182,232,0.12)" if dark else "rgba(26,117,159,0.10)",
+        "line":   "#7dd8f5" if dark else "#1e6091",
+        "marker": "#52b6e8" if dark else "#168aad",
+        "text":   "#eaf4ff" if dark else "#03045e",
+        "axis":   "#dff6ff" if dark else "#3b4f68",
+        "grid":   "rgba(234,244,255,0.18)" if dark else "rgba(26,117,159,0.12)",
     }
 
 def score_trend_chart(records):
@@ -2027,11 +2028,33 @@ def score_trend_chart(records):
     fig.add_hline(y=85, line_dash="dot", line_color="#7dd8f5",
                   annotation_text="Excellent", annotation_font_color="#7dd8f5")
     fig.update_layout(
-        title=dict(text="📈 Score Trend Over Time", font=dict(color=cc["text"],size=15)),
-        height=300, margin=dict(l=10,r=10,t=42,b=10),
+        title=dict(
+            text="📈 Score Trend Over Time",
+            font=dict(color=cc["text"], size=16),
+            y=0.94,
+            x=0.01,
+            xanchor="left",
+            yanchor="top",
+        ),
+        height=310, margin=dict(l=36, r=18, t=58, b=42),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
-        xaxis=dict(gridcolor=cc["grid"],color=cc["text"]),
-        yaxis=dict(gridcolor=cc["grid"],color=cc["text"],range=[0,110]),
+        xaxis=dict(
+            gridcolor=cc["grid"],
+            color=cc["axis"],
+            tickfont=dict(color=cc["axis"], size=12),
+            title_font=dict(color=cc["axis"]),
+            linecolor=cc["grid"],
+            zerolinecolor=cc["grid"],
+        ),
+        yaxis=dict(
+            gridcolor=cc["grid"],
+            color=cc["axis"],
+            tickfont=dict(color=cc["axis"], size=12),
+            title_font=dict(color=cc["axis"]),
+            linecolor=cc["grid"],
+            zerolinecolor=cc["grid"],
+            range=[0,110],
+        ),
         showlegend=False,
     )
     return fig
@@ -2824,14 +2847,21 @@ def apply_home_chart_dark_fix():
         box-shadow: none !important;
         background: transparent !important;
         padding-top: 0 !important;
-        margin-top: 8px !important;
+        margin-top: 22px !important;
     }
 
-    /* Keep the chart title readable in dark mode */
+    /* Keep the chart title and graph labels readable in dark mode */
     .chart-glass .gtitle {
-        fill: #ffffff !important;
-        color: #ffffff !important;
+        fill: #eaf4ff !important;
+        color: #eaf4ff !important;
         font-weight: 900 !important;
+    }
+    .chart-glass .xtick text,
+    .chart-glass .ytick text,
+    .chart-glass .annotation-text {
+        fill: #dff6ff !important;
+        color: #dff6ff !important;
+        font-weight: 800 !important;
     }
     </style>
     """, unsafe_allow_html=True)
