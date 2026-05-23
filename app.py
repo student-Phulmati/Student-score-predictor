@@ -1858,34 +1858,51 @@ def apply_auth_dark_text_visibility_fix():
 apply_auth_dark_text_visibility_fix()
 
 # =====================================================
-# FINAL MODE BUTTON GLASS BLUR FIX — transparent background + blur
+# FINAL MODE BUTTON GLASSY BOX FIX — frosted transparent look
 # =====================================================
-def apply_mode_button_glass_blur_fix():
+def apply_mode_button_glassy_box_fix():
     st.markdown("""
     <style>
-    /* Theme / mode change buttons: transparent glass with blur effect */
+    /* Mode change box/button: glassy transparent look with blur */
+    .auth-theme-btn,
+    .theme-top-btn,
+    .circle-tool-btn {
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.10) !important;
+        border: 1px solid rgba(255, 255, 255, 0.26) !important;
+        box-shadow: 0 12px 32px rgba(3, 4, 94, 0.18) !important;
+        backdrop-filter: blur(22px) saturate(175%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(175%) !important;
+    }
+
+    .auth-theme-btn .stButton,
+    .theme-top-btn .stButton,
+    .circle-tool-btn .stButton {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
     .auth-theme-btn .stButton > button,
     .theme-top-btn .stButton > button,
     .circle-tool-btn .stButton > button {
-        background: rgba(255, 255, 255, 0.18) !important;
-        background-color: rgba(255, 255, 255, 0.18) !important;
+        background: linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.08)) !important;
+        background-color: rgba(255, 255, 255, 0.14) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.34) !important;
-        box-shadow: 0 10px 28px rgba(3, 4, 94, 0.18) !important;
-        backdrop-filter: blur(18px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.38) !important;
+        border: 1px solid rgba(255, 255, 255, 0.36) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 10px 28px rgba(0, 119, 182, 0.18) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42) !important;
         transition: all 0.22s ease !important;
     }
 
     .auth-theme-btn .stButton > button:hover,
     .theme-top-btn .stButton > button:hover,
     .circle-tool-btn .stButton > button:hover {
-        background: rgba(0, 180, 216, 0.24) !important;
-        background-color: rgba(0, 180, 216, 0.24) !important;
+        background: linear-gradient(135deg, rgba(0,180,216,0.38), rgba(255,255,255,0.16)) !important;
         color: #ffffff !important;
-        border-color: rgba(255, 255, 255, 0.48) !important;
-        box-shadow: 0 14px 34px rgba(0, 119, 182, 0.26) !important;
+        border-color: rgba(255,255,255,0.58) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.48), 0 16px 36px rgba(0,119,182,0.30) !important;
         transform: translateY(-1px) scale(1.04) !important;
     }
 
@@ -1893,12 +1910,12 @@ def apply_mode_button_glass_blur_fix():
     .theme-top-btn .stButton > button:focus,
     .circle-tool-btn .stButton > button:focus {
         outline: none !important;
-        box-shadow: 0 0 0 3px rgba(144, 224, 239, 0.28), 0 10px 28px rgba(3, 4, 94, 0.18) !important;
+        box-shadow: 0 0 0 3px rgba(144,224,239,0.32), inset 0 1px 0 rgba(255,255,255,0.42) !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-apply_mode_button_glass_blur_fix()
+apply_mode_button_glassy_box_fix()
 
 
 # =====================================================
