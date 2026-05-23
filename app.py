@@ -7,13 +7,8 @@ import json
 import os
 import io
 import base64
-import random
-import smtplib
 import urllib.parse
 from datetime import datetime, date
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -32,14 +27,9 @@ APP_NAME_PLAIN   = "ScoreWise AI"
 TAGLINE          = "Smart Student Performance Predictor"
 USER_DB_FILE     = "users.json"
 HISTORY_FILE     = "prediction_history.json"
-OTP_FILE         = "otp_store.json"
 PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
-
-# ── Set your Gmail credentials here ──
-EMAIL_SENDER   = "phulmatis60@gmail.com"
-EMAIL_PASSWORD = "abcdwxyzmnopqrs"
 
 os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
@@ -87,53 +77,6 @@ def profile_pic_html(username, fallback="🎓"):
             b64 = base64.b64encode(f.read()).decode()
         return f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
     return fallback
-
-# =====================================================
-# OTP FUNCTIONS
-# =====================================================
-def generate_otp():
-    return str(random.randint(100000, 999999))
-
-def store_otp(email, otp):
-    data = load_json(OTP_FILE, {})
-    data[email] = {"otp": otp, "timestamp": datetime.now().isoformat(), "verified": False}
-    save_json(OTP_FILE, data)
-
-def verify_otp(email, entered):
-    data = load_json(OTP_FILE, {})
-    if email not in data:
-        return False, "OTP not found. Please send OTP again."
-    saved = data[email]
-    seconds = (datetime.now() - datetime.fromisoformat(saved["timestamp"])).total_seconds()
-    if seconds > 600:
-        return False, "OTP expired. Please send a new OTP."
-    if saved["otp"] != entered:
-        return False, "Invalid OTP. Please check and try again."
-    data[email]["verified"] = True
-    save_json(OTP_FILE, data)
-    return True, "OTP verified successfully."
-
-def send_otp_email(receiver, otp, name="User"):
-    try:
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"Your {APP_NAME_PLAIN} OTP"
-        msg["From"]    = EMAIL_SENDER
-        msg["To"]      = receiver
-        html = f"""
-        <div style='font-family:Arial;background:#184e77;color:white;padding:26px;border-radius:18px'>
-          <h2 style='color:#d9ed92'>{APP_NAME}</h2>
-          <p>Hello <b>{name}</b>, your signup OTP is:</p>
-          <div style='font-size:34px;letter-spacing:8px;font-weight:800;color:#99d98c'>{otp}</div>
-          <p>This OTP is valid for 10 minutes.</p>
-        </div>
-        """
-        msg.attach(MIMEText(html, "html"))
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-            server.sendmail(EMAIL_SENDER, receiver, msg.as_string())
-        return True, "OTP sent to email."
-    except Exception as e:
-        return False, str(e)
 
 # =====================================================
 # SESSION STATE INIT
@@ -2275,7 +2218,7 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE  (Login + OTP Signup)
+# AUTH PAGE  (Login + Signup)
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
@@ -2301,7 +2244,7 @@ def auth_page():
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
-        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & OTP Signup</p>", unsafe_allow_html=True)
+        st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & Signup</p>", unsafe_allow_html=True)
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
@@ -2319,11 +2262,11 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
-        # ── SIGNUP WITH OTP ──
+        # ── SIGNUP WITHOUT OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
-            email     = st.text_input("Email for OTP",    key="su_email")
+            email     = st.text_input("Email",            key="su_email")
             full_name = st.text_input("Full Name",         key="su_name")
             password  = st.text_input("Password",          type="password", key="su_pass")
             confirm   = st.text_input("Confirm Password",  type="password", key="su_confirm")
@@ -2343,8 +2286,8 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            # Sign Up button: send OTP to email first, then create account after verification
-            if st.button("🚀 Sign Up & Send OTP", key="send_otp_btn", use_container_width=True):
+            # Create account directly without email OTP verification
+            if st.button("🚀 Create Account", key="create_account_btn", use_container_width=True):
                 if not username or not email or not full_name or not password or not confirm:
                     st.warning("Please fill all required fields first.")
                 elif password != confirm:
@@ -2352,58 +2295,35 @@ def auth_page():
                 elif username in users:
                     st.error("Username already exists. Please choose another.")
                 else:
-                    otp = generate_otp()
-                    store_otp(email, otp)
-                    ok, msg = send_otp_email(email, otp, full_name or "User")
-                    if ok:
-                        st.success("✅ OTP sent to your email. Please check your inbox and enter the OTP below.")
+                    data = {
+                        "password":   hash_password(password),
+                        "email":      email,
+                        "full_name":  full_name,
+                        "role":       role,
+                        "created_at": datetime.now().isoformat()
+                    }
+                    if role == "student":
+                        data.update({
+                            "dob":    str(dob),
+                            "age":    calculate_age(dob),
+                            "grade":  grade,
+                            "school": school
+                        })
                     else:
-                        st.error("OTP email could not be sent. Please check EMAIL_SENDER and EMAIL_PASSWORD Gmail App Password settings.")
-
-            otp_entered = st.text_input("Enter OTP", max_chars=6, key="su_otp",
-                                        placeholder="6-digit OTP")
-
-            if st.button("✅ Verify OTP & Create Account", key="verify_otp_btn", use_container_width=True):
-                if not username or not email or not password or not full_name:
-                    st.warning("Please fill all required fields.")
-                elif password != confirm:
-                    st.error("Passwords do not match.")
-                elif username in users:
-                    st.error("Username already exists. Please choose another.")
-                else:
-                    ok, msg = verify_otp(email, otp_entered)
-                    if not ok:
-                        st.error(msg)
-                    else:
-                        data = {
-                            "password":   hash_password(password),
-                            "email":      email,
-                            "full_name":  full_name,
-                            "role":       role,
-                            "created_at": datetime.now().isoformat()
-                        }
-                        if role == "student":
-                            data.update({
-                                "dob":    str(dob),
-                                "age":    calculate_age(dob),
-                                "grade":  grade,
-                                "school": school
-                            })
-                        else:
-                            data.update({
-                                "child_name":  child_name,
-                                "child_grade": grade,
-                                "relation":    relation
-                            })
-                        users[username] = data
-                        save_json(USER_DB_FILE, users)
-                        st.session_state.logged_in   = True
-                        st.session_state.username    = username
-                        st.session_state.role        = role
-                        st.session_state.active_page = "Home"
-                        st.session_state.auth_page   = "welcome"
-                        st.success("🎉 Account created! Opening your dashboard…")
-                        st.rerun()
+                        data.update({
+                            "child_name":  child_name,
+                            "child_grade": grade,
+                            "relation":    relation
+                        })
+                    users[username] = data
+                    save_json(USER_DB_FILE, users)
+                    st.session_state.logged_in   = True
+                    st.session_state.username    = username
+                    st.session_state.role        = role
+                    st.session_state.active_page = "Home"
+                    st.session_state.auth_page   = "welcome"
+                    st.success("🎉 Account created! Opening your dashboard…")
+                    st.rerun()
 
 
 # =====================================================
