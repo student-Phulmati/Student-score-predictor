@@ -2531,6 +2531,12 @@ def prediction_page(user):
         "Extracurricular_Activities": activities,
     }
 
+    total_hours = hours + sleep
+    if (save_clicked or predict_clicked) and total_hours > 24:
+        st.error("Study Hours + Sleep Hours cannot exceed 24 hours per day.")
+        st.markdown("</div>", unsafe_allow_html=True)
+        return
+
     if save_clicked:
         st.session_state.last_inputs = data
         st.success("✅ Values saved. Now click Predict & Open Report when you want the full report.")
