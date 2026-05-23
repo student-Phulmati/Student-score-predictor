@@ -2309,6 +2309,7 @@ def auth_page():
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
+            st.markdown("<div style='height:24px;'></div>", unsafe_allow_html=True)
             if st.button("Login", key="do_login", use_container_width=True):
                 if username in users and users[username]["password"] == hash_password(password):
                     st.session_state.logged_in   = True
