@@ -2596,42 +2596,13 @@ def report_page(user):
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### 📥 Download Complete Report")
 
-    download_col1, download_col2, download_col3 = st.columns(3)
-    with download_col1:
+    download_col1, download_col2, download_col3 = st.columns([1, 1, 1])
+    with download_col2:
         st.download_button(
             "📄 Download PDF Report",
             data=pdf,
             file_name=f"ScoreWise_Report_{st.session_state.username}.pdf",
             mime="application/pdf",
-            use_container_width=True
-        )
-
-    report_rows = [{"Section": "Predicted Score", "Value": f"{score}/100"}]
-    for key, value in inputs.items():
-        report_rows.append({"Section": key.replace("_", " "), "Value": value})
-    if recs:
-        for index, rec in enumerate(recs, start=1):
-            report_rows.append({"Section": f"Recommendation {index}", "Value": rec})
-    report_df = pd.DataFrame(report_rows)
-    csv_data = report_df.to_csv(index=False).encode("utf-8")
-
-    with download_col2:
-        st.download_button(
-            "📊 Download Report Data",
-            data=csv_data,
-            file_name=f"ScoreWise_Report_Data_{st.session_state.username}.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
-
-    history_df = pd.DataFrame(records)
-    history_csv = history_df.to_csv(index=False).encode("utf-8") if not history_df.empty else csv_data
-    with download_col3:
-        st.download_button(
-            "🕘 Download History",
-            data=history_csv,
-            file_name=f"ScoreWise_History_{st.session_state.username}.csv",
-            mime="text/csv",
             use_container_width=True
         )
 
