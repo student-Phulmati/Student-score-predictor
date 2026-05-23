@@ -1779,6 +1779,57 @@ def apply_active_nav_color_fix():
 
 apply_active_nav_color_fix()
 
+# =====================================================
+# FINAL AUTH DARK MODE VISIBILITY FIX — Login / OTP Signup text
+# =====================================================
+def apply_auth_dark_text_visibility_fix():
+    dark = st.session_state.theme == "dark"
+    tab_text = "#eaf4ff" if dark else "#03045e"
+    tab_muted = "#b8e0f7" if dark else "#023e8a"
+    active_tab = "#ffffff" if dark else "#0077b6"
+    underline = "#90e0ef" if dark else "#0077b6"
+    st.markdown(f"""
+    <style>
+    /* Make Login and Sign Up tabs visible in dark mode */
+    [data-baseweb="tab-list"] {{
+        border-bottom: 1px solid rgba(144,224,239,0.38) !important;
+    }}
+
+    [data-baseweb="tab"],
+    [data-baseweb="tab"] *,
+    [data-baseweb="tab"] p,
+    [data-baseweb="tab"] span {{
+        color: {tab_text} !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.45) !important;
+    }}
+
+    [data-baseweb="tab"]:hover,
+    [data-baseweb="tab"]:hover *,
+    [data-baseweb="tab"][aria-selected="true"],
+    [data-baseweb="tab"][aria-selected="true"] *,
+    [aria-selected="true"][data-baseweb="tab"] {{
+        color: {active_tab} !important;
+        opacity: 1 !important;
+    }}
+
+    [aria-selected="true"][data-baseweb="tab"] {{
+        border-bottom: 3px solid {underline} !important;
+    }}
+
+    /* Make subtitle below title readable in dark mode */
+    h2 + .subtext,
+    p.subtext {{
+        color: {tab_muted} !important;
+        opacity: 1 !important;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.45) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_auth_dark_text_visibility_fix()
+
 
 # =====================================================
 # MODEL AND PREDICTION
