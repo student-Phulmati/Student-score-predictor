@@ -38,8 +38,8 @@ MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 
 # ── Set your Gmail credentials here ──
-EMAIL_SENDER   = "your_email@gmail.com"
-EMAIL_PASSWORD = "your_gmail_app_password"
+EMAIL_SENDER   = "phulmatis60@gmail.com"
+EMAIL_PASSWORD = "YOUR_16_DIGIT_APP_PASSWORD"
 
 os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
