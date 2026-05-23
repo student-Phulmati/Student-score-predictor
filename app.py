@@ -1857,6 +1857,49 @@ def apply_auth_dark_text_visibility_fix():
 
 apply_auth_dark_text_visibility_fix()
 
+# =====================================================
+# FINAL MODE BUTTON GLASS BLUR FIX — transparent background + blur
+# =====================================================
+def apply_mode_button_glass_blur_fix():
+    st.markdown("""
+    <style>
+    /* Theme / mode change buttons: transparent glass with blur effect */
+    .auth-theme-btn .stButton > button,
+    .theme-top-btn .stButton > button,
+    .circle-tool-btn .stButton > button {
+        background: rgba(255, 255, 255, 0.18) !important;
+        background-color: rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.34) !important;
+        box-shadow: 0 10px 28px rgba(3, 4, 94, 0.18) !important;
+        backdrop-filter: blur(18px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.38) !important;
+        transition: all 0.22s ease !important;
+    }
+
+    .auth-theme-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover,
+    .circle-tool-btn .stButton > button:hover {
+        background: rgba(0, 180, 216, 0.24) !important;
+        background-color: rgba(0, 180, 216, 0.24) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.48) !important;
+        box-shadow: 0 14px 34px rgba(0, 119, 182, 0.26) !important;
+        transform: translateY(-1px) scale(1.04) !important;
+    }
+
+    .auth-theme-btn .stButton > button:focus,
+    .theme-top-btn .stButton > button:focus,
+    .circle-tool-btn .stButton > button:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(144, 224, 239, 0.28), 0 10px 28px rgba(3, 4, 94, 0.18) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_mode_button_glass_blur_fix()
+
 
 # =====================================================
 # MODEL AND PREDICTION
