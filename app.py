@@ -1858,59 +1858,161 @@ def apply_auth_dark_text_visibility_fix():
 apply_auth_dark_text_visibility_fix()
 
 # =====================================================
-# FINAL MODE BUTTON GLASSY BOX FIX — frosted transparent look
+# FINAL MODE BUTTON GLASSY DESIGN FIX — same size, one emoji, no middle line
 # =====================================================
 def apply_mode_button_glassy_box_fix():
     st.markdown("""
     <style>
-    /* Mode change box/button: glassy transparent look with blur */
+    /* Mode change button on every page:
+       - same pill size
+       - glassy transparent background
+       - only one emoji
+       - no blue solid background
+       - no middle line/divider
+    */
+
     .auth-theme-btn,
     .theme-top-btn,
     .circle-tool-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 86px !important;
+        min-width: 86px !important;
+        max-width: 86px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        max-height: 48px !important;
+        padding: 0 !important;
+        margin: 0 !important;
         border-radius: 999px !important;
-        background: rgba(255, 255, 255, 0.10) !important;
-        border: 1px solid rgba(255, 255, 255, 0.26) !important;
-        box-shadow: 0 12px 32px rgba(3, 4, 94, 0.18) !important;
-        backdrop-filter: blur(22px) saturate(175%) !important;
-        -webkit-backdrop-filter: blur(22px) saturate(175%) !important;
+        overflow: hidden !important;
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.26),
+            rgba(255, 255, 255, 0.08)
+        ) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.48) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.55),
+            inset 0 -18px 36px rgba(3, 20, 55, 0.18),
+            0 10px 28px rgba(3, 4, 94, 0.18) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    }
+
+    .auth-theme-btn::before,
+    .theme-top-btn::before,
+    .circle-tool-btn::before,
+    .auth-theme-btn::after,
+    .theme-top-btn::after,
+    .circle-tool-btn::after,
+    .auth-theme-btn .stButton::before,
+    .theme-top-btn .stButton::before,
+    .circle-tool-btn .stButton::before,
+    .auth-theme-btn .stButton::after,
+    .theme-top-btn .stButton::after,
+    .circle-tool-btn .stButton::after,
+    .auth-theme-btn .stButton > button::before,
+    .theme-top-btn .stButton > button::before,
+    .circle-tool-btn .stButton > button::before,
+    .auth-theme-btn .stButton > button::after,
+    .theme-top-btn .stButton > button::after,
+    .circle-tool-btn .stButton > button::after {
+        content: none !important;
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
     }
 
     .auth-theme-btn .stButton,
     .theme-top-btn .stButton,
     .circle-tool-btn .stButton {
+        width: 100% !important;
+        height: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
     }
 
     .auth-theme-btn .stButton > button,
     .theme-top-btn .stButton > button,
     .circle-tool-btn .stButton > button {
-        background: linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.08)) !important;
-        background-color: rgba(255, 255, 255, 0.14) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.36) !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 10px 28px rgba(0, 119, 182, 0.18) !important;
-        backdrop-filter: blur(24px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42) !important;
-        transition: all 0.22s ease !important;
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: 100% !important;
+        min-height: 100% !important;
+        max-height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 999px !important;
+        border: 0 !important;
+        outline: none !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
+        color: #ffd23f !important;
+        font-size: 1.22rem !important;
+        line-height: 1 !important;
+        text-align: center !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+        transform: none !important;
+        transition: all 0.20s ease !important;
     }
 
     .auth-theme-btn .stButton > button:hover,
     .theme-top-btn .stButton > button:hover,
     .circle-tool-btn .stButton > button:hover {
-        background: linear-gradient(135deg, rgba(0,180,216,0.38), rgba(255,255,255,0.16)) !important;
-        color: #ffffff !important;
-        border-color: rgba(255,255,255,0.58) !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.48), 0 16px 36px rgba(0,119,182,0.30) !important;
-        transform: translateY(-1px) scale(1.04) !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        color: #ffd23f !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .auth-theme-btn:hover,
+    .theme-top-btn:hover,
+    .circle-tool-btn:hover {
+        background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.34),
+            rgba(255, 255, 255, 0.12)
+        ) !important;
+        border-color: rgba(255, 255, 255, 0.68) !important;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.65),
+            inset 0 -18px 36px rgba(3, 20, 55, 0.14),
+            0 14px 34px rgba(0, 119, 182, 0.24) !important;
     }
 
     .auth-theme-btn .stButton > button:focus,
     .theme-top-btn .stButton > button:focus,
     .circle-tool-btn .stButton > button:focus {
         outline: none !important;
-        box-shadow: 0 0 0 3px rgba(144,224,239,0.32), inset 0 1px 0 rgba(255,255,255,0.42) !important;
+        box-shadow: none !important;
+    }
+
+    @media (max-width: 760px) {
+        .auth-theme-btn,
+        .theme-top-btn,
+        .circle-tool-btn {
+            width: 76px !important;
+            min-width: 76px !important;
+            max-width: 76px !important;
+            height: 44px !important;
+            min-height: 44px !important;
+            max-height: 44px !important;
+        }
+
+        .auth-theme-btn .stButton > button,
+        .theme-top-btn .stButton > button,
+        .circle-tool-btn .stButton > button {
+            font-size: 1.08rem !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
