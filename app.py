@@ -1594,6 +1594,60 @@ apply_header_title_active_fix()
 
 
 # =====================================================
+# FINAL BACK ARROW DESIGN FIX — match compact dark rectangle style
+# =====================================================
+def apply_back_arrow_second_design_fix():
+    st.markdown("""
+    <style>
+    .back-top-btn .stButton > button {
+        width: 96px !important;
+        min-width: 96px !important;
+        max-width: 96px !important;
+        height: 54px !important;
+        min-height: 54px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 9px !important;
+        background: rgba(80, 92, 132, 0.82) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        box-shadow: none !important;
+        font-size: 1.18rem !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        transform: none !important;
+    }
+
+    .back-top-btn .stButton > button:hover {
+        background: rgba(88, 102, 146, 0.95) !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.18) !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .back-top-btn .stButton > button:active {
+        background: rgba(65, 76, 112, 0.98) !important;
+        color: #ffffff !important;
+        transform: scale(0.98) !important;
+    }
+
+    @media (max-width: 760px) {
+        .back-top-btn .stButton > button {
+            width: 76px !important;
+            min-width: 76px !important;
+            max-width: 76px !important;
+            height: 46px !important;
+            min-height: 46px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_back_arrow_second_design_fix()
+
+
+# =====================================================
 # FINAL WELCOME TEXT STYLE FIX — smaller welcome title + styled subtitle
 # =====================================================
 def apply_final_welcome_text_style_fix():
