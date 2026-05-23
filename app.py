@@ -2006,7 +2006,7 @@ def get_chart_colors():
         "plot":   "rgba(0,0,0,0)",
         "line":   "#52b6e8" if dark else "#1e6091",
         "marker": "#38a8dc" if dark else "#168aad",
-        "text":   "#b8e0f7" if dark else "#184e77",
+        "text":   "#ffffff" if dark else "#184e77",
         "grid":   "rgba(82,182,232,0.12)" if dark else "rgba(26,117,159,0.10)",
     }
 
@@ -2810,3 +2810,30 @@ elif st.session_state.auth_page == "welcome":
     welcome_page()
 else:
     auth_page()
+
+# =====================================================
+# FINAL HOME CHART DARK MODE FIX — visible title + remove thin top line
+# =====================================================
+def apply_home_chart_dark_fix():
+    st.markdown("""
+    <style>
+    /* Score Trend chart title wrapper: remove the thin white box/line above chart */
+    .chart-glass {
+        border: 0 !important;
+        border-top: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding-top: 0 !important;
+        margin-top: 8px !important;
+    }
+
+    /* Keep the chart title readable in dark mode */
+    .chart-glass .gtitle {
+        fill: #ffffff !important;
+        color: #ffffff !important;
+        font-weight: 900 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_home_chart_dark_fix()
