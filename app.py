@@ -588,17 +588,12 @@ def apply_css():
     }}
 
     /* ═══════════════════════════════════════════
-       FILE UPLOADER FIX — clean label, no duplicate text
+       FILE UPLOADER FIX — single text, visible in both modes
     ═══════════════════════════════════════════ */
 
-    /* Keep the label visible and styled */
+    /* Hide the second/duplicate upload label that appears */
     [data-testid="stFileUploader"] > label {{
-        color: {uploader_text} !important;
-        font-weight: 800 !important;
-        font-size: 0.90rem !important;
-        opacity: 1 !important;
-        display: block !important;
-        text-shadow: {uploader_shadow} !important;
+        display: none !important;
     }}
 
     /* Dropzone container */
@@ -610,7 +605,11 @@ def apply_css():
         -webkit-backdrop-filter: blur(12px) !important;
     }}
 
-    /* Drag and drop instruction text visible */
+    /* All text inside uploader — visible in both modes */
+    [data-testid="stFileUploaderDropzone"] div,
+    [data-testid="stFileUploaderDropzone"] span,
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] p,
     [data-testid="stFileUploaderDropzoneInstructions"] div,
     [data-testid="stFileUploaderDropzoneInstructions"] span,
     [data-testid="stFileUploaderDropzoneInstructions"] small {{
@@ -620,15 +619,14 @@ def apply_css():
         text-shadow: {uploader_shadow} !important;
     }}
 
-    /* Browse files button — clean, no overlap */
-    [data-testid="stFileUploaderDropzone"] button {{
+    /* Browse/Upload button inside dropzone */
+    [data-testid="stFileUploaderDropzone"] button,
+    [data-testid="baseButton-secondary"] {{
         color: #03045e !important;
         background: rgba(255,255,255,0.95) !important;
         border: 1px solid {uploader_border} !important;
-        font-size: 0.82rem !important;
         font-weight: 900 !important;
         border-radius: 8px !important;
-        padding: 4px 14px !important;
     }}
 
     /* ══ Profile page col-2 top fix ══ */
@@ -1637,7 +1635,9 @@ def profile_page(user):
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
                     unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
-        upload = st.file_uploader("📸 Upload Profile Picture", type=["jpg","jpeg","png"], label_visibility="visible")
+        # Label shown once using st.markdown, uploader without duplicate label
+        st.markdown("📸 **Upload Profile Picture**", unsafe_allow_html=False)
+        upload = st.file_uploader("", type=["jpg","jpeg","png"], label_visibility="collapsed")
         if upload and st.button("💾 Save Picture", use_container_width=True):
             save_profile_pic(uname, upload.read())
             st.success("Profile picture updated!")
