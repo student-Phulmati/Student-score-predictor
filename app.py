@@ -620,14 +620,14 @@ def apply_css():
     }}
 
     /* Browse/Upload button inside dropzone */
-    [data-testid="stFileUploaderDropzone"] button,
-    [data-testid="baseButton-secondary"] {{
-        color: #03045e !important;
-        background: rgba(255,255,255,0.95) !important;
-        border: 1px solid {uploader_border} !important;
-        font-weight: 900 !important;
-        border-radius: 8px !important;
-    }}
+    # [data-testid="stFileUploaderDropzone"] button,
+    # [data-testid="baseButton-secondary"] {{
+    #     color: #03045e !important;
+    #     background: rgba(255,255,255,0.95) !important;
+    #     border: 1px solid {uploader_border} !important;
+    #     font-weight: 900 !important;
+    #     border-radius: 8px !important;
+    # }}
 
     /* ══ Profile page col-2 top fix ══ */
     .profile-info-card {{
