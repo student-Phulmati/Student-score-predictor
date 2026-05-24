@@ -592,7 +592,17 @@ def apply_css():
     ═══════════════════════════════════════════ */
 
     /* Hide the second/duplicate upload label that appears */
-  
+     /* Hide the second/duplicate upload label that appears */
+[data-testid="stFileUploader"] > label {{
+    display: none !important;
+}}
+
+/* Dropzone container */
+[data-testid="stFileUploaderDropzone"] {{
+    background: {uploader_bg} !important;
+    border: 1.5px dashed {uploader_border} !important;
+    border-radius: 14px !important;
+}}
  
 
 
