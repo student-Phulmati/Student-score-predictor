@@ -591,24 +591,29 @@ def apply_css():
        FILE UPLOADER FIX — single text, visible in both modes
     ═══════════════════════════════════════════ */
 
-    /* Hide the second/duplicate upload label that appears */
-/* Hide duplicate upload text */
-[data-testid="stFileUploader"] label,
-[data-testid="stFileUploader"] label *,
-[data-testid="stFileUploaderDropzoneInstructions"] > div:first-child,
-[data-testid="stFileUploaderDropzoneInstructions"] > div:first-child * {{
-    display: none !important;
-    visibility: hidden !important;
-    font-size: 0px !important;
-    width: 0 !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}}
- 
+    /* Hide duplicate uploader text, keep only the default Streamlit upload button */
+    [data-testid="stFileUploader"] > label {{
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }}
 
+    [data-testid="stFileUploaderDropzoneInstructions"] {{
+        display: none !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }}
 
-    /* Dropzone container */
+/* Dropzone container */
     [data-testid="stFileUploaderDropzone"] {{
         background: {uploader_bg} !important;
         border: 1.5px dashed {uploader_border} !important;
@@ -616,6 +621,18 @@ def apply_css():
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
     }}
+
+    [data-testid="stFileUploaderDropzone"] button {{
+        font-size: 0.95rem !important;
+        color: #03045e !important;
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid {uploader_border} !important;
+        font-weight: 900 !important;
+        border-radius: 8px !important;
+        padding: 0.45rem 1.05rem !important;
+        white-space: nowrap !important;
+    }}
+
 
     /* All text inside uploader — visible in both modes */
     [data-testid="stFileUploaderDropzone"] div,
