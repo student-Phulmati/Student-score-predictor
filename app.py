@@ -592,14 +592,15 @@ def apply_css():
     ═══════════════════════════════════════════ */
 
     /* Hide the second/duplicate upload label that appears */
-    [data-testid="stFileUploaderDropzone"] button {
-    font-size: 0 !important;
+   [data-testid="stFileUploaderDropzone"] button {
+   font-size: 0 !important;
    }
-    [data-testid="stFileUploaderDropzone"] button::after {
+   [data-testid="stFileUploaderDropzone"] button::after {
    content: "Choose File";
    font-size: 15px;
    font-weight: 800;
    }
+ 
 
 
     /* Dropzone container */
