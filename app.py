@@ -1916,6 +1916,119 @@ apply_mode_button_glassy_box_fix()
 
 
 # =====================================================
+# FINAL PROFILE PAGE FIX — uploader overlap, empty box removal, bigger avatar
+# =====================================================
+def apply_profile_page_final_fix():
+    dark = st.session_state.theme == "dark"
+    label_color = "#eaf4ff" if dark else "#03045e"
+    helper_color = "#d8f3ff" if dark else "#023e8a"
+    drop_bg = "rgba(255,255,255,0.16)" if dark else "rgba(255,255,255,0.72)"
+    drop_border = "rgba(144,224,239,0.55)" if dark else "rgba(0,119,182,0.24)"
+    st.markdown(f"""
+    <style>
+    /* Profile photo circle: bigger and clean */
+    .avatar-circle {{
+        width: 148px !important;
+        height: 148px !important;
+        min-width: 148px !important;
+        min-height: 148px !important;
+        font-size: 3.25rem !important;
+        border-width: 4px !important;
+        margin: 10px auto 18px auto !important;
+    }}
+
+    /* Upload text: no overlap + readable in light and dark mode */
+    [data-testid="stFileUploader"] {{
+        margin-top: 8px !important;
+        max-width: 100% !important;
+    }}
+    [data-testid="stFileUploader"] label,
+    [data-testid="stFileUploader"] label p {{
+        color: {label_color} !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        font-size: 0.88rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 8px !important;
+        text-shadow: none !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] {{
+        min-height: 62px !important;
+        padding: 10px 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        overflow: hidden !important;
+        background: {drop_bg} !important;
+        border: 1.5px solid {drop_border} !important;
+        border-radius: 16px !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] * {{
+        color: {helper_color} !important;
+        opacity: 1 !important;
+        font-weight: 800 !important;
+        line-height: 1.25 !important;
+        text-shadow: none !important;
+        white-space: normal !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] button {{
+        flex-shrink: 0 !important;
+        min-width: 92px !important;
+        height: 38px !important;
+        border-radius: 10px !important;
+        color: #03045e !important;
+        background: rgba(255,255,255,0.96) !important;
+        border: 1px solid rgba(0,119,182,0.22) !important;
+        font-weight: 900 !important;
+        box-shadow: none !important;
+    }}
+
+    /* Profile information card: remove the empty rounded box above Username */
+    .profile-info-card {{
+        margin-top: 0 !important;
+        padding: 18px 22px !important;
+        background: rgba(255,255,255,0.42) !important;
+        border: 1px solid rgba(0,119,182,0.16) !important;
+        border-radius: 18px !important;
+        box-shadow: none !important;
+    }}
+    .profile-info-card:empty {{
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+    }}
+    .profile-field {{
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 18px !important;
+        padding: 9px 0 !important;
+        border-bottom: 1px solid rgba(0,119,182,0.14) !important;
+    }}
+    .pf-label {{ color: #0077b6 !important; font-weight: 900 !important; }}
+    .pf-value {{ color: #03045e !important; font-weight: 900 !important; text-align: right !important; }}
+
+    @media (max-width: 760px) {{
+        .avatar-circle {{
+            width: 122px !important;
+            height: 122px !important;
+            min-width: 122px !important;
+            min-height: 122px !important;
+        }}
+        .profile-field {{ align-items: flex-start !important; flex-direction: column !important; gap: 4px !important; }}
+        .pf-value {{ text-align: left !important; }}
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_profile_page_final_fix()
+
+
+# =====================================================
 # MODEL AND PREDICTION
 # =====================================================
 @st.cache_resource
@@ -2741,7 +2854,6 @@ def profile_page(user):
 
         if not edit:
             # View mode
-            st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
                 ("Full Name", user.get("full_name","N/A")),
@@ -2761,14 +2873,17 @@ def profile_page(user):
                     ("Child Grade", user.get("child_grade","N/A")),
                     ("Relation",    user.get("relation","N/A")),
                 ]
-            for label, val in fields:
-                st.markdown(f"""
+
+            profile_rows_html = "".join(
+                f"""
                 <div class='profile-field'>
                   <span class='pf-label'>{label}</span>
                   <span class='pf-value'>{val}</span>
                 </div>
-                """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+                """
+                for label, val in fields
+            )
+            st.markdown(f"<div class='profile-info-card'>{profile_rows_html}</div>", unsafe_allow_html=True)
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("✏️ Edit Profile", use_container_width=True):
                 st.session_state.profile_edit_mode = True
