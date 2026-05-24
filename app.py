@@ -620,27 +620,15 @@ def apply_css():
         text-shadow: {uploader_shadow} !important;
     }}
 
-    /* Browse files button — hide its rendered text, replace with pseudo */
+    /* Browse files button — clean, no overlap */
     [data-testid="stFileUploaderDropzone"] button {{
-        color: transparent !important;
+        color: #03045e !important;
         background: rgba(255,255,255,0.95) !important;
         border: 1px solid {uploader_border} !important;
-        font-size: 0 !important;
-        border-radius: 8px !important;
-        position: relative !important;
-        min-width: 110px !important;
-        height: 36px !important;
-    }}
-    [data-testid="stFileUploaderDropzone"] button::after {{
-        content: "Browse files" !important;
         font-size: 0.82rem !important;
         font-weight: 900 !important;
-        color: #03045e !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-        white-space: nowrap !important;
+        border-radius: 8px !important;
+        padding: 4px 14px !important;
     }}
 
     /* ══ Profile page col-2 top fix ══ */
