@@ -588,12 +588,17 @@ def apply_css():
     }}
 
     /* ═══════════════════════════════════════════
-       FILE UPLOADER FIX — single text, visible in both modes
+       FILE UPLOADER FIX — clean label, no duplicate text
     ═══════════════════════════════════════════ */
 
-    /* Hide the second/duplicate upload label that appears */
+    /* Keep the label visible and styled */
     [data-testid="stFileUploader"] > label {{
-        display: none !important;
+        color: {uploader_text} !important;
+        font-weight: 800 !important;
+        font-size: 0.90rem !important;
+        opacity: 1 !important;
+        display: block !important;
+        text-shadow: {uploader_shadow} !important;
     }}
 
     /* Dropzone container */
@@ -605,11 +610,7 @@ def apply_css():
         -webkit-backdrop-filter: blur(12px) !important;
     }}
 
-    /* All text inside uploader — visible in both modes */
-    [data-testid="stFileUploaderDropzone"] div,
-    [data-testid="stFileUploaderDropzone"] span,
-    [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] p,
+    /* Drag and drop instruction text visible */
     [data-testid="stFileUploaderDropzoneInstructions"] div,
     [data-testid="stFileUploaderDropzoneInstructions"] span,
     [data-testid="stFileUploaderDropzoneInstructions"] small {{
@@ -619,14 +620,27 @@ def apply_css():
         text-shadow: {uploader_shadow} !important;
     }}
 
-    /* Browse/Upload button inside dropzone */
-    [data-testid="stFileUploaderDropzone"] button,
-    [data-testid="baseButton-secondary"] {{
-        color: #03045e !important;
+    /* Browse files button — hide its rendered text, replace with pseudo */
+    [data-testid="stFileUploaderDropzone"] button {{
+        color: transparent !important;
         background: rgba(255,255,255,0.95) !important;
         border: 1px solid {uploader_border} !important;
-        font-weight: 900 !important;
+        font-size: 0 !important;
         border-radius: 8px !important;
+        position: relative !important;
+        min-width: 110px !important;
+        height: 36px !important;
+    }}
+    [data-testid="stFileUploaderDropzone"] button::after {{
+        content: "Browse files" !important;
+        font-size: 0.82rem !important;
+        font-weight: 900 !important;
+        color: #03045e !important;
+        position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        white-space: nowrap !important;
     }}
 
     /* ══ Profile page col-2 top fix ══ */
@@ -1635,9 +1649,7 @@ def profile_page(user):
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
                     unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
-        # Label shown once using st.markdown, uploader without duplicate label
-        st.markdown("📸 **Upload Profile Picture**", unsafe_allow_html=False)
-        upload = st.file_uploader("", type=["jpg","jpeg","png"], label_visibility="collapsed")
+        upload = st.file_uploader("📸 Upload Profile Picture", type=["jpg","jpeg","png"], label_visibility="visible")
         if upload and st.button("💾 Save Picture", use_container_width=True):
             save_profile_pic(uname, upload.read())
             st.success("Profile picture updated!")
