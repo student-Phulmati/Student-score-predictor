@@ -592,16 +592,18 @@ def apply_css():
     ═══════════════════════════════════════════ */
 
     /* Hide the second/duplicate upload label that appears */
-     /* Hide the second/duplicate upload label that appears */
-[data-testid="stFileUploader"] > label {{
+/* Hide duplicate upload text */
+[data-testid="stFileUploader"] label,
+[data-testid="stFileUploader"] label *,
+[data-testid="stFileUploaderDropzoneInstructions"] > div:first-child,
+[data-testid="stFileUploaderDropzoneInstructions"] > div:first-child * {{
     display: none !important;
-}}
-
-/* Dropzone container */
-[data-testid="stFileUploaderDropzone"] {{
-    background: {uploader_bg} !important;
-    border: 1.5px dashed {uploader_border} !important;
-    border-radius: 14px !important;
+    visibility: hidden !important;
+    font-size: 0px !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }}
  
 
