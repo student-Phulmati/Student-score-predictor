@@ -131,7 +131,6 @@ def apply_css():
         topbar_text   = "#eaf4ff"
         topbar_role   = "#88c0e8"
         shadow        = "0 16px 50px rgba(0,0,0,0.28)"
-        # Glass button colors for dark mode
         glass_btn_bg     = "rgba(255,255,255,0.12)"
         glass_btn_border = "rgba(255,255,255,0.28)"
         glass_btn_color  = "#eaf4ff"
@@ -159,7 +158,6 @@ def apply_css():
         topbar_text   = "#03045e"
         topbar_role   = "#0077b6"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
-        # Glass button colors for light mode
         glass_btn_bg     = "rgba(255,255,255,0.55)"
         glass_btn_border = "rgba(2,62,138,0.22)"
         glass_btn_color  = "#03045e"
@@ -446,10 +444,9 @@ def apply_css():
     }}
 
     /* ════════════════════════════════════════════════════════
-       GLASSMORPHISM HEADER BUTTONS — back, nav-pills, theme, logout
+       GLASSMORPHISM HEADER BUTTONS
     ════════════════════════════════════════════════════════ */
 
-    /* Back arrow button — glassy */
     .back-top-btn .stButton > button {{
         width: 96px !important;
         min-width: 96px !important;
@@ -479,7 +476,6 @@ def apply_css():
         transform: translateX(-2px) !important;
     }}
 
-    /* Nav pill buttons — glassy inactive */
     .nav-tab .stButton > button {{
         height: 38px !important;
         min-height: 38px !important;
@@ -505,7 +501,6 @@ def apply_css():
         transform: translateY(-1px) !important;
     }}
 
-    /* Active nav pill — golden gradient (keep same) */
     .nav-tab-active .stButton > button {{
         position: relative !important;
         height: 38px !important;
@@ -539,7 +534,6 @@ def apply_css():
         transform: translateY(-1px) !important;
     }}
 
-    /* Theme toggle (circle) — glassy */
     .circle-tool-btn .stButton > button {{
         width: 38px !important;
         min-width: 38px !important;
@@ -562,7 +556,6 @@ def apply_css():
         box-shadow: 0 8px 20px rgba(0,119,182,0.22), inset 0 1px 0 rgba(255,255,255,0.38) !important;
     }}
 
-    /* Logout button — glassy (not golden, not blue) */
     .logout-small-btn .stButton > button {{
         height: 38px !important;
         min-height: 38px !important;
@@ -587,20 +580,25 @@ def apply_css():
         transform: translateY(-1px) !important;
     }}
 
-    /* ═══════════════════════════════════════════
-       FILE UPLOADER FIX — single text, visible in both modes
-    ═══════════════════════════════════════════ */
+    /* ═══════════════════════════════════════════════════════
+       FILE UPLOADER FIX — "upload upload" overlap theek kiya
+       st.markdown wali duplicate label hata di.
+       Sirf st.file_uploader ka apna label visible hai.
+    ═══════════════════════════════════════════════════════ */
 
-    /* Hide duplicate uploader text, keep only the default Streamlit upload button */
+    /* Uploader ka label visible aur styled */
     [data-testid="stFileUploader"] > label {{
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        color: {uploader_text} !important;
+        font-weight: 700 !important;
+        font-size: 0.87rem !important;
+        margin-bottom: 6px !important;
+        height: auto !important;
+        min-height: auto !important;
     }}
 
+    /* Dropzone ke andar ki duplicate instructions bilkul hide */
     [data-testid="stFileUploaderDropzoneInstructions"] {{
         display: none !important;
         visibility: hidden !important;
@@ -613,7 +611,7 @@ def apply_css():
         overflow: hidden !important;
     }}
 
-/* Dropzone container */
+    /* Dropzone container styling */
     [data-testid="stFileUploaderDropzone"] {{
         background: {uploader_bg} !important;
         border: 1.5px dashed {uploader_border} !important;
@@ -622,6 +620,7 @@ def apply_css():
         -webkit-backdrop-filter: blur(12px) !important;
     }}
 
+    /* Browse button inside dropzone */
     [data-testid="stFileUploaderDropzone"] button {{
         font-size: 0.95rem !important;
         color: #03045e !important;
@@ -633,22 +632,15 @@ def apply_css():
         white-space: nowrap !important;
     }}
 
-
-    /* All text inside uploader — visible in both modes */
+    /* Dropzone text color */
     [data-testid="stFileUploaderDropzone"] div,
     [data-testid="stFileUploaderDropzone"] span,
     [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] p,
-    [data-testid="stFileUploaderDropzoneInstructions"] div,
-    [data-testid="stFileUploaderDropzoneInstructions"] span,
-    [data-testid="stFileUploaderDropzoneInstructions"] small {{
+    [data-testid="stFileUploaderDropzone"] p {{
         color: {uploader_text} !important;
         opacity: 1 !important;
         font-weight: 700 !important;
-        text-shadow: {uploader_shadow} !important;
     }}
-
-  
 
     /* ══ Profile page col-2 top fix ══ */
     .profile-info-card {{
@@ -726,7 +718,6 @@ def apply_layout_fix():
         padding: 0 !important;
     }
 
-    /* HEADER TITLE */
     .header-title-wrap {
         display: flex !important;
         flex-direction: column !important;
@@ -752,7 +743,6 @@ def apply_layout_fix():
         visibility: hidden !important;
     }
 
-    /* DASH PAGE */
     .dash-page {
         padding: 4px 3.4vw 24px 3.4vw !important;
         margin: 0 !important;
@@ -793,7 +783,6 @@ def apply_layout_fix():
         padding-top: 0 !important;
     }
 
-    /* CORNER USER */
     .corner-user {
         display: flex !important;
         align-items: center !important;
@@ -822,7 +811,6 @@ def apply_layout_fix():
         font-weight: 800 !important; margin-top: 2px !important; white-space: nowrap !important;
     }
 
-    /* AVATAR CIRCLE — bigger */
     .avatar-circle {
         width: 140px !important; height: 140px !important;
         font-size: 3.2rem !important;
@@ -1656,9 +1644,19 @@ def profile_page(user):
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
                     unsafe_allow_html=True)
         st.markdown("<br>", unsafe_allow_html=True)
-        # Label shown once using st.markdown, uploader without duplicate label
-        st.markdown("📸 **Upload Profile Picture**", unsafe_allow_html=False)
-        upload = st.file_uploader("", type=["jpg","jpeg","png"], label_visibility="collapsed")
+
+        # ═══════════════════════════════════════════════════
+        # BUG FIX: "upload upload" overlap theek kiya
+        # Pehle code mein st.markdown("📸 **Upload...**") aur
+        # file_uploader dono ka text dikh raha tha, overlap hota tha.
+        # Ab sirf file_uploader ka label_visibility="visible" hai —
+        # alag st.markdown label bilkul nahi hai.
+        # ═══════════════════════════════════════════════════
+        upload = st.file_uploader(
+            "📸 Upload Profile Picture",
+            type=["jpg", "jpeg", "png"],
+            label_visibility="visible"
+        )
         if upload and st.button("💾 Save Picture", use_container_width=True):
             save_profile_pic(uname, upload.read())
             st.success("Profile picture updated!")
