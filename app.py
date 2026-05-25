@@ -1600,7 +1600,7 @@ apply_header_title_active_fix()
 
 
 # =====================================================
-# FINAL BACK ARROW DESIGN FIX — match compact dark rectangle style
+# FINAL BACK ARROW VISIBILITY FIX — arrow clearly visible in dark mode
 # =====================================================
 def apply_back_arrow_second_design_fix():
     st.markdown("""
@@ -1614,27 +1614,45 @@ def apply_back_arrow_second_design_fix():
         padding: 0 !important;
         margin: 0 !important;
         border-radius: 9px !important;
-        background: rgba(80, 92, 132, 0.82) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
-        box-shadow: none !important;
-        font-size: 1.18rem !important;
+        background: rgba(255, 255, 255, 0.96) !important;
+        color: #03045e !important;
+        border: 1.5px solid rgba(3, 4, 94, 0.18) !important;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16) !important;
+        font-size: 1.35rem !important;
         font-weight: 900 !important;
         line-height: 1 !important;
         transform: none !important;
+        text-shadow: none !important;
+        opacity: 1 !important;
+    }
+
+    .back-top-btn .stButton > button p,
+    .back-top-btn .stButton > button span,
+    .back-top-btn .stButton > button div {
+        color: #03045e !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        text-shadow: none !important;
     }
 
     .back-top-btn .stButton > button:hover {
-        background: rgba(88, 102, 146, 0.95) !important;
-        color: #ffffff !important;
-        border-color: rgba(255,255,255,0.18) !important;
-        box-shadow: none !important;
-        transform: none !important;
+        background: #eaf6ff !important;
+        color: #0077b6 !important;
+        border-color: rgba(0,119,182,0.35) !important;
+        box-shadow: 0 10px 24px rgba(0,119,182,0.20) !important;
+        transform: translateX(-2px) !important;
+    }
+
+    .back-top-btn .stButton > button:hover p,
+    .back-top-btn .stButton > button:hover span,
+    .back-top-btn .stButton > button:hover div {
+        color: #0077b6 !important;
+        opacity: 1 !important;
     }
 
     .back-top-btn .stButton > button:active {
-        background: rgba(65, 76, 112, 0.98) !important;
-        color: #ffffff !important;
+        background: #dff2ff !important;
+        color: #03045e !important;
         transform: scale(0.98) !important;
     }
 
@@ -1645,6 +1663,7 @@ def apply_back_arrow_second_design_fix():
             max-width: 76px !important;
             height: 46px !important;
             min-height: 46px !important;
+            font-size: 1.22rem !important;
         }
     }
     </style>
