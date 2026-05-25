@@ -819,8 +819,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 # ⚠️  Apna Gmail aur App Password yahan daalo
-SMTP_SENDER_EMAIL    = "your_gmail@gmail.com"      # ← apna Gmail
-SMTP_APP_PASSWORD    = "xxxx xxxx xxxx xxxx"        # ← Gmail App Password
+SMTP_SENDER_EMAIL    = "phulmatis60@gmail.com"      # ← apna Gmail
+SMTP_APP_PASSWORD    = "coak twqw cljl erxq"        # ← Gmail App Password
 
 def generate_otp():
     """6-digit random OTP generate karo."""
