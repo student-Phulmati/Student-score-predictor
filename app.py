@@ -429,16 +429,22 @@ def apply_css():
         background: linear-gradient(135deg,#25D366,#128C7E);
     }}
 
-    /* ── Profile card ── */
+    /* ── Profile card — FIX: top empty box removed ── */
     .profile-info-card {{
         background: {card_bg};
         border: 1px solid {border_color};
         backdrop-filter: blur(18px);
-        border-radius: 20px; padding: 22px;
+        border-radius: 20px;
+        padding: 0 22px 22px 22px;
+        margin-top: 0 !important;
+        overflow: hidden;
     }}
     .profile-field {{
         display: flex; justify-content: space-between; gap: 14px;
         padding: 10px 0; border-bottom: 1px solid {border_color}; font-size: 0.92rem;
+    }}
+    .profile-field:first-child {{
+        padding-top: 16px;
     }}
     .profile-field:last-child {{ border-bottom: none; }}
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
@@ -1914,6 +1920,46 @@ def apply_mode_button_glassy_box_fix():
 
 apply_mode_button_glassy_box_fix()
 
+# =====================================================
+# PROFILE INFO CARD TOP BOX FIX
+# Yeh fix specifically profile page ke upar wale
+# khali box ko hatata hai
+# =====================================================
+def apply_profile_card_top_fix():
+    st.markdown("""
+    <style>
+    /* Remove the empty box/gap appearing above Username in profile card */
+    .profile-info-card {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* First profile field should start right from top with proper padding */
+    .profile-info-card .profile-field:first-child {
+        padding-top: 14px !important;
+        margin-top: 0 !important;
+    }
+
+    /* Remove any stray empty element inside the card that creates the box */
+    .profile-info-card > *:first-child:empty,
+    .profile-info-card > div:empty {
+        display: none !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Ensure col2 (right column on profile page) has no extra top margin */
+    .dash-page .stColumns > div:nth-child(2) {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_profile_card_top_fix()
+
 
 # =====================================================
 # MODEL AND PREDICTION
@@ -2341,7 +2387,6 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            # Create account directly without email OTP verification
             if st.button("🚀 Create Account", key="create_account_btn", use_container_width=True):
                 if not username or not email or not full_name or not password or not confirm:
                     st.warning("Please fill all required fields first.")
@@ -2399,13 +2444,6 @@ def top_navbar(user):
     icon = "🎓" if user.get("role", "student") == "student" else "👨‍👩‍👧"
     avatar = profile_pic_html(st.session_state.username, icon)
 
-    page_icons = {
-        "Home": "🏠",
-        "Prediction": "📈",
-        "Report & Share": "📄",
-        "History": "📚",
-        "Profile": "👤",
-    }
     page_subtitles = {
         "Home": "Dashboard overview",
         "Prediction": "Enter details and predict score",
@@ -2740,8 +2778,7 @@ def profile_page(user):
         edit = st.session_state.profile_edit_mode
 
         if not edit:
-            # View mode
-            st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
+            # View mode — NO extra markdown before fields, card starts directly
             fields = [
                 ("Username",  uname),
                 ("Full Name", user.get("full_name","N/A")),
@@ -2761,14 +2798,14 @@ def profile_page(user):
                     ("Child Grade", user.get("child_grade","N/A")),
                     ("Relation",    user.get("relation","N/A")),
                 ]
-            for label, val in fields:
-                st.markdown(f"""
-                <div class='profile-field'>
-                  <span class='pf-label'>{label}</span>
-                  <span class='pf-value'>{val}</span>
-                </div>
-                """, unsafe_allow_html=True)
-            st.markdown("</div>", unsafe_allow_html=True)
+
+            # Build all field HTML in one string — no empty box before first field
+            fields_html = "".join([
+                f"<div class='profile-field'><span class='pf-label'>{label}</span><span class='pf-value'>{val}</span></div>"
+                for label, val in fields
+            ])
+            st.markdown(f"<div class='profile-info-card'>{fields_html}</div>", unsafe_allow_html=True)
+
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("✏️ Edit Profile", use_container_width=True):
                 st.session_state.profile_edit_mode = True
