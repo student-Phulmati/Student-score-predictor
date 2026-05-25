@@ -2709,7 +2709,7 @@ def report_page(user):
       <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Open WhatsApp to Share PDF</a>
     </div>
     """, unsafe_allow_html=True)
-    st.caption("WhatsApp browser link PDF ko automatic attach nahi kar sakta. Pehle PDF download hoga, phir WhatsApp open karke wahi PDF attach karke send karein.")
+   # st.caption("WhatsApp browser link PDF ko automatic attach nahi kar sakta. Pehle PDF download hoga, phir WhatsApp open karke wahi PDF attach karke send karein.")
 
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
