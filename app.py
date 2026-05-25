@@ -1600,7 +1600,7 @@ apply_header_title_active_fix()
 
 
 # =====================================================
-# FINAL BACK ARROW VISIBILITY FIX — arrow clearly visible in dark mode
+# FINAL BACK ARROW DESIGN FIX — match compact dark rectangle style
 # =====================================================
 def apply_back_arrow_second_design_fix():
     st.markdown("""
@@ -1614,45 +1614,27 @@ def apply_back_arrow_second_design_fix():
         padding: 0 !important;
         margin: 0 !important;
         border-radius: 9px !important;
-        background: rgba(255, 255, 255, 0.96) !important;
-        color: #03045e !important;
-        border: 1.5px solid rgba(3, 4, 94, 0.18) !important;
-        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.16) !important;
-        font-size: 1.35rem !important;
+        background: rgba(80, 92, 132, 0.82) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        box-shadow: none !important;
+        font-size: 1.18rem !important;
         font-weight: 900 !important;
         line-height: 1 !important;
         transform: none !important;
-        text-shadow: none !important;
-        opacity: 1 !important;
-    }
-
-    .back-top-btn .stButton > button p,
-    .back-top-btn .stButton > button span,
-    .back-top-btn .stButton > button div {
-        color: #03045e !important;
-        opacity: 1 !important;
-        font-weight: 900 !important;
-        text-shadow: none !important;
     }
 
     .back-top-btn .stButton > button:hover {
-        background: #eaf6ff !important;
-        color: #0077b6 !important;
-        border-color: rgba(0,119,182,0.35) !important;
-        box-shadow: 0 10px 24px rgba(0,119,182,0.20) !important;
-        transform: translateX(-2px) !important;
-    }
-
-    .back-top-btn .stButton > button:hover p,
-    .back-top-btn .stButton > button:hover span,
-    .back-top-btn .stButton > button:hover div {
-        color: #0077b6 !important;
-        opacity: 1 !important;
+        background: rgba(88, 102, 146, 0.95) !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.18) !important;
+        box-shadow: none !important;
+        transform: none !important;
     }
 
     .back-top-btn .stButton > button:active {
-        background: #dff2ff !important;
-        color: #03045e !important;
+        background: rgba(65, 76, 112, 0.98) !important;
+        color: #ffffff !important;
         transform: scale(0.98) !important;
     }
 
@@ -1663,7 +1645,6 @@ def apply_back_arrow_second_design_fix():
             max-width: 76px !important;
             height: 46px !important;
             min-height: 46px !important;
-            font-size: 1.22rem !important;
         }
     }
     </style>
@@ -1978,6 +1959,103 @@ def apply_profile_card_top_fix():
     """, unsafe_allow_html=True)
 
 apply_profile_card_top_fix()
+
+# =====================================================
+# FINAL BACK BUTTON VISIBILITY FIX — arrow visible in dark mode
+# Paste/keep this AFTER all other CSS fixes so it overrides previous styles
+# =====================================================
+def apply_back_button_arrow_visibility_fix():
+    dark = st.session_state.theme == "dark"
+
+    # Dark mode: white glass button + dark arrow (clearly visible)
+    # Light mode: same clean button so design remains consistent
+    btn_bg = "rgba(255,255,255,0.96)"
+    btn_hover = "rgba(234,246,255,1)"
+    arrow_color = "#03045e"
+    border = "rgba(144,224,239,0.55)" if dark else "rgba(2,62,138,0.18)"
+
+    st.markdown(f"""
+    <style>
+    /* Strong override for the top back button */
+    .back-top-btn .stButton > button,
+    .back-top-btn button,
+    div.back-top-btn button {{
+        width: 96px !important;
+        min-width: 96px !important;
+        max-width: 96px !important;
+        height: 54px !important;
+        min-height: 54px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 9px !important;
+        background: {btn_bg} !important;
+        background-color: {btn_bg} !important;
+        color: {arrow_color} !important;
+        border: 1.8px solid {border} !important;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.18) !important;
+        font-size: 1.45rem !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        text-shadow: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }}
+
+    /* Streamlit puts button text inside p/span sometimes — force arrow color there too */
+    .back-top-btn .stButton > button *,
+    .back-top-btn button *,
+    div.back-top-btn button *,
+    .back-top-btn .stButton > button p,
+    .back-top-btn .stButton > button span {{
+        color: {arrow_color} !important;
+        fill: {arrow_color} !important;
+        stroke: {arrow_color} !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        text-shadow: none !important;
+    }}
+
+    .back-top-btn .stButton > button:hover,
+    .back-top-btn button:hover,
+    div.back-top-btn button:hover {{
+        background: {btn_hover} !important;
+        background-color: {btn_hover} !important;
+        color: {arrow_color} !important;
+        border-color: rgba(0,119,182,0.45) !important;
+        box-shadow: 0 10px 26px rgba(0,119,182,0.24) !important;
+        transform: none !important;
+    }}
+
+    .back-top-btn .stButton > button:hover *,
+    .back-top-btn button:hover * {{
+        color: {arrow_color} !important;
+        fill: {arrow_color} !important;
+        stroke: {arrow_color} !important;
+        opacity: 1 !important;
+    }}
+
+    .back-top-btn .stButton > button:active,
+    .back-top-btn button:active {{
+        transform: scale(0.98) !important;
+        color: {arrow_color} !important;
+    }}
+
+    @media (max-width: 760px) {{
+        .back-top-btn .stButton > button,
+        .back-top-btn button,
+        div.back-top-btn button {{
+            width: 76px !important;
+            min-width: 76px !important;
+            max-width: 76px !important;
+            height: 46px !important;
+            min-height: 46px !important;
+            font-size: 1.30rem !important;
+        }}
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_back_button_arrow_visibility_fix()
 
 
 # =====================================================
