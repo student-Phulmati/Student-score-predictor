@@ -1204,3 +1204,2093 @@ def render_profile_panel(user):
                 st.session_state.edit_profile = False
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+# ══════════════════════════════════════════════════════════════════════════════
+#  APP PART 2 — Auth Page · Prediction Form · History Panel
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── AUTH PAGE ─────────────────────────────────────────────────────────────────
+def render_auth():
+    _, tb = st.columns([9, 1])
+    with tb:
+        theme_btn("theme_auth")
+    st.markdown('<div class="auth-wrap">', unsafe_allow_html=True)
+    left_col, right_col = st.columns([1.15, 1], gap="large")
+    with left_col:
+        st.markdown(f"""
+        <div style="padding: 20px 10px 0 10px;">
+            <div class="brand-badge">✨ AI-Powered Education</div>
+            <div class="brand-title">
+                Pre<span class="g1">dict.</span><br/>
+                Im<span class="g2">prove.</span><br/>
+                Excel.
+            </div>
+            <div class="brand-sub">
+                EduPredict uses machine learning to forecast exam scores
+                and reveal the habits that drive academic success.
+            </div>
+            <div class="feat"><div class="feat-dot"></div> Personalised score predictions</div>
+            <div class="feat"><div class="feat-dot"></div> Track study habits &amp; attendance</div>
+            <div class="feat"><div class="feat-dot"></div> Parent dashboard access</div>
+            <div class="feat"><div class="feat-dot"></div> Instant AI-powered results</div>
+        </div>
+        """, unsafe_allow_html=True)
+    with right_col:
+        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
+        mode = st.session_state.auth_mode
+        if mode == "login":
+            st.markdown('<div class="auth-title">Welcome Back 👋</div>', unsafe_allow_html=True)
+            st.markdown('<div class="auth-sub">Sign in to your EduPredict account</div>', unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="auth-title">Join EduPredict 🚀</div>', unsafe_allow_html=True)
+            st.markdown('<div class="auth-sub">Create your free account in seconds</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="role-lbl">I am a</div>', unsafe_allow_html=True)
+
+        # ── Login shows Admin; Signup only Student / Parent ──
+        if mode == "login":
+            role_options = ["🎒 Student", "👨‍👩‍👧 Parent", "🔐 Admin"]
+        else:
+            role_options = ["🎒 Student", "👨‍👩‍👧 Parent"]
+
+        role_choice = st.radio(
+            "Role", role_options,
+            horizontal=True, label_visibility="collapsed", key="role_select")
+
+        if "Student" in role_choice:
+            selected_role = "Student"
+        elif "Parent" in role_choice:
+            selected_role = "Parent"
+        else:
+            selected_role = "Admin"
+
+        # ── LOGIN ──────────────────────────────────────────────────────────
+        if mode == "login":
+
+            # ── Account deleted by admin — inform user ────────────────────
+            if st.session_state.get("account_deleted_msg", False):
+                st.markdown(f"""
+                <div style="
+                    background: rgba(255,60,60,0.10);
+                    border: 1.5px solid rgba(255,60,60,0.35);
+                    border-left: 4px solid #ff4444;
+                    border-radius: 14px;
+                    padding: 16px 20px;
+                    margin-bottom: 18px;">
+                    <div style="font-family:'Syne',sans-serif;font-size:14px;
+                         font-weight:800;color:#ff4444;margin-bottom:6px;">
+                        ⛔ Account Removed
+                    </div>
+                    <div style="font-size:12px;color:{T['text_secondary']};line-height:1.65;">
+                        Aapka account admin dwara delete kar diya gaya hai.<br/>
+                        <span style="color:{T['text_muted']};">
+                            Agar aapko lagta hai yeh galti se hua hai, to
+                            ek naya account banayein ya seedha admin se sampark karein.
+                        </span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                dismiss_c, _ = st.columns([1, 3])
+                with dismiss_c:
+                    st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+                    if st.button("✖ Dismiss", key="dismiss_deleted_msg"):
+                        st.session_state["account_deleted_msg"] = False
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+            email    = st.text_input("Email Address", placeholder="you@example.com", key="login_email")
+            password = st.text_input("Password", type="password", placeholder="••••••••", key="login_pass")
+            if st.button("Sign In →", key="login_btn"):
+                if not email or not password:
+                    st.error("Please fill in all fields.")
+                else:
+                    with st.spinner("Verifying..."):
+                        time.sleep(0.35)
+                        ok, result = login_user(email, password, selected_role)
+                    if ok:
+                        st.session_state.logged_in    = True
+                        st.session_state.user         = result
+                        st.session_state.view         = "dashboard"
+                        st.session_state["show_contact_support"] = False
+                        st.rerun()
+                    else:
+                        st.error(result)
+                        if "blocked" in result.lower():
+                            st.session_state["show_contact_support"] = True
+                            st.session_state["blocked_user_email"]   = email
+
+            # ── Contact Support form (shown only after blocked error) ──────
+            if st.session_state.get("show_contact_support", False):
+                blocked_email = st.session_state.get("blocked_user_email", email)
+                st.markdown(f"""
+                <div class="contact-support-card">
+                  <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+                       color:#ff5555;margin-bottom:4px;">🚫 Account Blocked</div>
+                  <div style="font-size:12px;color:{T['text_secondary']};margin-bottom:12px;">
+                    Your account has been restricted. Send a message to the admin to request access.
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+                support_msg = st.text_area(
+                    "Your message to admin *",
+                    placeholder="Explain why you need access to be restored...",
+                    key="support_msg_text", height=100)
+                if st.button("📨 Send Message to Admin", key="send_support_msg"):
+                    if not support_msg.strip():
+                        st.error("Please write a message before sending.")
+                    else:
+                        now_ist = datetime.now(IST).strftime("%d %b %Y, %I:%M %p IST")
+                        save_message({
+                            "from_email": blocked_email,
+                            "from_name":  blocked_email,
+                            "message":    support_msg.strip(),
+                            "timestamp":  now_ist,
+                            "type":       "blocked_appeal",
+                            "read":       False,
+                        })
+                        st.success("✅ Message sent! Admin will review your request.")
+                        st.session_state["show_contact_support"] = False
+
+            st.markdown('<div class="hdivider">or</div>', unsafe_allow_html=True)
+            st.markdown("<div class='sw-txt'>Don't have an account?</div>", unsafe_allow_html=True)
+            if st.button("Create Free Account", key="go_signup"):
+                st.session_state.auth_mode = "signup"
+                st.rerun()
+
+        # ── SIGNUP ─────────────────────────────────────────────────────────
+        else:
+            # ── ADMIN SIGNUP: minimal form ──────────────────────────────────
+            if selected_role == "Admin":
+                st.markdown(f"""
+                <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+                     border-left:4px solid {T['acc2']};border-radius:14px;
+                     padding:14px 18px;margin-bottom:14px;">
+                  <div style="font-size:12px;font-weight:700;color:{T['acc2']};margin-bottom:3px;">
+                    🔐 Admin Account
+                  </div>
+                  <div style="font-size:11px;color:{T['text_muted']};">
+                    Admin accounts have full access to the user dashboard and all platform data.
+                  </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown('<div class="sec-title">👤 Admin Details</div>', unsafe_allow_html=True)
+                adm_name = st.text_input("Full Name *", placeholder="Admin Name", key="signup_adm_name")
+
+                st.markdown('<div class="sec-title">🔐 Account Credentials</div>', unsafe_allow_html=True)
+                adm_email = st.text_input("Email Address *", placeholder="admin@example.com", key="signup_adm_email")
+                ap1, ap2  = st.columns(2)
+                with ap1: adm_pw  = st.text_input("Password *",         type="password", placeholder="••••••••", key="signup_adm_pass")
+                with ap2: adm_pw2 = st.text_input("Confirm Password *", type="password", placeholder="••••••••", key="signup_adm_confirm")
+
+                st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+                if st.button("Create Admin Account →", key="signup_btn"):
+                    if not adm_name or not adm_email or not adm_pw or not adm_pw2:
+                        st.error("Please fill in all required fields (*).")
+                    elif len(adm_pw) < 6:
+                        st.error("Password must be at least 6 characters.")
+                    elif adm_pw != adm_pw2:
+                        st.error("Passwords do not match.")
+                    elif "@" not in adm_email:
+                        st.error("Please enter a valid email address.")
+                    else:
+                        user_data = {
+                            "name": adm_name, "email": adm_email, "password": adm_pw,
+                            "role": "Admin", "phone": "", "dob": "", "gender": "",
+                            "city": "", "profile_pic": "", "prediction_history": [],
+                        }
+                        with st.spinner("Creating admin account..."):
+                            time.sleep(0.35)
+                            ok, msg = register_user(user_data)
+                        if ok:
+                            st.success("🎉 Admin account created! You can now sign in.")
+                            st.session_state.auth_mode = "login"
+                            st.rerun()
+                        else:
+                            st.error(msg)
+
+            # ── STUDENT / PARENT SIGNUP ─────────────────────────────────────
+            else:
+                # ════════════════════════════════════════════════════════════
+                # STEP 2 — OTP Verification screen
+                # ════════════════════════════════════════════════════════════
+                if st.session_state.get("otp_sent", False):
+                    otp_email = st.session_state.get("otp_email", "")
+                    expiry    = st.session_state.get("otp_expiry")
+                    now_ts    = datetime.now(IST).timestamp()
+                    expired   = expiry and now_ts > expiry
+
+                    st.markdown(f"""
+                    <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+                         border-top:4px solid {T['acc4']};border-radius:16px;
+                         padding:18px 20px;margin-bottom:16px;">
+                      <div style="font-family:'Syne',sans-serif;font-size:15px;
+                           font-weight:800;color:{T['text_primary']};margin-bottom:4px;">
+                        📧 Verify Your Email
+                      </div>
+                      <div style="font-size:12px;color:{T['text_muted']};line-height:1.6;">
+                        A 6-digit OTP has been sent to
+                        <strong style="color:{T['acc4']};">{otp_email}</strong>.<br/>
+                        Check your inbox (and spam folder). Valid for <strong>10 minutes</strong>.
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    if expired:
+                        st.markdown(f"""
+                        <div style="background:rgba(255,60,60,0.10);border-left:4px solid #ff4444;
+                             border-radius:10px;padding:12px 16px;margin-bottom:12px;">
+                          <div style="font-size:12px;color:#ff4444;font-weight:700;">
+                            ⏰ OTP expired. Please go back and try again.
+                          </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        if st.button("← Go Back", key="otp_expired_back"):
+                            st.session_state["otp_sent"]         = False
+                            st.session_state["otp_code"]         = None
+                            st.session_state["otp_pending_data"] = None
+                            st.rerun()
+                    else:
+                        # Remaining time
+                        remaining = int(expiry - now_ts) if expiry else 0
+                        mins, secs = divmod(remaining, 60)
+                        st.markdown(f"""
+                        <div style="font-size:11px;color:{T['acc2']};font-weight:700;
+                             margin-bottom:10px;">
+                          ⏱ OTP expires in: {mins}m {secs}s
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        entered_otp = st.text_input(
+                            "Enter 6-digit OTP *",
+                            placeholder="e.g. 482916",
+                            max_chars=6, key="otp_input_field")
+
+                        verify_c, back_c, resend_c = st.columns([1.4, 1, 1.4])
+
+                        with verify_c:
+                            st.markdown('<div class="predict-hdr-btn">', unsafe_allow_html=True)
+                            if st.button("✅ Verify & Create Account", key="verify_otp_btn"):
+                                if not entered_otp.strip():
+                                    st.error("Please enter the OTP.")
+                                elif entered_otp.strip() != st.session_state.get("otp_code",""):
+                                    st.error("❌ Incorrect OTP. Please try again.")
+                                else:
+                                    # OTP correct — register the user
+                                    pending = st.session_state.get("otp_pending_data", {})
+                                    with st.spinner("Verifying & creating account..."):
+                                        time.sleep(0.3)
+                                        ok, msg = register_user(pending)
+                                    if ok:
+                                        # Clear OTP state
+                                        for k in ["otp_sent","otp_code","otp_email",
+                                                  "otp_expiry","otp_pending_data","otp_verified"]:
+                                            st.session_state[k] = False if k == "otp_sent" else None
+                                        st.success("🎉 Account created! You can now sign in.")
+                                        st.session_state.auth_mode = "login"
+                                        st.rerun()
+                                    else:
+                                        st.error(msg)
+                            st.markdown('</div>', unsafe_allow_html=True)
+
+                        with back_c:
+                            st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+                            if st.button("← Back", key="otp_back_btn"):
+                                st.session_state["otp_sent"]         = False
+                                st.session_state["otp_code"]         = None
+                                st.session_state["otp_pending_data"] = None
+                                st.rerun()
+                            st.markdown('</div>', unsafe_allow_html=True)
+
+                        with resend_c:
+                            st.markdown('<div class="hist-btn">', unsafe_allow_html=True)
+                            if st.button("🔁 Resend OTP", key="resend_otp_btn"):
+                                new_otp    = generate_otp()
+                                new_expiry = datetime.now(IST).timestamp() + 600
+                                pending    = st.session_state.get("otp_pending_data", {})
+                                with st.spinner("Sending OTP..."):
+                                    ok_mail, err = send_otp_email(
+                                        otp_email, new_otp,
+                                        pending.get("name",""))
+                                if ok_mail:
+                                    st.session_state["otp_code"]   = new_otp
+                                    st.session_state["otp_expiry"] = new_expiry
+                                    st.success("✅ New OTP sent! Check your inbox.")
+                                    st.rerun()
+                                else:
+                                    st.error(f"Failed to resend: {err}")
+                            st.markdown('</div>', unsafe_allow_html=True)
+
+                # ════════════════════════════════════════════════════════════
+                # STEP 1 — Signup Form
+                # ════════════════════════════════════════════════════════════
+                else:
+                    st.markdown('<div class="sec-title" style="margin-top:4px;">📸 Profile Picture</div>', unsafe_allow_html=True)
+                    pic_file = st.file_uploader(
+                        "Upload Photo (JPG / PNG)", type=["jpg","jpeg","png"],
+                        key="signup_pic", label_visibility="collapsed")
+                    if pic_file:
+                        pic_file.seek(0)
+                        b64p = base64.b64encode(pic_file.read()).decode()
+                        pic_file.seek(0)
+                        st.markdown(render_pic_ring(b64p, size=78), unsafe_allow_html=True)
+                        st.markdown(f'<div class="pic-label" style="color:{T["acc4"]};">✓ Photo uploaded</div>', unsafe_allow_html=True)
+                    else:
+                        st.markdown(render_pic_ring("", size=78), unsafe_allow_html=True)
+                        st.markdown('<div class="pic-label">Tap above to upload</div>', unsafe_allow_html=True)
+
+                    st.markdown('<div class="sec-title">👤 Personal Info</div>', unsafe_allow_html=True)
+                    n1, n2 = st.columns(2)
+                    with n1: name  = st.text_input("Full Name *",    placeholder="Jane Smith",     key="signup_name")
+                    with n2: phone = st.text_input("Phone Number *", placeholder="+91 9876543210", key="signup_phone")
+                    d1, d2 = st.columns(2)
+                    with d1:
+                        gender = st.selectbox("Gender *", ["Prefer not to say","Female","Male","Non-binary / Other"], key="signup_gender")
+                    with d2:
+                        dob_date = st.date_input(
+                            "🎂 Date of Birth *", value=date(2000, 1, 1),
+                            min_value=date(1940, 1, 1), max_value=date.today(), key="signup_dob")
+                        dob = date_to_dob_str(dob_date)
+                    city = st.text_input("City / Town *", placeholder="Mumbai", key="signup_city")
+
+                    if selected_role == "Student":
+                        st.markdown('<div class="sec-title">🎒 Student Details</div>', unsafe_allow_html=True)
+                        s1, s2, s3 = st.columns(3)
+                        with s1:
+                            student_class = st.selectbox("Class *", [
+                                "Class 6","Class 7","Class 8","Class 9","Class 10",
+                                "Class 11","Class 12","Undergraduate","Postgraduate"
+                            ], key="signup_class")
+                        with s2: student_age = st.text_input("Age *",              placeholder="16",        key="signup_age")
+                        with s3: school_name = st.text_input("School / College *", placeholder="DPS Delhi", key="signup_school")
+                    else:
+                        st.markdown('<div class="sec-title">👨‍👩‍👧 Parent Details</div>', unsafe_allow_html=True)
+                        relation = st.selectbox("Relation with Student *",
+                            ["Father","Mother","Guardian","Elder Sibling","Other"], key="signup_relation")
+
+                    st.markdown('<div class="sec-title">🔐 Account Credentials</div>', unsafe_allow_html=True)
+                    email = st.text_input("Email Address *", placeholder="you@example.com", key="signup_email")
+                    p1, p2 = st.columns(2)
+                    with p1: pw  = st.text_input("Password *",         type="password", placeholder="••••••••", key="signup_pass")
+                    with p2: pw2 = st.text_input("Confirm Password *", type="password", placeholder="••••••••", key="signup_confirm")
+
+                    # OTP badge info
+                    st.markdown(f"""
+                    <div style="background:rgba(6,214,160,0.08);border:1px solid rgba(6,214,160,0.25);
+                         border-radius:10px;padding:10px 14px;margin:10px 0 6px;">
+                      <div style="font-size:11px;color:{T['acc4']};font-weight:700;">
+                        🔐 Email Verification Required
+                      </div>
+                      <div style="font-size:11px;color:{T['text_muted']};margin-top:2px;">
+                        A 6-digit OTP will be sent to your email to verify your account before creation.
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+                    if st.button("Send OTP & Verify Email →", key="signup_btn"):
+                        missing = not name or not email or not pw or not pw2 or not phone or not dob or not city
+                        if selected_role == "Student":
+                            missing = missing or not student_age or not school_name
+                        if missing:
+                            st.error("Please fill in all required fields (*).")
+                        elif len(pw) < 6:
+                            st.error("Password must be at least 6 characters.")
+                        elif pw != pw2:
+                            st.error("Passwords do not match.")
+                        elif "@" not in email or "." not in email.split("@")[-1]:
+                            st.error("Please enter a valid email address.")
+                        else:
+                            # Build user_data but DO NOT register yet
+                            pic_b64   = img_to_b64(pic_file) if pic_file else ""
+                            user_data = {
+                                "name": name, "email": email, "password": pw,
+                                "role": selected_role, "phone": phone, "dob": dob,
+                                "gender": gender, "city": city, "profile_pic": pic_b64,
+                                "prediction_history": [],
+                            }
+                            if selected_role == "Student":
+                                user_data.update({
+                                    "student_class": student_class,
+                                    "student_age":   student_age,
+                                    "school_name":   school_name,
+                                })
+                            else:
+                                user_data["relation"] = relation
+
+                            # Generate & send OTP
+                            otp = generate_otp()
+                            with st.spinner("Sending OTP to your email..."):
+                                ok_mail, err = send_otp_email(email, otp, name)
+                            if ok_mail:
+                                st.session_state["otp_code"]         = otp
+                                st.session_state["otp_email"]        = email
+                                st.session_state["otp_expiry"]       = datetime.now(IST).timestamp() + 600
+                                st.session_state["otp_pending_data"] = user_data
+                                st.session_state["otp_sent"]         = True
+                                st.rerun()
+                            else:
+                                st.error(f"❌ Could not send OTP: {err}")
+
+            st.markdown('<div class="hdivider">or</div>', unsafe_allow_html=True)
+            st.markdown("<div class='sw-txt'>Already have an account?</div>", unsafe_allow_html=True)
+            if st.button("Sign In Instead", key="go_login"):
+                st.session_state.auth_mode = "login"
+                st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── PREDICTION FORM ───────────────────────────────────────────────────────────
+def render_prediction_form():
+    st.markdown(f"""
+    <div style="
+        margin: 10px 24px 8px;
+        background: {T['card_bg']};
+        border: 1px solid {T['card_border']};
+        border-top: 4px solid {T['acc1']};
+        border-radius: 20px;
+        padding: 24px 28px 28px;
+        backdrop-filter: blur(32px);
+        box-shadow: {T['shadow']};">
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+                  color:{T['text_primary']};margin-bottom:4px;letter-spacing:-0.3px;">
+        🔮 Score Prediction Form
+      </div>
+      <div style="font-size:12px;color:{T['text_muted']};margin-bottom:2px;">
+        Fill all fields below and click Predict.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown('<div style="padding: 0 24px 24px;">', unsafe_allow_html=True)
+
+        st.markdown('<div class="sec-title">📊 Academic Inputs</div>', unsafe_allow_html=True)
+        c1, c2, c3, c4 = st.columns(4)
+        with c1: hours      = st.number_input("⏱ Hours Studied",  min_value=0, max_value=24,  value=0, step=1, key="f_hours")
+        with c2: attendance = st.number_input("📅 Attendance (%)", min_value=0, max_value=100, value=0, step=1, key="f_attend")
+        with c3: previous   = st.number_input("📝 Previous Score", min_value=0, max_value=100, value=0, step=1, key="f_prev")
+        with c4: sleep      = st.number_input("🌙 Sleep Hours",    min_value=0, max_value=12,  value=0, step=1, key="f_sleep")
+
+        st.markdown('<div class="sec-title">🏫 School &amp; Environment</div>', unsafe_allow_html=True)
+        c5, c6, c7, c8 = st.columns(4)
+        with c5: motivation = st.selectbox("💪 Motivation Level", ["Low","Medium","High"],    key="f_motiv")
+        with c6: teacher    = st.selectbox("👩‍🏫 Teacher Quality",  ["Poor","Average","Good"],  key="f_teacher")
+        with c7: school_t   = st.selectbox("🏛 School Type",       ["Public","Private"],        key="f_school")
+        with c8: internet   = st.selectbox("🌐 Internet Access",   ["Yes","No"],               key="f_net")
+
+        st.markdown('<div class="sec-title">👨‍👩‍👧 Family &amp; Social Factors</div>', unsafe_allow_html=True)
+        c9, c10, c11, c12, c13, c14 = st.columns(6)
+        with c9:  income     = st.selectbox("💰 Family Income",        ["Low","Medium","High"],           key="f_income")
+        with c10: parent_inv = st.selectbox("🤝 Parental Involvement", ["Low","Medium","High"],           key="f_parent")
+        with c11: education  = st.selectbox("🎓 Parent Education",     ["School","College"],              key="f_edu")
+        with c12: peer       = st.selectbox("👥 Peer Influence",       ["Negative","Neutral","Positive"], key="f_peer")
+        with c13: resources  = st.selectbox("📚 Learning Resources",   ["Low","Medium","High"],           key="f_res")
+        with c14: activities = st.selectbox("🎭 Extracurricular",      ["Yes","No"],                      key="f_extra")
+
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        btn_col, back_col, _ = st.columns([1.2, 1, 3])
+        with btn_col:
+            predict_clicked = st.button("🔮 Predict My Score", key="form_predict_btn")
+        with back_col:
+            st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+            if st.button("← Back", key="back_from_form"):
+                st.session_state.view = "dashboard"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        if predict_clicked:
+            if model is None or columns is None:
+                st.error("⚠️ Model files not found. Place student_model.pkl and model_columns.pkl in the same folder.")
+            else:
+                with st.spinner("Running AI prediction..."):
+                    time.sleep(0.45)
+                    data = {
+                        "Hours_Studied":              hours,
+                        "Attendance":                 attendance,
+                        "Previous_Scores":            previous,
+                        "Sleep_Hours":                sleep,
+                        "Motivation_Level":           motivation,
+                        "Teacher_Quality":            teacher,
+                        "School_Type":                school_t,
+                        "Internet_Access":            internet,
+                        "Family_Income":              income,
+                        "Parental_Involvement":       parent_inv,
+                        "Parental_Education_Level":   education,
+                        "Peer_Influence":             peer,
+                        "Learning_Resources":         resources,
+                        "Extracurricular_Activities": activities,
+                    }
+                    last_inp = {
+                        "hours": hours, "attendance": attendance, "sleep": sleep,
+                        "motivation": motivation, "internet": internet, "peer": peer,
+                    }
+                    st.session_state.last_inputs = last_inp
+
+                    df   = pd.DataFrame([data])
+                    df   = pd.get_dummies(df)
+                    df   = df.reindex(columns=columns, fill_value=0)
+                    pred = model.predict(df)
+                    final_score = int(round(max(40, min(100, pred[0]))))
+                    st.session_state.prediction_result = final_score
+
+                    # ── Save prediction to user's history (IST timestamp) ──
+                    grade_h, _ = get_grade(final_score)
+                    history_entry = {
+                        "score":     final_score,
+                        "grade":     grade_h,
+                        "timestamp": datetime.now(IST).strftime("%d %b %Y, %I:%M %p IST"),
+                        "hours":     hours,
+                        "attendance": attendance,
+                        "sleep":     sleep,
+                        "motivation": motivation,
+                    }
+                    try:
+                        all_users = load_users()
+                        email_key = st.session_state.user["email"]
+                        if "prediction_history" not in all_users[email_key]:
+                            all_users[email_key]["prediction_history"] = []
+                        all_users[email_key]["prediction_history"].insert(0, history_entry)
+                        all_users[email_key]["prediction_history"] = \
+                            all_users[email_key]["prediction_history"][:15]   # keep last 15
+                        save_users(all_users)
+                        st.session_state.user = all_users[email_key]
+                    except Exception:
+                        pass   # don't block the result even if save fails
+
+                    st.session_state.view = "result"
+                    st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── HISTORY PANEL ─────────────────────────────────────────────────────────────
+def render_history_panel():
+    """Show past predictions for the current user, newest first."""
+    history = st.session_state.user.get("prediction_history", [])
+
+    st.markdown(f"""
+    <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+         border-top:4px solid {T['acc2']};border-radius:20px;
+         padding:22px 24px 8px;margin-bottom:12px;">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;
+           color:{T['text_primary']};margin-bottom:2px;">📜 Prediction History</div>
+      <div style="font-size:12px;color:{T['text_muted']};margin-bottom:14px;">
+        Your last {len(history)} predictions (newest first)
+      </div>
+    """, unsafe_allow_html=True)
+
+    if not history:
+        st.markdown(f"""
+        <div style="text-align:center;padding:32px 0 20px;">
+          <div style="font-size:40px;margin-bottom:12px;">🔮</div>
+          <div style="font-size:14px;font-weight:600;color:{T['text_secondary']};">
+            No predictions yet.
+          </div>
+          <div style="font-size:12px;color:{T['text_muted']};margin-top:4px;">
+            Use the Predict Score button to make your first prediction!
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        # Grade → color mapping
+        def grade_color(g):
+            return {"A+": T['acc4'], "A": T['acc4'], "B": T['acc3'],
+                    "C": T['acc2'], "D": "#ff5555"}.get(g, T['acc1'])
+
+        for i, entry in enumerate(history):
+            sc   = entry.get("score", 0)
+            gr   = entry.get("grade", "-")
+            ts   = entry.get("timestamp", "—")
+            hrs  = entry.get("hours", "-")
+            att  = entry.get("attendance", "-")
+            slp  = entry.get("sleep", "-")
+            mot  = entry.get("motivation", "-")
+            gc   = grade_color(gr)
+            # background opacity alternates slightly
+            row_bg = T['card_bg'] if i % 2 == 0 else "rgba(255,255,255,0.03)"
+            st.markdown(f"""
+            <div class="hist-entry" style="background:{row_bg};">
+              <div class="hist-score-badge"
+                   style="background:{gc}18;border:1.5px solid {gc}44;">
+                <div class="hist-score-num" style="color:{gc};">{sc}</div>
+                <div class="hist-grade"     style="color:{gc};">{gr}</div>
+              </div>
+              <div class="hist-meta">
+                <div class="hist-time">🕐 {ts}</div>
+                <div class="hist-factors">
+                  ⏱ {hrs}h study &nbsp;·&nbsp; 📅 {att}% attend
+                  &nbsp;·&nbsp; 🌙 {slp}h sleep &nbsp;·&nbsp; 💪 {mot}
+                </div>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Close button
+    close_c, _ = st.columns([1, 3])
+    with close_c:
+        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+        if st.button("✖ Close History", key="close_history_panel"):
+            st.session_state.show_history = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+# ══════════════════════════════════════════════════════════════════════════════
+#  APP PART 3 — Charts · PDF · Tips · Result · Dashboard · Admin · Router
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── DASHBOARD CHARTS ──────────────────────────────────────────────────────────
+def render_charts(score):
+    is_dark = T['mode'] == 'dark'
+    bg_col  = 'rgba(0,0,0,0)'
+    grid_c  = 'rgba(255,255,255,0.07)' if is_dark else 'rgba(0,0,0,0.06)'
+    text_c  = '#a9aac8' if is_dark else '#3d3560'
+    paper_c = 'rgba(0,0,0,0)'
+    base_layout = dict(
+        paper_bgcolor=paper_c, plot_bgcolor=bg_col,
+        font=dict(color=text_c, family="Plus Jakarta Sans"),
+        margin=dict(l=10, r=10, t=10, b=10))
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+             border-radius:18px;padding:16px 18px 4px;margin-bottom:16px;">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+               color:{T['text_primary']};">🎯 Score Gauge</div>
+          <div style="font-size:11px;color:{T['text_muted']};margin-bottom:4px;">Predicted vs maximum</div>
+        """, unsafe_allow_html=True)
+        fig_gauge = go.Figure(go.Indicator(
+            mode="gauge+number", value=score,
+            number={"font": {"size": 36, "color": T['acc1']}, "suffix": "/100"},
+            gauge={
+                "axis": {"range": [0, 100], "tickcolor": text_c, "tickfont": {"color": text_c}},
+                "bar":  {"color": T['acc1'], "thickness": 0.25},
+                "bgcolor": "rgba(0,0,0,0)", "borderwidth": 0,
+                "steps": [
+                    {"range": [0,  60], "color": "rgba(255,80,80,0.15)"},
+                    {"range": [60, 75], "color": "rgba(255,200,0,0.15)"},
+                    {"range": [75,100], "color": "rgba(0,229,160,0.15)"},],
+                "threshold": {"line": {"color": T['acc4'], "width": 3},
+                              "thickness": 0.75, "value": score},},))
+        fig_gauge.update_layout(**base_layout, height=220)
+        st.plotly_chart(fig_gauge, use_container_width=True, config={"displayModeBar": False})
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+        <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+             border-radius:18px;padding:16px 18px 4px;margin-bottom:16px;">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+               color:{T['text_primary']};">📊 Grade Benchmark</div>
+          <div style="font-size:11px;color:{T['text_muted']};margin-bottom:4px;">Your score vs grade cutoffs</div>
+        """, unsafe_allow_html=True)
+        grades  = ["D (55)", "C (65)", "B (75)", "A (85)", "A+ (95)", f"You ({score})"]
+        values  = [55, 65, 75, 85, 95, score]
+        bcolors = ["rgba(255,100,100,0.6)", "rgba(255,200,0,0.6)",
+                   "rgba(94,96,206,0.6)",   "rgba(0,229,160,0.6)",
+                   "rgba(0,200,255,0.6)",   T['acc1']]
+        fig_bar = go.Figure(go.Bar(x=grades, y=values, marker_color=bcolors, marker_line_width=0))
+        fig_bar.update_layout(
+            **base_layout, height=220,
+            xaxis=dict(gridcolor=grid_c, tickfont=dict(color=text_c)),
+            yaxis=dict(gridcolor=grid_c, tickfont=dict(color=text_c), range=[0, 110]))
+        st.plotly_chart(fig_bar, use_container_width=True, config={"displayModeBar": False})
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+         border-radius:18px;padding:16px 18px 4px;margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+           color:{T['text_primary']};">📉 Study Hours → Score Trend</div>
+      <div style="font-size:11px;color:{T['text_muted']};margin-bottom:4px;">How study time correlates with performance</div>
+    """, unsafe_allow_html=True)
+    study_hrs    = list(range(1, 11))
+    trend_scores = [min(100, int(40 + h * 5.8)) for h in study_hrs]
+    fig_line = go.Figure()
+    fig_line.add_trace(go.Scatter(
+        x=study_hrs, y=trend_scores, mode="lines+markers",
+        line=dict(color=T['acc3'], width=3), marker=dict(color=T['acc3'], size=7),
+        fill="tozeroy", fillcolor="rgba(0,200,255,0.10)", name="Expected Score"))
+    fig_line.update_layout(
+        **base_layout, height=200,
+        xaxis=dict(title=dict(text="Study Hours/day", font=dict(color=text_c)),
+                   gridcolor=grid_c, tickfont=dict(color=text_c)),
+        yaxis=dict(title=dict(text="Score", font=dict(color=text_c)),
+                   gridcolor=grid_c, tickfont=dict(color=text_c), range=[30, 110]),
+        showlegend=False)
+    st.plotly_chart(fig_line, use_container_width=True, config={"displayModeBar": False})
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    inp = st.session_state.get("last_inputs", {})
+    def level_to_pct(val, options):
+        if val not in options: return 50
+        return int((options.index(val) / max(len(options)-1, 1)) * 100)
+
+    factors = {
+        "Study Hrs":  min(100, int(inp.get("hours", 6) / 10 * 100)),
+        "Attendance": int(inp.get("attendance", 85)),
+        "Sleep":      min(100, int(inp.get("sleep", 7) / 10 * 100)),
+        "Motivation": level_to_pct(inp.get("motivation","Medium"), ["Low","Medium","High"]),
+        "Internet":   100 if inp.get("internet","Yes") == "Yes" else 30,
+        "Peer Env":   level_to_pct(inp.get("peer","Neutral"), ["Negative","Neutral","Positive"]),}
+    st.markdown(f"""
+    <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+         border-radius:18px;padding:16px 18px 4px;margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+           color:{T['text_primary']};">🕸️ Your Success Factors</div>
+      <div style="font-size:11px;color:{T['text_muted']};margin-bottom:12px;">Based on your last prediction inputs</div>
+    """, unsafe_allow_html=True)
+    factor_colors = [T['acc1'], T['acc3'], T['acc4'], T['acc2'], "#e879f9", "#38bdf8"]
+    for i, (factor, pct) in enumerate(factors.items()):
+        col = factor_colors[i % len(factor_colors)]
+        st.markdown(f"""
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;
+               font-size:12px;color:{T['text_secondary']};margin-bottom:4px;">
+            <span>{factor}</span><span style="font-weight:700;color:{col};">{pct}%</span>
+          </div>
+          <div style="background:{T['result_bar_bg']};border-radius:8px;height:7px;overflow:hidden;">
+            <div style="width:{pct}%;height:100%;border-radius:8px;background:{col};
+                 transition:width 0.6s ease;"></div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── PDF REPORT CARD ───────────────────────────────────────────────────────────
+def generate_report_card_pdf(user, score, grade, feedback, percentile, perf, inp):
+    buf = io.BytesIO()
+    W, H = A4
+    c = rl_canvas.Canvas(buf, pagesize=A4)
+
+    def hx(h):
+        h = h.strip("#")
+        return tuple(int(h[i:i+2], 16)/255 for i in (0, 2, 4))
+
+    PINK   = hx("b46fff")
+    PURPLE = hx("5e60ce")
+    TEAL   = hx("00e5a0")
+    GOLD   = hx("ffcc00")
+    DARK   = hx("07060f")
+    DARK2  = hx("120826")
+    WHITE  = (1, 1, 1)
+    LGREY  = hx("a9aac8")
+    MGREY  = hx("6b6d80")
+
+    c.setFillColorRGB(*DARK)
+    c.rect(0, 0, W, H, fill=1, stroke=0)
+    c.setFillColorRGB(0.37, 0.38, 0.81)
+    c.setFillAlpha(0.18)
+    c.circle(W + 30, H + 30, 160, fill=1, stroke=0)
+    c.setFillColorRGB(*PINK)
+    c.setFillAlpha(0.12)
+    c.circle(-40, -40, 130, fill=1, stroke=0)
+    c.setFillAlpha(1)
+
+    banner_h = 110
+    for i in range(banner_h):
+        t = i / banner_h
+        r = PINK[0] + t * (PURPLE[0] - PINK[0])
+        g = PINK[1] + t * (PURPLE[1] - PINK[1])
+        b = PINK[2] + t * (PURPLE[2] - PINK[2])
+        c.setFillColorRGB(r, g, b)
+        c.rect(0, H - banner_h + i, W, 1, fill=1, stroke=0)
+
+    # ── FIXED: use IST timestamp instead of local server time ──
+    gen_date = datetime.now(IST).strftime("%d %b %Y, %I:%M %p IST")
+    c.setFont("Helvetica", 8)
+    c.setFillColorRGB(0.92, 0.92, 0.92)
+    c.drawString(28, H - 104, gen_date)
+
+    name   = user.get("name", "Student")
+    role   = user.get("role", "Student")
+    dob    = user.get("dob", "-")
+    school = user.get("school_name", user.get("city", "-"))
+
+    cx, cy, cr = W - 44, H - 65, 34
+    c.setStrokeColorRGB(*PURPLE)
+    c.setLineWidth(5)
+    c.setFillColorRGB(*DARK2)
+    c.circle(cx, cy, cr, fill=1, stroke=1)
+    c.setFillColorRGB(*PINK)
+    c.setFont("Helvetica-Bold", 20)
+    c.drawCentredString(cx, cy + 5, str(score))
+    c.setFont("Helvetica", 7.5)
+    c.setFillColorRGB(1, 1, 1)
+    c.drawCentredString(cx, cy - 8, "/ 100")
+
+    pic_b64   = user.get("profile_pic", "")
+    photo_cx  = W - 44 - cr - 34 - 36
+    photo_cy  = H - 65
+    photo_r   = 34
+
+    c.setStrokeColorRGB(*PINK)
+    c.setFillColorRGB(*DARK2)
+    c.setLineWidth(3)
+    c.circle(photo_cx, photo_cy, photo_r, fill=1, stroke=1)
+
+    if pic_b64:
+        try:
+            import base64 as _b64
+            from PIL import Image as _PILImage
+            raw     = _b64.b64decode(pic_b64)
+            pil_img = _PILImage.open(io.BytesIO(raw)).convert("RGBA")
+            pw2, ph = pil_img.size
+            side    = min(pw2, ph)
+            left    = (pw2 - side) // 2
+            top     = (ph - side) // 2
+            pil_img = pil_img.crop((left, top, left + side, top + side))
+            size_px = int(photo_r * 2 * 2.83)
+            pil_img = pil_img.resize((size_px, size_px), _PILImage.LANCZOS)
+            mask    = _PILImage.new("L", (size_px, size_px), 0)
+            from PIL import ImageDraw as _ImageDraw
+            draw_mask = _ImageDraw.Draw(mask)
+            draw_mask.ellipse((0, 0, size_px - 1, size_px - 1), fill=255)
+            pil_img.putalpha(mask)
+            img_buf = io.BytesIO()
+            pil_img.save(img_buf, format="PNG")
+            img_buf.seek(0)
+            ir      = ImageReader(img_buf)
+            diam_pt = photo_r * 2
+            c.drawImage(ir, photo_cx - photo_r, photo_cy - photo_r,
+                        width=diam_pt, height=diam_pt, mask="auto")
+        except Exception:
+            c.setFillColorRGB(*LGREY)
+            c.setFont("Helvetica-Bold", 22)
+            c.drawCentredString(photo_cx, photo_cy - 6, "?")
+    else:
+        initials = "".join([p[0].upper() for p in name.split()[:2]])
+        c.setFillColorRGB(*PINK)
+        c.setFont("Helvetica-Bold", 20)
+        c.drawCentredString(photo_cx, photo_cy - 6, initials)
+
+    c.setFillColorRGB(*WHITE)
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(28, H - 76, name)
+    c.setFont("Helvetica", 9.5)
+    c.setFillColorRGB(1, 1, 1)
+    c.drawString(28, H - 92, f"{role}   |   DOB: {dob}   |   School: {school}")
+
+    y_div = H - 124
+    c.setStrokeColorRGB(*PURPLE)
+    c.setLineWidth(0.5)
+    c.setDash(3, 4)
+    c.line(28, y_div, W - 28, y_div)
+    c.setDash()
+
+    stats   = [("Predicted Score", str(score), PINK), ("Grade", grade, TEAL),
+               ("Performance", perf, GOLD), ("Percentile", percentile, PURPLE)]
+    box_y   = y_div - 82
+    box_w   = (W - 56 - 18) / 4
+    box_h   = 68
+    for i, (lbl, val, clr) in enumerate(stats):
+        bx = 28 + i * (box_w + 6)
+        c.setFillColorRGB(0.12, 0.10, 0.18)
+        c.roundRect(bx, box_y, box_w, box_h, 8, fill=1, stroke=0)
+        c.setFillColorRGB(*clr)
+        c.roundRect(bx, box_y + box_h - 4, box_w, 4, 2, fill=1, stroke=0)
+        c.setFont("Helvetica-Bold", 18)
+        c.setFillColorRGB(*clr)
+        c.drawCentredString(bx + box_w / 2, box_y + 30, val)
+        c.setFont("Helvetica", 8)
+        c.setFillColorRGB(*LGREY)
+        c.drawCentredString(bx + box_w / 2, box_y + 14, lbl.upper())
+
+    bar_y = box_y - 36
+    c.setFont("Helvetica-Bold", 10)
+    c.setFillColorRGB(*WHITE)
+    c.drawString(28, bar_y + 14, "Score Progress")
+    c.setFont("Helvetica", 8)
+    c.setFillColorRGB(*MGREY)
+    c.drawRightString(W - 28, bar_y + 14, f"{score}/100")
+    c.setFillColorRGB(0.15, 0.13, 0.22)
+    c.roundRect(28, bar_y, W - 56, 10, 5, fill=1, stroke=0)
+    fill_w = (W - 56) * score / 100
+    seg = max(1, int(fill_w))
+    for i in range(seg):
+        t = i / max(seg - 1, 1)
+        r = PINK[0] + t * (TEAL[0] - PINK[0])
+        g = PINK[1] + t * (TEAL[1] - PINK[1])
+        b = PINK[2] + t * (TEAL[2] - PINK[2])
+        c.setFillColorRGB(r, g, b)
+        c.rect(28 + i, bar_y, 1, 10, fill=1, stroke=0)
+
+    for pct, lbl in [(60, "D"), (70, "C"), (80, "B"), (90, "A"), (100, "A+")]:
+        bx = 28 + (W - 56) * pct / 100
+        c.setStrokeColorRGB(*MGREY)
+        c.setLineWidth(0.5)
+        c.line(bx, bar_y, bx, bar_y + 10)
+        c.setFont("Helvetica", 6)
+        c.setFillColorRGB(*MGREY)
+        c.drawCentredString(bx, bar_y - 8, lbl)
+
+    sf_y = bar_y - 52
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColorRGB(*PINK)
+    c.drawString(28, sf_y, "SUCCESS FACTORS")
+    c.setStrokeColorRGB(*PINK)
+    c.setLineWidth(1.5)
+    c.line(28, sf_y - 3, 180, sf_y - 3)
+
+    def level_to_pct(val, options):
+        if val not in options: return 50
+        return int((options.index(val) / max(len(options) - 1, 1)) * 100)
+
+    factors = [
+        ("Study Hours",  min(100, int(inp.get("hours", 6) / 10 * 100)),    PINK),
+        ("Attendance",   int(inp.get("attendance", 85)),                    PURPLE),
+        ("Sleep",        min(100, int(inp.get("sleep", 7) / 10 * 100)),    TEAL),
+        ("Motivation",   level_to_pct(inp.get("motivation","Medium"), ["Low","Medium","High"]), GOLD),
+        ("Internet",     100 if inp.get("internet","Yes") == "Yes" else 30, hx("b46fff")),
+        ("Peer Env",     level_to_pct(inp.get("peer","Neutral"), ["Negative","Neutral","Positive"]), hx("00c8ff")),
+    ]
+    col_w = (W - 56) / 3
+    for i, (fname, fpct, fclr) in enumerate(factors):
+        col  = i % 3
+        row  = i // 3
+        fx   = 28 + col * col_w
+        fy   = sf_y - 22 - row * 36
+        c.setFont("Helvetica", 8)
+        c.setFillColorRGB(*LGREY)
+        c.drawString(fx, fy, fname)
+        c.setFont("Helvetica-Bold", 8)
+        c.setFillColorRGB(*fclr)
+        c.drawRightString(fx + col_w - 10, fy, f"{fpct}%")
+        bar_track_w = col_w - 10
+        c.setFillColorRGB(0.15, 0.13, 0.22)
+        c.roundRect(fx, fy - 10, bar_track_w, 5, 2, fill=1, stroke=0)
+        c.setFillColorRGB(*fclr)
+        fill = max(3, bar_track_w * fpct / 100)
+        c.roundRect(fx, fy - 10, fill, 5, 2, fill=1, stroke=0)
+
+    tips_raw = []
+    if inp.get("hours", 6) < 4:              tips_raw.append("Study at least 4-6 hours daily to improve retention.")
+    if inp.get("attendance", 85) < 75:        tips_raw.append("Attendance is low – aim for above 75% to stay on track.")
+    if inp.get("sleep", 7) < 6:              tips_raw.append("Sleep deprivation hurts memory. Aim for 7-8 hours nightly.")
+    if inp.get("motivation","Medium") == "Low": tips_raw.append("Set small daily goals to build consistent motivation.")
+    if inp.get("internet","Yes") == "No":     tips_raw.append("Visit a library for better online learning resources.")
+    if inp.get("peer","Neutral") == "Negative": tips_raw.append("Surround yourself with positive, goal-oriented peers.")
+    if not tips_raw:                          tips_raw.append("Great habits! Keep it up for excellent results.")
+
+    tip_y = sf_y - 22 - 2 * 36 - 28
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColorRGB(*TEAL)
+    c.drawString(28, tip_y, "PERSONALISED TIPS")
+    c.setStrokeColorRGB(*TEAL)
+    c.setLineWidth(1.5)
+    c.line(28, tip_y - 3, 190, tip_y - 3)
+
+    for j, tip in enumerate(tips_raw[:4]):
+        ty = tip_y - 20 - j * 22
+        c.setFillColorRGB(*TEAL)
+        c.setFillAlpha(0.25)
+        c.circle(38, ty + 4, 6, fill=1, stroke=0)
+        c.setFillAlpha(1)
+        c.setFillColorRGB(*TEAL)
+        c.setFont("Helvetica-Bold", 8)
+        c.drawCentredString(38, ty + 1, str(j + 1))
+        c.setFont("Helvetica", 8.5)
+        c.setFillColorRGB(*LGREY)
+        words = tip.split()
+        line, lines = [], []
+        for w in words:
+            test = " ".join(line + [w])
+            if c.stringWidth(test, "Helvetica", 8.5) < W - 80:
+                line.append(w)
+            else:
+                lines.append(" ".join(line))
+                line = [w]
+        if line: lines.append(" ".join(line))
+        for k, ln in enumerate(lines[:2]):
+            c.drawString(50, ty - k * 11, ln)
+
+    bench_y = tip_y - 20 - len(tips_raw[:4]) * 22 - 36
+    c.setFont("Helvetica-Bold", 11)
+    c.setFillColorRGB(*GOLD)
+    c.drawString(28, bench_y, "GRADE BENCHMARK")
+    c.setStrokeColorRGB(*GOLD)
+    c.setLineWidth(1.5)
+    c.line(28, bench_y - 3, 190, bench_y - 3)
+
+    bench = [("D", 55, hx("ff5050")), ("C", 65, hx("ffc800")),
+             ("B", 75, hx("5e60ce")), ("A", 85, hx("00e5a0")),
+             ("A+", 95, hx("00c8ff")), ("You", score, PINK)]
+    bw = (W - 56) / len(bench)
+    for i, (gl, gv, gc2) in enumerate(bench):
+        bx = 28 + i * bw + bw / 2
+        bar_max_h = 40
+        bh = bar_max_h * gv / 110
+        c.setFillColorRGB(*gc2)
+        c.setFillAlpha(0.85 if gl != "You" else 1.0)
+        c.roundRect(bx - bw * 0.35, bench_y - 12 - bh, bw * 0.7, bh, 3, fill=1, stroke=0)
+        c.setFillAlpha(1)
+        c.setFont("Helvetica-Bold" if gl == "You" else "Helvetica", 8)
+        c.setFillColorRGB(*gc2)
+        c.drawCentredString(bx, bench_y - 20 - bar_max_h, gl)
+        c.setFont("Helvetica", 7)
+        c.setFillColorRGB(*MGREY)
+        c.drawCentredString(bx, bench_y - 30 - bar_max_h, str(gv))
+
+    footer_y = 28
+    c.setFillColorRGB(0.12, 0.10, 0.18)
+    c.rect(0, 0, W, footer_y + 16, fill=1, stroke=0)
+    c.setFont("Helvetica-Bold", 8)
+    c.setFillColorRGB(*PINK)
+    c.drawString(28, footer_y, "EduPredict  |  AI-Powered Education Platform")
+    c.setFont("Helvetica", 7)
+    c.setFillColorRGB(*MGREY)
+    c.drawRightString(W - 28, footer_y, "This report is computer-generated. For guidance, consult your educator.")
+    c.setStrokeColorRGB(*PINK)
+    c.setLineWidth(1.5)
+    c.line(0, footer_y + 16, W, footer_y + 16)
+
+    c.save()
+    buf.seek(0)
+    return buf
+
+
+# ── TIP CARDS ─────────────────────────────────────────────────────────────────
+def render_tip_cards():
+    inp = st.session_state.get("last_inputs", {})
+    tip_data = []
+    if inp.get("hours", 6) < 4:
+        tip_data.append({"icon": "📖", "title": "Study More Daily",
+            "body": "Aim for at least 4–6 hours of focused study each day. Consistent effort boosts long-term retention significantly.",
+            "tag": "Study Habit", "tag_color": T['acc1'], "accent": T['acc1'], "priority": "High Priority"})
+    if inp.get("attendance", 85) < 75:
+        tip_data.append({"icon": "📅", "title": "Improve Attendance",
+            "body": "Your attendance is below 75%. Regular class presence helps you stay current and avoid last-minute exam stress.",
+            "tag": "Attendance", "tag_color": T['acc2'], "accent": T['acc2'], "priority": "Important"})
+    if inp.get("sleep", 7) < 6:
+        tip_data.append({"icon": "🌙", "title": "Fix Your Sleep Schedule",
+            "body": "Less than 6 hours of sleep hurts memory consolidation. Target 7–8 hours nightly for peak brain performance.",
+            "tag": "Health", "tag_color": T['acc3'], "accent": T['acc3'], "priority": "Critical"})
+    if inp.get("motivation","Medium") == "Low":
+        tip_data.append({"icon": "💪", "title": "Build Daily Motivation",
+            "body": "Set small, achievable daily goals. Celebrate tiny wins — they compound into big results over time.",
+            "tag": "Mindset", "tag_color": "#e879f9", "accent": "#e879f9", "priority": "Recommended"})
+    if inp.get("internet","Yes") == "No":
+        tip_data.append({"icon": "🌐", "title": "Access Learning Resources",
+            "body": "Visit your school library or a nearby internet café for access to online notes, videos, and practice papers.",
+            "tag": "Resources", "tag_color": "#38bdf8", "accent": "#38bdf8", "priority": "Helpful"})
+    if inp.get("peer","Neutral") == "Negative":
+        tip_data.append({"icon": "👥", "title": "Choose Better Peers",
+            "body": "Surround yourself with goal-oriented, positive friends. A study group with the right people can boost your score by 15%+.",
+            "tag": "Social", "tag_color": T['acc4'], "accent": T['acc4'], "priority": "Helpful"})
+    if not tip_data:
+        tip_data.append({"icon": "🌟", "title": "Keep Up the Great Work!",
+            "body": "Your habits are excellent. Maintain consistency, stay curious, and keep pushing for even higher scores.",
+            "tag": "All Good", "tag_color": T['acc4'], "accent": T['acc4'], "priority": "Excellent"})
+
+    num = len(tip_data)
+    cols_per_row = min(num, 3)
+    for row_start in range(0, num, cols_per_row):
+        row_tips = tip_data[row_start:row_start + cols_per_row]
+        cols = st.columns(len(row_tips))
+        for col, tip in zip(cols, row_tips):
+            with col:
+                st.markdown(f"""
+                <div class="tip-card">
+                    <div class="tip-card-accent" style="background:{tip['accent']};"></div>
+                    <span class="tip-card-icon">{tip['icon']}</span>
+                    <div class="tip-card-title">{tip['title']}</div>
+                    <div class="tip-card-body">{tip['body']}</div>
+                    <span class="tip-card-tag"
+                          style="background:{tip['tag_color']}18;color:{tip['tag_color']};
+                                 border:1px solid {tip['tag_color']}44;">
+                        {tip['tag']} · {tip['priority']}
+                    </span>
+                </div>
+                """, unsafe_allow_html=True)
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+
+
+# ── RESULT PAGE ───────────────────────────────────────────────────────────────
+def render_result_page():
+    score = st.session_state.prediction_result
+    grade, feedback = get_grade(score)
+    percentile = "Top 10%" if score >= 90 else "Top 25%" if score >= 80 else "Top 50%" if score >= 70 else "Average"
+    perf       = "↑ High" if score >= 75 else "→ Mid" if score >= 50 else "↓ Low"
+
+    st.markdown('<div style="padding:22px 36px 56px;">', unsafe_allow_html=True)
+    back_col, title_col, predict_again_col = st.columns([1, 4, 1.5])
+    with back_col:
+        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+        if st.button("← Back", key="back_from_result"):
+            st.session_state.view = "dashboard"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with title_col:
+        st.markdown(f"""
+        <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;
+                    color:{T['text_primary']};letter-spacing:-0.5px;padding-top:6px;">
+            Your Prediction Result 🎓
+        </div>
+        """, unsafe_allow_html=True)
+    with predict_again_col:
+        st.markdown('<div class="predict-hdr-btn">', unsafe_allow_html=True)
+        if st.button("🔮 Predict Again", key="predict_again_btn"):
+            st.session_state.view = "predict_form"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
+    inp_data = st.session_state.get("last_inputs", {})
+    pdf_buf  = generate_report_card_pdf(
+        user=st.session_state.user,
+        score=score, grade=grade, feedback=feedback,
+        percentile=percentile, perf=perf, inp=inp_data)
+    pdf_buf.seek(0)
+    pdf_bytes    = pdf_buf.read()
+    student_name = st.session_state.user.get("name", "Student").replace(" ", "_")
+    filename     = f"EduPredict_Report_{student_name}.pdf"
+
+    st.markdown(f"""
+    <div style="
+        background: {T['card_bg']};
+        border: 1px solid {T['card_border']};
+        border-left: 4px solid {T['acc1']};
+        border-radius: 18px; padding: 20px 28px; margin-bottom: 20px;">
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+           color:{T['text_primary']};margin-bottom:3px;">📄 Your Report Card is Ready!</div>
+      <div style="font-size:12px;color:{T['text_muted']};">
+        Download your personalised PDF report card below.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    dl_col, _ = st.columns([1, 1])
+    with dl_col:
+        st.download_button(
+            label="⬇️ Download PDF Report",
+            data=pdf_bytes, file_name=filename,
+            mime="application/pdf", key="download_pdf_btn",
+            use_container_width=True)
+
+    s1, s2, s3, s4 = st.columns(4)
+    for col, icon, val, lbl in [
+        (s1, "📊", str(score), "Predicted Score"),
+        (s2, "🎯", grade,      "Grade"),
+        (s3, "📈", perf,       "Performance"),
+        (s4, "⭐", percentile, "Percentile"),]:
+        with col:
+            st.markdown(f"""
+            <div class="stat-card">
+                <div class="stat-icon">{icon}</div>
+                <div class="stat-val">{val}</div>
+                <div class="stat-lbl">{lbl}</div>
+            </div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="result-card">
+        <div class="result-lbl">✨ Predicted Exam Score</div>
+        <div class="result-num">{score}</div>
+        <div class="result-grade">Grade: <strong>{grade}</strong> — {feedback}</div>
+        <div class="bar-bg"><div class="bar-fill" style="width:{score}%"></div></div>
+        <div style="font-size:11px;color:{T['text_muted']};margin-top:10px;">out of 100</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div style="height:24px"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-title">💡 Personalised Suggestions</div>', unsafe_allow_html=True)
+    render_tip_cards()
+
+    st.markdown('<div style="height:20px"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-title">📈 Analytics Dashboard</div>', unsafe_allow_html=True)
+    render_charts(score)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── ADMIN DASHBOARD ───────────────────────────────────────────────────────────
+def render_admin_dashboard():
+    user = st.session_state.user
+
+    # Sticky header
+    st.markdown(f"""
+    <div class="dash-hdr">
+        <div class="dash-logo">🎓 EduPredict <span style="font-size:13px;
+             background:{T['grad_alt']};-webkit-background-clip:text;
+             -webkit-text-fill-color:transparent;">· Admin</span></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span class="admin-badge">🔐 Admin Panel</span>
+            <div style="font-size:13px;font-weight:700;color:{T['text_primary']};margin-left:6px;">
+                {user.get('name','Admin')}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Action bar
+    tb_col, so_col, pf_col, notif_col, _ = st.columns([0.5, 1, 1, 1.4, 2])
+    with tb_col:
+        theme_btn("theme_admin")
+    with so_col:
+        st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+        if st.button("Sign Out", key="admin_logout"):
+            st.session_state.logged_in = False
+            st.session_state.user      = None
+            st.session_state.view      = "dashboard"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with pf_col:
+        st.markdown('<div class="profile-toggle-btn">', unsafe_allow_html=True)
+        lbl_adm = "✖ Close" if st.session_state.get("admin_show_profile", False) else "👤 My Profile"
+        if st.button(lbl_adm, key="admin_toggle_profile"):
+            st.session_state["admin_show_profile"] = not st.session_state.get("admin_show_profile", False)
+            st.session_state["admin_show_notif"]   = False
+            st.session_state.edit_profile          = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with notif_col:
+        all_msgs    = load_messages()
+        unread_cnt  = sum(1 for m in all_msgs if not m.get("read", False))
+        notif_open  = st.session_state.get("admin_show_notif", False)
+        notif_label = "✖ Close" if notif_open else ("🔔 Messages" + (f" ({unread_cnt})" if unread_cnt else ""))
+        st.markdown('<div class="hist-btn">', unsafe_allow_html=True)
+        if st.button(notif_label, key="admin_toggle_notif"):
+            st.session_state["admin_show_notif"]   = not notif_open
+            st.session_state["admin_show_profile"] = False
+            st.session_state.edit_profile          = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Admin profile panel ────────────────────────────────────────────────
+    if st.session_state.get("admin_show_profile", False):
+        prof_col, info_col = st.columns([1.5, 2.5])
+        with prof_col:
+            st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+            render_profile_panel(user)
+        with info_col:
+            st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="padding:28px 24px;">
+                <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+                            color:{T['text_primary']};margin-bottom:6px;">
+                    Hello, {user.get('name','Admin').split()[0]}! 🔐
+                </div>
+                <div style="font-size:12px;color:{T['text_muted']};margin-bottom:20px;">
+                    You are logged in as <strong style="color:{T['acc2']}">Admin</strong>.
+                    Edit your profile details on the left.
+                </div>
+                <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+                    border-left:4px solid {T['acc2']};border-radius:14px;padding:16px 20px;">
+                    <div style="font-size:12px;font-weight:700;color:{T['text_primary']};margin-bottom:3px;">
+                        🛡️ Admin Privileges
+                    </div>
+                    <div style="font-size:11px;color:{T['text_muted']};">
+                        You have full access to all registered users, their predictions, and platform stats.
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        return
+
+    # ── Notifications / Messages panel ────────────────────────────────────
+    if st.session_state.get("admin_show_notif", False):
+        st.markdown("<div style='padding:20px 36px 40px;'>", unsafe_allow_html=True)
+        st.markdown(
+            '<div style="font-family:\'Syne\',sans-serif;font-size:20px;font-weight:800;color:'
+            + T['text_primary'] + ';margin-bottom:4px;">🔔 Support Messages</div>'
+            + '<div style="font-size:12px;color:' + T['text_muted'] + ';margin-bottom:18px;">'
+            + 'Messages sent by blocked users requesting account access.</div>',
+            unsafe_allow_html=True)
+
+        msgs = load_messages()
+        if not msgs:
+            st.markdown(
+                '<div style="text-align:center;padding:40px 0;">'
+                + '<div style="font-size:32px;margin-bottom:10px;">📭</div>'
+                + '<div style="font-size:14px;color:' + T['text_muted'] + ';">No messages yet.</div></div>',
+                unsafe_allow_html=True)
+        else:
+            mark_all_col, del_all_col, _ = st.columns([1.5, 1.8, 5])
+            with mark_all_col:
+                st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+                if st.button("✅ Mark All Read", key="mark_all_read"):
+                    all_m = load_messages()
+                    for m in all_m:
+                        m["read"] = True
+                    with open(MESSAGES_FILE, "w") as _f:
+                        json.dump(all_m, _f)
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            with del_all_col:
+                st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+                if st.button("🗑️ Delete All Messages", key="delete_all_msgs"):
+                    with open(MESSAGES_FILE, "w") as _f:
+                        json.dump([], _f)
+                    st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            for idx, msg in enumerate(msgs):
+                is_unread    = not msg.get("read", False)
+                msg_type     = msg.get("type", "blocked_appeal")
+                card_class   = "msg-card unread" if is_unread else "msg-card read-msg"
+                unread_dot   = ('<span style="display:inline-block;width:8px;height:8px;border-radius:50%;'
+                               + 'background:#ff5555;margin-right:6px;vertical-align:middle;"></span>') if is_unread else ""
+
+                # Type badge
+                if msg_type == "help_request":
+                    type_badge = ('<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;'
+                                 + 'background:rgba(6,214,160,0.15);color:#06d6a0;margin-left:8px;">💬 Help Request</span>')
+                else:
+                    type_badge = ('<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;'
+                                 + 'background:rgba(255,60,60,0.15);color:#ff5555;margin-left:8px;">🚫 Blocked Appeal</span>')
+
+                subject_line = msg.get("subject", "")
+                subject_html = (
+                    '<div style="font-size:11px;font-weight:700;color:' + T['acc4'] + ';margin-bottom:2px;">'
+                    + '📌 ' + subject_line + '</div>') if subject_line else ""
+
+                st.markdown(
+                    '<div class="' + card_class + '">'
+                    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">'
+                    + '<div>' + unread_dot
+                    + '<span style="font-size:13px;font-weight:700;color:' + T['text_primary'] + ';">'
+                    + msg.get("from_name", msg.get("from_email","Unknown")) + '</span>'
+                    + '<span style="font-size:11px;color:' + T['text_muted'] + ';margin-left:6px;">('
+                    + msg.get("from_email","") + ')</span>'
+                    + type_badge
+                    + '</div>'
+                    + '<div style="font-size:10px;color:' + T['text_muted'] + ';">' + msg.get("timestamp","") + '</div>'
+                    + '</div>'
+                    + subject_html
+                    + '<div style="font-size:12px;color:' + T['text_secondary'] + ';line-height:1.6;'
+                    + 'background:' + T['input_bg'] + ';border-radius:10px;padding:10px 14px;margin-top:4px;">'
+                    + msg.get("message","") + '</div></div>',
+                    unsafe_allow_html=True)
+
+                # Action buttons row
+                if is_unread and msg_type == "blocked_appeal":
+                    mr_col, unblock_col, del_col, _ = st.columns([1.2, 1.5, 1.2, 3])
+                    with mr_col:
+                        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+                        if st.button("✓ Mark Read", key=f"read_{idx}"):
+                            mark_message_read(idx)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    with unblock_col:
+                        sender_email = msg.get("from_email","")
+                        st.markdown('<div class="predict-hdr-btn">', unsafe_allow_html=True)
+                        if st.button("✅ Unblock User", key=f"unblock_from_msg_{idx}"):
+                            users_db = load_users()
+                            if sender_email in users_db:
+                                users_db[sender_email]["blocked"] = False
+                                save_users(users_db)
+                            mark_message_read(idx)
+                            st.success(f"✅ {sender_email} has been unblocked.")
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    with del_col:
+                        st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+                        if st.button("🗑️ Delete", key=f"del_msg_{idx}"):
+                            delete_message(idx)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+                elif is_unread and msg_type == "help_request":
+                    mr_col, del_col, _ = st.columns([1.2, 1.2, 5])
+                    with mr_col:
+                        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+                        if st.button("✓ Mark Read", key=f"read_{idx}"):
+                            mark_message_read(idx)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    with del_col:
+                        st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+                        if st.button("🗑️ Delete", key=f"del_msg_{idx}"):
+                            delete_message(idx)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+                else:
+                    # Already read — only delete button
+                    del_col, _ = st.columns([1.2, 6])
+                    with del_col:
+                        st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+                        if st.button("🗑️ Delete", key=f"del_msg_{idx}"):
+                            delete_message(idx)
+                            st.rerun()
+                        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+        return   # don't render user table when notifications panel is open
+
+
+    st.markdown('<div style="padding:20px 36px 56px;">', unsafe_allow_html=True)
+
+    # Load all users
+    all_users = load_users()
+    user_list = [v for v in all_users.values() if v.get("role") != "Admin"]
+    students  = [u for u in user_list if u.get("role") == "Student"]
+    parents   = [u for u in user_list if u.get("role") == "Parent"]
+    blocked_count = sum(1 for u in user_list if u.get("blocked", False))
+    total_preds = sum(len(u.get("prediction_history", [])) for u in user_list)
+
+    # ── Stats row ──
+    st.markdown(f'<div class="sec-title">📊 Platform Overview</div>', unsafe_allow_html=True)
+    sc1, sc2, sc3, sc4, sc5 = st.columns(5)
+    for col, icon, val, lbl, clr in [
+        (sc1, "👥", len(user_list),   "Total Users",  T['acc1']),
+        (sc2, "🎒", len(students),    "Students",     T['acc3']),
+        (sc3, "👨‍👩‍👧", len(parents),    "Parents",      T['acc2']),
+        (sc4, "🔮", total_preds,      "Predictions",  T['acc4']),
+        (sc5, "🚫", blocked_count,    "Blocked",      "#ff5555"),
+    ]:
+        with col:
+            st.markdown(
+                '<div class="admin-stat-card">'
+                + '<div style="font-size:28px;margin-bottom:6px;">' + icon + '</div>'
+                + '<div style="font-family:\'Syne\',sans-serif;font-size:28px;font-weight:800;color:'
+                + clr + ';line-height:1;">' + str(val) + '</div>'
+                + '<div style="font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:'
+                + T['text_muted'] + ';margin-top:4px;">' + lbl + '</div></div>',
+                unsafe_allow_html=True)
+
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+
+    # ── View profile modal (session state driven) ──────────────────────────
+    viewing_email = st.session_state.get("admin_view_email", None)
+    if viewing_email and viewing_email in all_users:
+        vu = all_users[viewing_email]
+        vu_role  = vu.get("role","")
+        vu_pic   = vu.get("profile_pic","")
+        vu_preds = vu.get("prediction_history", [])
+        is_blocked_v = vu.get("blocked", False)
+        blocked_tag_v = " &nbsp;<span style='font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(255,60,60,0.15);color:#ff5555;'>🚫 BLOCKED</span>" if is_blocked_v else ""
+
+        st.markdown(
+            '<div style="background:' + T['card_bg'] + ';border:2px solid ' + T['acc3'] + '55;'
+            + 'border-radius:20px;padding:24px 28px;margin-bottom:20px;">'
+            + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">'
+            + '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:'
+            + T['text_primary'] + ';">👁️ User Profile — ' + vu.get('name','') + '</div>'
+            + blocked_tag_v + '</div></div>',
+            unsafe_allow_html=True)
+
+        p_col, d_col = st.columns([1, 2])
+        with p_col:
+            if vu_pic:
+                st.markdown(
+                    '<div style="text-align:center;margin-bottom:10px;">'
+                    + '<img src="data:image/jpeg;base64,' + vu_pic
+                    + '" style="width:90px;height:90px;border-radius:50%;object-fit:cover;'
+                    + 'border:3px solid ' + T['acc3'] + ';" /></div>',
+                    unsafe_allow_html=True)
+            else:
+                initials_v = "".join([p[0].upper() for p in vu.get("name","?").split()[:2]])
+                st.markdown(
+                    '<div style="text-align:center;margin-bottom:10px;">'
+                    + '<div style="width:90px;height:90px;border-radius:50%;background:'
+                    + T['grad_main'] + ';display:flex;align-items:center;justify-content:center;'
+                    + 'font-size:28px;font-weight:800;color:#fff;margin:0 auto;">'
+                    + initials_v + '</div></div>',
+                    unsafe_allow_html=True)
+            role_clr_v = T['acc3'] if vu_role == "Student" else T['acc2']
+            st.markdown(
+                '<div style="text-align:center;">'
+                + '<span style="font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;'
+                + 'background:' + role_clr_v + '22;color:' + role_clr_v + ';">'
+                + ('🎒 ' if vu_role == "Student" else '👨‍👩‍👧 ') + vu_role + '</span></div>',
+                unsafe_allow_html=True)
+
+        with d_col:
+            def vrow(icon, label, val):
+                return (
+                    '<div style="display:flex;gap:10px;align-items:flex-start;'
+                    + 'margin-bottom:8px;padding:8px 12px;background:' + T['card_bg']
+                    + ';border:1px solid ' + T['card_border'] + ';border-radius:10px;">'
+                    + '<span style="font-size:14px;flex-shrink:0;">' + icon + '</span>'
+                    + '<div><div style="font-size:9px;font-weight:700;letter-spacing:1px;'
+                    + 'text-transform:uppercase;color:' + T['text_muted'] + ';">' + label + '</div>'
+                    + '<div style="font-size:12px;font-weight:600;color:' + T['text_primary'] + ';">'
+                    + str(val if val else "—") + '</div></div></div>'
+                )
+            detail_html = (
+                vrow("📧", "Email",  vu.get("email",""))
+                + vrow("📱", "Phone",  vu.get("phone",""))
+                + vrow("🏙", "City",   vu.get("city",""))
+                + vrow("🎂", "DOB",    vu.get("dob",""))
+                + vrow("⚧",  "Gender", vu.get("gender",""))
+            )
+            if vu_role == "Student":
+                detail_html += vrow("🏫", "School", vu.get("school_name","")) + vrow("📚", "Class", vu.get("student_class",""))
+            elif vu_role == "Parent":
+                detail_html += vrow("🤝", "Relation", vu.get("relation",""))
+            st.markdown(detail_html, unsafe_allow_html=True)
+
+        if vu_preds:
+            st.markdown(
+                '<div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:'
+                + T['text_muted'] + ';margin:12px 0 8px;">🔮 Prediction History (' + str(len(vu_preds)) + ')</div>',
+                unsafe_allow_html=True)
+            for ph in vu_preds[:5]:
+                gc = {"A+": T['acc4'], "A": T['acc4'], "B": T['acc3'], "C": T['acc2'], "D": "#ff5555"}.get(ph.get("grade",""), T['acc1'])
+                st.markdown(
+                    '<div style="display:flex;justify-content:space-between;align-items:center;'
+                    + 'padding:8px 14px;background:' + T['card_bg'] + ';border:1px solid ' + T['card_border']
+                    + ';border-radius:10px;margin-bottom:6px;">'
+                    + '<div style="font-size:11px;color:' + T['text_muted'] + ';">' + str(ph.get("timestamp","")) + '</div>'
+                    + '<div style="font-family:\'Syne\',sans-serif;font-size:18px;font-weight:800;color:'
+                    + gc + ';">' + str(ph.get("score","")) + ' <span style="font-size:11px;">' + str(ph.get("grade","")) + '</span></div></div>',
+                    unsafe_allow_html=True)
+
+        close_c, _ = st.columns([1, 3])
+        with close_c:
+            if st.button("✖ Close Profile", key="close_view_profile"):
+                st.session_state["admin_view_email"] = None
+                st.rerun()
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
+
+    # ── Confirm delete dialog ──────────────────────────────────────────────
+    del_email = st.session_state.get("admin_confirm_delete", None)
+    if del_email and del_email in all_users:
+        del_name = all_users[del_email].get("name", del_email)
+        st.markdown(
+            '<div style="background:rgba(255,60,60,0.08);border:2px solid rgba(255,60,60,0.35);'
+            + 'border-radius:16px;padding:18px 24px;margin-bottom:16px;">'
+            + '<div style="font-family:\'Syne\',sans-serif;font-size:15px;font-weight:800;color:#ff5555;margin-bottom:6px;">⚠️ Confirm Delete</div>'
+            + '<div style="font-size:12px;color:' + T['text_secondary'] + ';">Are you sure you want to permanently delete '
+            + '<strong style="color:' + T['text_primary'] + ';">' + del_name + '</strong>\'s account? This cannot be undone.</div></div>',
+            unsafe_allow_html=True)
+        yes_c, no_c, _ = st.columns([1, 1, 4])
+        with yes_c:
+            if st.button("🗑️ Yes, Delete", key="confirm_del_yes"):
+                users_db = load_users()
+                if del_email in users_db:
+                    del users_db[del_email]
+                    save_users(users_db)
+                st.session_state["admin_confirm_delete"] = None
+                st.success(f"✅ Account of {del_name} deleted.")
+                st.rerun()
+        with no_c:
+            if st.button("Cancel", key="confirm_del_no"):
+                st.session_state["admin_confirm_delete"] = None
+                st.rerun()
+
+    # ── User table ──────────────────────────────────────────────────────────
+    st.markdown(f'<div class="sec-title">👤 All Registered Users</div>', unsafe_allow_html=True)
+
+    filter_tab = st.session_state.get("admin_filter", "All")
+    ft1, ft2, ft3, ft4, _ = st.columns([0.6, 0.9, 0.9, 0.9, 4])
+    for col, lbl in [(ft1,"All"),(ft2,"Students"),(ft3,"Parents"),(ft4,"Blocked")]:
+        with col:
+            active = filter_tab == lbl
+            btn_style = "predict-hdr-btn" if active else "back-btn"
+            st.markdown(f'<div class="{btn_style}">', unsafe_allow_html=True)
+            if st.button(lbl, key=f"filter_{lbl}"):
+                st.session_state["admin_filter"] = lbl
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    search = st.text_input("🔍 Search by name, email or city", placeholder="Type to filter...", key="admin_search")
+    search_lower = search.strip().lower()
+
+    all_users = load_users()
+    user_list = [v for v in all_users.values() if v.get("role") != "Admin"]
+    if filter_tab == "Students":
+        user_list = [u for u in user_list if u.get("role") == "Student"]
+    elif filter_tab == "Parents":
+        user_list = [u for u in user_list if u.get("role") == "Parent"]
+    elif filter_tab == "Blocked":
+        user_list = [u for u in user_list if u.get("blocked", False)]
+
+    filtered = [u for u in user_list
+                if not search_lower
+                or search_lower in u.get("name","").lower()
+                or search_lower in u.get("email","").lower()
+                or search_lower in u.get("city","").lower()]
+
+    if not filtered:
+        st.info("No users match your search.")
+    else:
+        st.markdown(
+            '<div style="font-size:11px;color:' + T['text_muted'] + ';margin-bottom:10px;">'
+            + 'Showing ' + str(len(filtered)) + ' of ' + str(len(user_list)) + ' users</div>',
+            unsafe_allow_html=True)
+
+        for u in filtered:
+            u_email  = u.get("email","")
+            role_u   = u.get("role","")
+            preds_u  = u.get("prediction_history", [])
+            last_sc  = preds_u[0]["score"] if preds_u else None
+            last_gr  = preds_u[0]["grade"] if preds_u else None
+            last_ts  = preds_u[0]["timestamp"] if preds_u else "—"
+            school_u = u.get("school_name", u.get("city","—"))
+            role_icon = "🎒" if role_u == "Student" else "👨‍👩‍👧"
+            role_clr  = T['acc3'] if role_u == "Student" else T['acc2']
+            is_blocked = u.get("blocked", False)
+
+            pic = u.get("profile_pic","")
+            if pic:
+                avatar_html = (
+                    '<img src="data:image/jpeg;base64,' + pic
+                    + '" style="width:44px;height:44px;border-radius:50%;object-fit:cover;'
+                    + 'border:2px solid ' + role_clr + '44;flex-shrink:0;" />')
+            else:
+                initials = "".join([p[0].upper() for p in u.get("name","?").split()[:2]])
+                avatar_html = (
+                    '<div style="width:44px;height:44px;border-radius:50%;background:'
+                    + T['grad_main'] + ';display:flex;align-items:center;justify-content:center;'
+                    + 'font-size:14px;font-weight:800;color:#fff;flex-shrink:0;">' + initials + '</div>')
+
+            info_col, score_col, act_col = st.columns([5, 1, 2])
+
+            with info_col:
+                blocked_tag = " &nbsp;<span style='font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;background:rgba(255,60,60,0.15);color:#ff5555;'>🚫 BLOCKED</span>" if is_blocked else ""
+                st.markdown(
+                    '<div class="admin-user-row">'
+                    + avatar_html
+                    + '<div style="flex:1;min-width:0;">'
+                    + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">'
+                    + '<span style="font-family:\'Syne\',sans-serif;font-size:14px;font-weight:800;color:'
+                    + T['text_primary'] + ';">' + u.get('name','—') + '</span>'
+                    + '<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;'
+                    + 'padding:2px 8px;border-radius:20px;background:' + role_clr + '22;color:' + role_clr + ';">'
+                    + role_icon + ' ' + role_u + '</span>' + blocked_tag
+                    + '</div>'
+                    + '<div style="font-size:11px;color:' + T['text_muted'] + ';">'
+                    + '📧 ' + u_email + ' &nbsp;·&nbsp; 🏙 ' + u.get('city','—')
+                    + ' &nbsp;·&nbsp; 🏫 ' + school_u + '</div>'
+                    + '<div style="font-size:10px;color:' + T['text_muted'] + ';margin-top:2px;">'
+                    + '🕐 Last: ' + str(last_ts) + '</div>'
+                    + '</div></div>',
+                    unsafe_allow_html=True)
+
+            with score_col:
+                if last_sc is not None:
+                    gc = {"A+": T['acc4'], "A": T['acc4'], "B": T['acc3'], "C": T['acc2'], "D": "#ff5555"}.get(last_gr, T['acc1'])
+                    st.markdown(
+                        '<div style="text-align:right;padding-top:10px;">'
+                        + '<div style="font-family:\'Syne\',sans-serif;font-size:22px;font-weight:800;color:'
+                        + gc + ';line-height:1;">' + str(last_sc) + '</div>'
+                        + '<div style="font-size:9px;font-weight:700;text-transform:uppercase;color:'
+                        + gc + ';">' + str(last_gr) + '</div>'
+                        + '<div style="font-size:9px;color:' + T['text_muted'] + ';margin-top:1px;">'
+                        + str(len(preds_u)) + ' pred(s)</div></div>',
+                        unsafe_allow_html=True)
+                else:
+                    st.markdown(
+                        '<div style="font-size:10px;color:' + T['text_muted'] + ';padding-top:14px;text-align:right;">No preds</div>',
+                        unsafe_allow_html=True)
+
+            with act_col:
+                st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+                b1, b2, b3 = st.columns(3)
+                with b1:
+                    if st.button("👁️", key=f"view_{u_email}", help="View Profile"):
+                        st.session_state["admin_view_email"] = u_email
+                        st.session_state["admin_confirm_delete"] = None
+                        st.rerun()
+                with b2:
+                    block_icon = "✅" if is_blocked else "🚫"
+                    block_help = "Unblock User" if is_blocked else "Block User"
+                    if st.button(block_icon, key=f"block_{u_email}", help=block_help):
+                        users_db = load_users()
+                        if u_email in users_db:
+                            users_db[u_email]["blocked"] = not is_blocked
+                            save_users(users_db)
+                        st.rerun()
+                with b3:
+                    if st.button("🗑️", key=f"del_{u_email}", help="Delete Account"):
+                        st.session_state["admin_confirm_delete"] = u_email
+                        st.session_state["admin_view_email"] = None
+                        st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+
+# ── HEADER (shared for predict/result views) ──────────────────────────────────
+def render_logged_in_header():
+    user     = st.session_state.user
+    name     = user["name"]
+    role     = user["role"]
+    initials = "".join([p[0].upper() for p in name.split()[:2]])
+    avatar_html = render_hdr_avatar_html(user, initials, size=40)
+
+    st.markdown(f"""
+    <div class="dash-hdr">
+        <div class="dash-logo">🎓 EduPredict</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:{T['text_primary']}">{name}</div>
+                <div style="font-size:11px;color:{T['text_muted']}">{role}</div>
+            </div>
+            {avatar_html}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ── HELP & SUPPORT PANEL ──────────────────────────────────────────────────────
+def render_help_support_panel():
+    user       = st.session_state.user
+    user_name  = user.get("name", "")
+    user_email = user.get("email", "")
+
+    st.markdown(f"""
+    <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+         border-top:4px solid {T['acc4']};border-radius:20px;
+         padding:22px 26px 10px;margin-bottom:16px;">
+      <div style="font-family:'Syne',sans-serif;font-size:19px;font-weight:800;
+           color:{T['text_primary']};margin-bottom:4px;">💬 Help & Support</div>
+      <div style="font-size:12px;color:{T['text_muted']};margin-bottom:6px;">
+        Have a question or issue? Send a message directly to the admin.
+        You will not receive a reply here — admin will review and take action if needed.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Already sent flag
+    if st.session_state.get("help_msg_sent", False):
+        st.markdown(f"""
+        <div style="background:rgba(6,214,160,0.10);border:1.5px solid rgba(6,214,160,0.35);
+             border-left:4px solid {T['acc4']};border-radius:14px;
+             padding:16px 20px;margin-bottom:16px;">
+          <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+               color:{T['acc4']};margin-bottom:4px;">✅ Message Sent!</div>
+          <div style="font-size:12px;color:{T['text_secondary']};line-height:1.6;">
+            Your message has been delivered to the admin. They will review it shortly.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📨 Send Another Message", key="help_send_another"):
+            st.session_state["help_msg_sent"] = False
+            st.rerun()
+        return
+
+    subject = st.text_input(
+        "Subject",
+        placeholder="e.g. Issue with prediction, Account problem...",
+        key="help_subject")
+
+    message = st.text_area(
+        "Your Message *",
+        placeholder="Describe your issue or question in detail...",
+        height=130, key="help_msg_text")
+
+    st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
+    send_c, close_c, _ = st.columns([1.4, 1, 3])
+    with send_c:
+        st.markdown('<div class="help-btn">', unsafe_allow_html=True)
+        if st.button("📨 Send to Admin", key="send_help_msg_btn"):
+            if not message.strip():
+                st.error("Please write a message before sending.")
+            else:
+                now_ist = datetime.now(IST).strftime("%d %b %Y, %I:%M %p IST")
+                save_message({
+                    "from_email": user_email,
+                    "from_name":  user_name,
+                    "subject":    subject.strip() if subject.strip() else "General Enquiry",
+                    "message":    message.strip(),
+                    "timestamp":  now_ist,
+                    "type":       "help_request",
+                    "read":       False,
+                })
+                st.session_state["help_msg_sent"] = True
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+    with close_c:
+        st.markdown('<div class="back-btn">', unsafe_allow_html=True)
+        if st.button("✖ Close", key="close_help_panel"):
+            st.session_state["show_help_support"] = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── MAIN DASHBOARD ────────────────────────────────────────────────────────────
+def render_dashboard():
+    user     = st.session_state.user
+    name     = user["name"]
+    role     = user["role"]
+    initials = "".join([p[0].upper() for p in name.split()[:2]])
+    avatar_html = render_hdr_avatar_html(user, initials, size=40)
+
+    # Sticky header
+    st.markdown(f"""
+    <div class="dash-hdr">
+        <div class="dash-logo">🎓 EduPredict</div>
+        <div style="display:flex;align-items:center;gap:14px;">
+            <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:{T['text_primary']}">{name}</div>
+                <div style="font-size:11px;color:{T['text_muted']}">{role}</div>
+            </div>
+            {avatar_html}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Action bar: Home | Theme | History | Help | Sign Out | Predict | Profile ──
+    home_col, tb_col, hist_col, help_col, so_col, pred_col, pf_col = st.columns([1, 0.6, 1.2, 1.2, 1.2, 1.6, 1.2])
+
+    with home_col:
+        st.markdown('<div class="home-btn">', unsafe_allow_html=True)
+        if st.button("🏠 Home", key="home_btn"):
+            st.session_state.view              = "dashboard"
+            st.session_state.show_profile      = False
+            st.session_state.show_history      = False
+            st.session_state.show_help_support = False
+            st.session_state.edit_profile      = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with tb_col:
+        theme_btn("theme_dash")
+
+    with hist_col:
+        hist_lbl = "✖ History" if st.session_state.show_history else "📜 History"
+        st.markdown('<div class="hist-btn">', unsafe_allow_html=True)
+        if st.button(hist_lbl, key="toggle_history"):
+            st.session_state.show_history      = not st.session_state.show_history
+            st.session_state.show_profile      = False
+            st.session_state.show_help_support = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with help_col:
+        help_lbl = "✖ Help" if st.session_state.get("show_help_support", False) else "💬 Help"
+        st.markdown('<div class="help-btn">', unsafe_allow_html=True)
+        if st.button(help_lbl, key="toggle_help_support"):
+            st.session_state["show_help_support"] = not st.session_state.get("show_help_support", False)
+            st.session_state.show_history          = False
+            st.session_state.show_profile          = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with so_col:
+        st.markdown('<div class="signout-btn">', unsafe_allow_html=True)
+        if st.button("Sign Out", key="logout_main"):
+            for k in ["logged_in","user","prediction_result",
+                      "show_profile","edit_profile","show_history","show_help_support"]:
+                st.session_state[k] = False if k != "user" and k != "prediction_result" else None
+            st.session_state.view = "dashboard"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with pred_col:
+        st.markdown('<div class="predict-hdr-btn">', unsafe_allow_html=True)
+        if st.button("🔮 Predict Score", key="open_predict_btn"):
+            st.session_state.view = "predict_form"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with pf_col:
+        st.markdown('<div class="profile-toggle-btn">', unsafe_allow_html=True)
+        lbl = "✖ Close" if st.session_state.show_profile else "👤 Profile"
+        if st.button(lbl, key="toggle_profile"):
+            st.session_state.show_profile      = not st.session_state.show_profile
+            st.session_state.show_history      = False
+            st.session_state.show_help_support = False
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── History panel ──────────────────────────────────────────────────────
+    if st.session_state.show_history:
+        st.markdown('<div style="padding:18px 36px 0;">', unsafe_allow_html=True)
+        render_history_panel()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return   # don't render rest of dashboard when history is open
+
+    # ── Help & Support panel ───────────────────────────────────────────────
+    if st.session_state.get("show_help_support", False):
+        st.markdown('<div style="padding:18px 36px 40px;">', unsafe_allow_html=True)
+        render_help_support_panel()
+        st.markdown('</div>', unsafe_allow_html=True)
+        return   # don't render rest of dashboard when help is open
+
+    # ── Profile panel ──────────────────────────────────────────────────────
+    if st.session_state.show_profile:
+        col_ratio = [1.6, 2.4] if st.session_state.edit_profile else [1, 3]
+        panel_col, close_col = st.columns(col_ratio, gap="small")
+        with panel_col:
+            st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
+            render_profile_panel(user)
+        with close_col:
+            st.markdown("<div style='height:18px'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="padding: 32px 28px;">
+                <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+                            color:{T['text_primary']};margin-bottom:8px;">
+                    Hello, {name.split()[0]}! 👋
+                </div>
+                <div style="font-size:13px;color:{T['text_muted']};margin-bottom:28px;">
+                    Your profile is open on the left. Click <strong style="color:{T['acc1']}">✖ Close</strong> to go back.
+                </div>
+                <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+                    border-left:4px solid {T['acc1']};border-radius:16px;padding:20px 24px;margin-bottom:14px;">
+                    <div style="font-size:13px;font-weight:700;color:{T['text_primary']};margin-bottom:4px;">
+                        🔮 Ready to predict your score?
+                    </div>
+                    <div style="font-size:12px;color:{T['text_muted']};">
+                        Use the <strong style="color:{T['acc1']}">Predict Score</strong> button in the top bar.
+                    </div>
+                </div>
+                <div style="background:{T['card_bg']};border:1px solid {T['card_border']};
+                    border-left:4px solid {T['acc4']};border-radius:16px;padding:20px 24px;">
+                    <div style="font-size:13px;font-weight:700;color:{T['text_primary']};margin-bottom:4px;">
+                        ✏️ Update your profile?
+                    </div>
+                    <div style="font-size:12px;color:{T['text_muted']};">
+                        Use the <strong style="color:{T['acc4']}">Edit Profile</strong> button below your profile info.
+                    </div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+        return
+
+    # ── Main dashboard content ──────────────────────────────────────────────
+    st.markdown('<div style="padding:22px 36px 56px;">', unsafe_allow_html=True)
+
+    first_name = name.split()[0]
+    hour       = datetime.now(IST).hour
+    greeting   = "Good Morning" if hour < 12 else "Good Afternoon" if hour < 17 else "Good Evening"
+    quotes = [
+        "Success is the sum of small efforts, repeated day in and day out.",
+        "The secret of getting ahead is getting started.",
+        "Education is the most powerful weapon you can use to change the world.",
+        "Push yourself, because no one else is going to do it for you.",
+    ]
+    import hashlib as _h
+    quote = quotes[int(_h.md5(name.encode()).hexdigest(), 16) % len(quotes)]
+
+    st.markdown(f"""
+    <div class="dash-welcome">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+            <div style="flex:1;min-width:260px;">
+                <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                            color:{T['acc1']};margin-bottom:8px;">{greeting} ✨</div>
+                <div style="font-family:'Syne',sans-serif;font-size:30px;font-weight:800;
+                            color:{T['text_primary']};letter-spacing:-0.5px;line-height:1.2;margin-bottom:6px;">
+                    Welcome back,<br/><span style="background:{T['grad_main']};-webkit-background-clip:text;-webkit-text-fill-color:transparent;">{first_name}!</span>
+                </div>
+                <div style="font-size:13px;color:{T['text_muted']};margin-bottom:6px;">
+                    {"🎒 Student" if role == "Student" else "👨‍👩‍👧 Parent"} &nbsp;·&nbsp; EduPredict Dashboard
+                </div>
+                <div class="dash-quote">"{quote}"</div>
+            </div>
+            <div style="flex-shrink:0;"><div style="font-size:72px;line-height:1;">🎓</div></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Quick Actions
+    st.markdown(f'<div class="sec-title">⚡ Quick Actions</div>', unsafe_allow_html=True)
+    qa1, qa2, qa3 = st.columns(3)
+
+    with qa1:
+        st.markdown('<div class="qa-btn-1">', unsafe_allow_html=True)
+        if st.button("🔮  Predict Score\n\nGet your AI-powered exam score prediction in seconds.", key="qa_predict"):
+            st.session_state.view = "predict_form"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with qa2:
+        prev_score = st.session_state.get("prediction_result")
+        label = "📊  View Analytics\n\nSee your charts & performance graphs." if prev_score \
+                else "📊  View Analytics\n\nCharts appear after your first prediction."
+        st.markdown('<div class="qa-btn-2">', unsafe_allow_html=True)
+        if st.button(label, key="qa_analytics"):
+            st.session_state.view = "result" if prev_score else "predict_form"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    with qa3:
+        st.markdown('<div class="qa-btn-3">', unsafe_allow_html=True)
+        if st.button("📄  Download Report\n\nGet a beautiful PDF report card after prediction.", key="qa_report"):
+            st.session_state.view = "result" if st.session_state.get("prediction_result") else "predict_form"
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # How It Works
+    st.markdown(f'<div class="sec-title" style="margin-top:8px;">🗺️ How It Works</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="dash-steps-wrap">
+        <div class="dash-step">
+            <div class="dash-step-num" style="background:{T['grad_main']};">1</div>
+            <div>
+                <div class="dash-step-title">Fill the Prediction Form</div>
+                <div class="dash-step-sub">Enter your study hours, attendance, sleep, motivation, and other factors.</div>
+            </div>
+        </div>
+        <div class="dash-step">
+            <div class="dash-step-num" style="background:{T['grad_alt']};">2</div>
+            <div>
+                <div class="dash-step-title">Get Your AI Score</div>
+                <div class="dash-step-sub">Our machine learning model predicts your exam score in real time.</div>
+            </div>
+        </div>
+        <div class="dash-step">
+            <div class="dash-step-num" style="background:linear-gradient(135deg,{T['acc4']},{T['acc3']});">3</div>
+            <div>
+                <div class="dash-step-title">Read Your Personalised Tips</div>
+                <div class="dash-step-sub">Get smart suggestions tailored to your specific habits and areas to improve.</div>
+            </div>
+        </div>
+        <div class="dash-step">
+            <div class="dash-step-num" style="background:linear-gradient(135deg,{T['acc2']},{T['acc1']});">4</div>
+            <div>
+                <div class="dash-step-title">Download Your Report</div>
+                <div class="dash-step-sub">Save your personalised PDF report card with full analytics.</div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Last Prediction
+    prev_score = st.session_state.get("prediction_result")
+    if prev_score:
+        grade, feedback = get_grade(prev_score)
+        st.markdown(f'<div class="sec-title" style="margin-top:20px;">📌 Your Last Prediction</div>', unsafe_allow_html=True)
+        p1, p2, p3, p4 = st.columns(4)
+        for col, icon, val, lbl in [
+            (p1, "📊", str(prev_score), "Score"),
+            (p2, "🎯", grade,           "Grade"),
+            (p3, "📈", "↑ High" if prev_score >= 75 else "→ Mid", "Level"),
+            (p4, "⭐", "Top 25%" if prev_score >= 80 else "Top 50%", "Percentile"),
+        ]:
+            with col:
+                st.markdown(f"""
+                <div class="stat-card">
+                    <div class="stat-icon">{icon}</div>
+                    <div class="stat-val">{val}</div>
+                    <div class="stat-lbl">{lbl}</div>
+                </div>""", unsafe_allow_html=True)
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        view_col, _ = st.columns([1, 3])
+        with view_col:
+            st.markdown('<div class="predict-hdr-btn">', unsafe_allow_html=True)
+            if st.button("📋 View Full Result", key="view_result_dash"):
+                st.session_state.view = "result"
+                st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+# ── SESSION VALIDITY CHECK (har rerun pe) ─────────────────────────────────────
+check_session_still_valid()
+
+# ── ROUTER ────────────────────────────────────────────────────────────────────
+if not st.session_state.logged_in:
+    render_auth()
+else:
+    user = st.session_state.user
+    # Admin gets their own dedicated view
+    if user and user.get("role") == "Admin":
+        render_admin_dashboard()
+    else:
+        view = st.session_state.get("view", "dashboard")
+        if view == "predict_form":
+            render_logged_in_header()
+            render_prediction_form()
+        elif view == "result":
+            render_logged_in_header()
+            render_result_page()
+        else:
+            render_dashboard()
