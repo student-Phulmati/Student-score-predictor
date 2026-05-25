@@ -2184,15 +2184,65 @@ def pdf_radar_graph(inputs):
     return drawing
 
 def profile_image_flowable(username):
+    """
+    PDF report profile picture fix:
+    App me profile picture circular + object-fit: cover style me dikhti hai.
+    ReportLab PDF me same look lane ke liye image ko center-crop, zoom-cover,
+    circular mask aur blue border ke saath PNG buffer me convert kiya gaya hai.
+    """
     pic_path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
-    if os.path.exists(pic_path):
+
+    if not os.path.exists(pic_path):
+        return None
+
+    try:
+        from PIL import Image as PILImage, ImageOps, ImageDraw
+
+        pdf_size = 1.45 * inch
+        canvas_size = 300
+
+        # Open uploaded profile picture
+        img = PILImage.open(pic_path).convert("RGB")
+
+        # Same as app avatar: zoom/cover + center crop
         try:
-            img = Image(pic_path, width=1.25*inch, height=1.25*inch)
-            img.hAlign = "CENTER"
-            return img
-        except Exception:
-            return None
-    return None
+            resample_filter = PILImage.Resampling.LANCZOS
+        except AttributeError:
+            resample_filter = PILImage.LANCZOS
+
+        img = ImageOps.fit(
+            img,
+            (canvas_size, canvas_size),
+            method=resample_filter,
+            centering=(0.5, 0.5)
+        )
+
+        # Circular mask
+        mask = PILImage.new("L", (canvas_size, canvas_size), 0)
+        mask_draw = ImageDraw.Draw(mask)
+        mask_draw.ellipse((0, 0, canvas_size - 1, canvas_size - 1), fill=255)
+
+        circular_img = PILImage.new("RGBA", (canvas_size, canvas_size), (255, 255, 255, 0))
+        circular_img.paste(img, (0, 0), mask)
+
+        # App-like border
+        border_draw = ImageDraw.Draw(circular_img)
+        border_draw.ellipse(
+            (8, 8, canvas_size - 9, canvas_size - 9),
+            outline=(0, 150, 199, 255),
+            width=12
+        )
+
+        img_buffer = io.BytesIO()
+        circular_img.save(img_buffer, format="PNG")
+        img_buffer.seek(0)
+
+        pdf_img = Image(img_buffer, width=pdf_size, height=pdf_size)
+        pdf_img.hAlign = "CENTER"
+        return pdf_img
+
+    except Exception:
+        return None
 
 def generate_pdf(username, user_data, score, inputs, recs):
     buffer = io.BytesIO()
