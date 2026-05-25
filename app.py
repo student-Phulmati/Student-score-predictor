@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 import joblib
@@ -77,6 +78,67 @@ def profile_pic_html(username, fallback="🎓"):
             b64 = base64.b64encode(f.read()).decode()
         return f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
     return fallback
+
+def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
+    """
+    Share generated PDF directly using the browser Web Share API.
+    On supported mobile browsers, this opens the share panel where WhatsApp can be selected.
+    On unsupported browsers, it shows a clear fallback message to download and attach manually.
+    """
+    pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
+    safe_caption = str(caption).replace("`", "'").replace("\\", "\\\\")
+
+    components.html(f"""
+    <div style="text-align:center; margin:16px 0 8px 0;">
+      <button id="sharePdfBtn" style="
+        background:linear-gradient(135deg,#25D366,#128C7E);
+        color:white;
+        border:none;
+        padding:12px 24px;
+        border-radius:999px;
+        cursor:pointer;
+        font-weight:900;
+        font-size:15px;
+        box-shadow:0 8px 22px rgba(37,211,102,0.28);
+        font-family:Arial, sans-serif;">
+        📎 Share PDF on WhatsApp
+      </button>
+      <p id="shareStatus" style="font-family:Arial, sans-serif; font-size:13px; color:#475569; margin-top:8px;"></p>
+    </div>
+
+    <script>
+    const btn = document.getElementById('sharePdfBtn');
+    const status = document.getElementById('shareStatus');
+
+    btn.onclick = async () => {{
+      try {{
+        const b64 = "{pdf_b64}";
+        const byteCharacters = atob(b64);
+        const byteNumbers = new Array(byteCharacters.length);
+
+        for (let i = 0; i < byteCharacters.length; i++) {{
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }}
+
+        const byteArray = new Uint8Array(byteNumbers);
+        const file = new File([byteArray], "{file_name}", {{type: 'application/pdf'}});
+
+        if (navigator.canShare && navigator.canShare({{ files: [file] }})) {{
+          await navigator.share({{
+            title: 'ScoreWise AI PDF Report',
+            text: `{safe_caption}`,
+            files: [file]
+          }});
+          status.innerText = 'Share panel opened. Select WhatsApp to send the PDF.';
+        }} else {{
+          status.innerText = 'Direct PDF sharing is not supported here. Please download the PDF and attach it in WhatsApp.';
+        }}
+      }} catch (err) {{
+        status.innerText = 'PDF sharing is not supported in this browser. Please download the PDF and attach it in WhatsApp.';
+      }}
+    }};
+    </script>
+    """, height=115)
 
 # =====================================================
 # SESSION STATE INIT
@@ -3025,14 +3087,13 @@ def report_page(user):
     share_message = (
         f"🎓 {APP_NAME_PLAIN} PDF Report\n"
         f"Predicted Score: {score}/100\n"
-        f"Please attach the downloaded PDF report in this WhatsApp chat."
+        f"Please find attached the PDF report."
     )
-    wa_url = "https://wa.me/?text=" + urllib.parse.quote(share_message)
-    st.markdown(f"""
-    <div style='text-align:center;margin:16px 0 6px 0'>
-      <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Open WhatsApp to Share PDF</a>
-    </div>
-    """, unsafe_allow_html=True)  
+    build_whatsapp_file_share_button(
+        pdf,
+        f"ScoreWise_Report_{st.session_state.username}.pdf",
+        share_message
+    )
     
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
