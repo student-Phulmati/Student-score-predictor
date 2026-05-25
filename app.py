@@ -2474,13 +2474,13 @@ def auth_page():
                                        min_value=datetime(1990,1,1).date(),
                                        max_value=datetime.now().date())
                 grade  = st.selectbox("Class / Course",
-                                      ["Class 8","Class 9","Class 10","Class 11","Class 12","College"],
+                                      ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"],
                                       key="su_grade")
                 school = st.text_input("School / College", key="su_school")
             else:
                 child_name = st.text_input("Child Name",    key="su_child")
                 grade      = st.selectbox("Child Class / Course",
-                                          ["Class 8","Class 9","Class 10","Class 11","Class 12","College"],
+                                          ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"],
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
@@ -2920,16 +2920,16 @@ def profile_page(user):
                     except: dob_date = date(2000,1,1)
                     new_dob    = st.date_input("Date of Birth", value=dob_date,
                                                min_value=date(1990,1,1), max_value=date.today())
-                    grade_opts = ["Class 8","Class 9","Class 10","Class 11","Class 12","College"]
+                    grade_opts = ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"]
                     cur_grade  = user.get("grade","Class 10")
-                    g_idx      = grade_opts.index(cur_grade) if cur_grade in grade_opts else 2
+                    g_idx      = grade_opts.index(cur_grade) if cur_grade in grade_opts else grade_opts.index("Class 10")
                     new_grade  = st.selectbox("Class / Grade", grade_opts, index=g_idx)
                     new_school = st.text_input("School / College", value=user.get("school",""))
                 else:
                     new_child  = st.text_input("Child Name", value=user.get("child_name",""))
-                    grade_opts = ["Class 8","Class 9","Class 10","Class 11","Class 12","College"]
+                    grade_opts = ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"]
                     cur_grade  = user.get("child_grade","Class 10")
-                    g_idx      = grade_opts.index(cur_grade) if cur_grade in grade_opts else 2
+                    g_idx      = grade_opts.index(cur_grade) if cur_grade in grade_opts else grade_opts.index("Class 10")
                     new_cgrade = st.selectbox("Child Grade", grade_opts, index=g_idx)
                     rel_opts   = ["Father","Mother","Guardian"]
                     cur_rel    = user.get("relation","Father")
