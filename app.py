@@ -9,10 +9,6 @@ import os
 import io
 import base64
 import urllib.parse
-import random
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from datetime import datetime, date
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -35,16 +31,6 @@ HISTORY_FILE     = "prediction_history.json"
 PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
-
-# Email OTP settings for signup verification
-# Recommended: set these in .streamlit/secrets.toml or environment variables.
-# Example secrets.toml:
-# EMAIL_SENDER = "your_email@gmail.com"
-# EMAIL_PASSWORD = "your_16_digit_gmail_app_password"
-SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
-EMAIL_SENDER = st.secrets.get("EMAIL_SENDER", os.getenv("EMAIL_SENDER", ""))
-EMAIL_PASSWORD = st.secrets.get("EMAIL_PASSWORD", os.getenv("EMAIL_PASSWORD", ""))
 
 os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
@@ -154,44 +140,6 @@ def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
     </script>
     """, height=115)
 
-def is_valid_email(email):
-    email = (email or "").strip()
-    return "@" in email and "." in email.split("@")[-1]
-
-def generate_signup_otp():
-    return str(random.randint(100000, 999999))
-
-def send_signup_otp_email(receiver_email, otp):
-    """Send signup OTP to the user's email address using Gmail SMTP."""
-    if not EMAIL_SENDER or not EMAIL_PASSWORD:
-        return False, "Email sender is not configured. Add EMAIL_SENDER and EMAIL_PASSWORD in Streamlit secrets or environment variables."
-
-    try:
-        msg = MIMEMultipart()
-        msg["From"] = EMAIL_SENDER
-        msg["To"] = receiver_email
-        msg["Subject"] = f"{APP_NAME_PLAIN} Email Verification OTP"
-
-        body = f"""Hello,
-
-Your {APP_NAME_PLAIN} signup verification OTP is: {otp}
-
-This OTP is valid for this signup session. Do not share it with anyone.
-
-Regards,
-{APP_NAME_PLAIN}
-"""
-        msg.attach(MIMEText(body, "plain"))
-
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-        server.starttls()
-        server.login(EMAIL_SENDER, EMAIL_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        return True, "OTP sent successfully. Please check your email."
-    except Exception as e:
-        return False, f"OTP email could not be sent: {e}"
-
 # =====================================================
 # SESSION STATE INIT
 # =====================================================
@@ -210,10 +158,6 @@ def init_state():
         "last_recs":         [],
         "show_pic_uploader": False,
         "profile_edit_mode": False,
-        "signup_otp": "",
-        "signup_otp_email": "",
-        "signup_otp_verified": False,
-        "signup_otp_sent": False,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -2805,7 +2749,7 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
-        # ── SIGNUP WITH EMAIL OTP VERIFICATION ──
+        # ── SIGNUP WITHOUT OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -2829,64 +2773,17 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
-            st.markdown("#### Email Verification")
-            send_otp_col, verify_otp_col = st.columns([1, 1])
-
-            with send_otp_col:
-                if st.button("📩 Send OTP to Email", key="send_signup_otp_btn", use_container_width=True):
-                    if not email or not is_valid_email(email):
-                        st.error("Please enter a valid email before sending OTP.")
-                    elif any(str(u.get("email", "")).strip().lower() == email.strip().lower() for u in users.values()):
-                        st.error("This email is already registered. Please use another email.")
-                    else:
-                        otp = generate_signup_otp()
-                        ok, msg = send_signup_otp_email(email.strip(), otp)
-                        if ok:
-                            st.session_state.signup_otp = otp
-                            st.session_state.signup_otp_email = email.strip().lower()
-                            st.session_state.signup_otp_sent = True
-                            st.session_state.signup_otp_verified = False
-                            st.success(msg)
-                        else:
-                            st.error(msg)
-
-            entered_otp = st.text_input("Enter OTP", max_chars=6, key="signup_entered_otp", placeholder="6-digit OTP")
-
-            with verify_otp_col:
-                if st.button("✅ Verify OTP", key="verify_signup_otp_btn", use_container_width=True):
-                    if not st.session_state.signup_otp_sent:
-                        st.warning("Please send OTP first.")
-                    elif email.strip().lower() != st.session_state.signup_otp_email:
-                        st.error("Email changed after OTP was sent. Please send OTP again.")
-                    elif entered_otp.strip() == st.session_state.signup_otp:
-                        st.session_state.signup_otp_verified = True
-                        st.success("Email verified successfully.")
-                    else:
-                        st.error("Invalid OTP. Please check your email and try again.")
-
-            if st.session_state.signup_otp_verified and email.strip().lower() == st.session_state.signup_otp_email:
-                st.success("✅ Email verified. Now you can create your account.")
-            else:
-                st.info("First click Send OTP, then enter OTP and verify it before creating account.")
-
             if st.button("🚀 Create Account", key="create_account_btn", use_container_width=True):
                 if not username or not email or not full_name or not password or not confirm:
                     st.warning("Please fill all required fields first.")
-                elif not is_valid_email(email):
-                    st.error("Please enter a valid email address.")
                 elif password != confirm:
                     st.error("Passwords do not match.")
                 elif username in users:
                     st.error("Username already exists. Please choose another.")
-                elif any(str(u.get("email", "")).strip().lower() == email.strip().lower() for u in users.values()):
-                    st.error("This email is already registered. Please use another email.")
-                elif not st.session_state.signup_otp_verified or email.strip().lower() != st.session_state.signup_otp_email:
-                    st.error("Please verify your email OTP before creating account.")
                 else:
                     data = {
                         "password":   hash_password(password),
-                        "email":      email.strip(),
-                        "email_verified": True,
+                        "email":      email,
                         "full_name":  full_name,
                         "role":       role,
                         "created_at": datetime.now().isoformat()
@@ -2911,11 +2808,7 @@ def auth_page():
                     st.session_state.role        = role
                     st.session_state.active_page = "Home"
                     st.session_state.auth_page   = "welcome"
-                    st.session_state.signup_otp = ""
-                    st.session_state.signup_otp_email = ""
-                    st.session_state.signup_otp_sent = False
-                    st.session_state.signup_otp_verified = False
-                    st.success("🎉 Email verified and account created! Opening your dashboard…")
+                    st.success("🎉 Account created! Opening your dashboard…")
                     st.rerun()
 
 
