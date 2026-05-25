@@ -13,8 +13,8 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
-from reportlab.graphics.shapes import Drawing, Line, String
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
+from reportlab.graphics.shapes import Drawing, Line, String, Rect, Polygon, Circle
 
 import plotly.graph_objects as go
 import plotly.express as px
@@ -2109,22 +2109,90 @@ def save_prediction(username, record):
     save_json(HISTORY_FILE, all_h)
 
 def simple_pdf_graph(scores):
-    drawing = Drawing(430, 160)
-    drawing.add(String(10, 145, "Score History Graph", fontSize=12, fillColor=colors.HexColor("#184e77")))
+    drawing = Drawing(430, 170)
+    drawing.add(String(10, 155, "Score History / Trend Graph", fontSize=12, fillColor=colors.HexColor("#184e77")))
     drawing.add(Line(35, 30, 410, 30, strokeColor=colors.grey))
-    drawing.add(Line(35, 30, 35, 130, strokeColor=colors.grey))
-    for y, lab in [(30, "0"), (80, "50"), (130, "100")]:
+    drawing.add(Line(35, 30, 35, 135, strokeColor=colors.grey))
+    for y, lab in [(30, "0"), (82, "50"), (135, "100")]:
         drawing.add(String(8, y-4, lab, fontSize=7, fillColor=colors.grey))
         drawing.add(Line(35, y, 410, y, strokeColor=colors.lightgrey, strokeWidth=.4))
     if len(scores) >= 1:
         xs  = np.linspace(45, 395, len(scores)) if len(scores) > 1 else [220]
-        pts = [(float(x), 30 + (float(s) / 100) * 100) for x, s in zip(xs, scores)]
+        pts = [(float(x), 30 + (float(s) / 100) * 105) for x, s in zip(xs, scores)]
         for i in range(len(pts)-1):
             drawing.add(Line(pts[i][0], pts[i][1], pts[i+1][0], pts[i+1][1],
-                             strokeColor=colors.HexColor("#34a0a4"), strokeWidth=2))
+                             strokeColor=colors.HexColor("#0077b6"), strokeWidth=2.2))
         for i, (x, y) in enumerate(pts):
-            drawing.add(String(x-5, y+6, str(scores[i]), fontSize=7, fillColor=colors.HexColor("#184e77")))
+            drawing.add(Circle(x, y, 3.2, fillColor=colors.HexColor("#00b4d8"), strokeColor=colors.HexColor("#03045e")))
+            drawing.add(String(x-5, y+8, str(scores[i]), fontSize=7, fillColor=colors.HexColor("#184e77")))
     return drawing
+
+def pdf_factor_bar_graph(inputs):
+    factors = [
+        ("Previous", float(inputs.get("Previous_Scores", 0)), 100),
+        ("Attendance", float(inputs.get("Attendance", 0)), 100),
+        ("Study Hrs", float(inputs.get("Hours_Studied", 0)), 12),
+        ("Sleep Hrs", float(inputs.get("Sleep_Hours", 0)), 10),
+    ]
+    drawing = Drawing(430, 190)
+    drawing.add(String(10, 175, "Academic Factors Bar Graph", fontSize=12, fillColor=colors.HexColor("#184e77")))
+    drawing.add(Line(70, 35, 410, 35, strokeColor=colors.grey))
+    drawing.add(Line(70, 35, 70, 150, strokeColor=colors.grey))
+    palette = ["#0077b6", "#00b4d8", "#48cae4", "#90e0ef"]
+    bar_w = 58
+    gap = 24
+    for i, (label, value, max_value) in enumerate(factors):
+        x = 85 + i * (bar_w + gap)
+        pct = max(0, min(1, value / max_value if max_value else 0))
+        h = pct * 105
+        drawing.add(Rect(x, 35, bar_w, h, fillColor=colors.HexColor(palette[i]), strokeColor=colors.HexColor("#184e77")))
+        drawing.add(String(x + 8, 22, label, fontSize=7, fillColor=colors.HexColor("#184e77")))
+        drawing.add(String(x + 14, 42 + h, str(round(value, 1)), fontSize=7, fillColor=colors.HexColor("#03045e")))
+    return drawing
+
+def pdf_radar_graph(inputs):
+    items = [
+        ("Previous", float(inputs.get("Previous_Scores", 0)), 100),
+        ("Attendance", float(inputs.get("Attendance", 0)), 100),
+        ("Study", float(inputs.get("Hours_Studied", 0)), 12),
+        ("Sleep", float(inputs.get("Sleep_Hours", 0)), 10),
+        ("Resources", {"Low":35, "Medium":65, "High":95}.get(inputs.get("Learning_Resources", "Medium"), 60), 100),
+        ("Motivation", {"Low":35, "Medium":65, "High":95}.get(inputs.get("Motivation_Level", "Medium"), 60), 100),
+    ]
+    drawing = Drawing(430, 230)
+    drawing.add(String(10, 215, "Performance Radar Graph", fontSize=12, fillColor=colors.HexColor("#184e77")))
+    cx, cy, max_r = 215, 105, 70
+    n = len(items)
+    for ring in [0.33, 0.66, 1.0]:
+        pts = []
+        for i in range(n):
+            angle = (np.pi / 2) - (2 * np.pi * i / n)
+            pts.extend([cx + max_r * ring * np.cos(angle), cy + max_r * ring * np.sin(angle)])
+        drawing.add(Polygon(pts, fillColor=None, strokeColor=colors.lightgrey, strokeWidth=.5))
+    data_pts = []
+    for i, (label, value, max_value) in enumerate(items):
+        angle = (np.pi / 2) - (2 * np.pi * i / n)
+        ax = cx + max_r * np.cos(angle)
+        ay = cy + max_r * np.sin(angle)
+        drawing.add(Line(cx, cy, ax, ay, strokeColor=colors.lightgrey, strokeWidth=.5))
+        lx = cx + (max_r + 18) * np.cos(angle)
+        ly = cy + (max_r + 18) * np.sin(angle)
+        drawing.add(String(lx - 16, ly - 3, label, fontSize=7, fillColor=colors.HexColor("#184e77")))
+        pct = max(0, min(1, float(value) / max_value if max_value else 0))
+        data_pts.extend([cx + max_r * pct * np.cos(angle), cy + max_r * pct * np.sin(angle)])
+    drawing.add(Polygon(data_pts, fillColor=colors.HexColor("#caf0f8"), strokeColor=colors.HexColor("#0077b6"), strokeWidth=1.5))
+    return drawing
+
+def profile_image_flowable(username):
+    pic_path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
+    if os.path.exists(pic_path):
+        try:
+            img = Image(pic_path, width=1.25*inch, height=1.25*inch)
+            img.hAlign = "CENTER"
+            return img
+        except Exception:
+            return None
+    return None
 
 def generate_pdf(username, user_data, score, inputs, recs):
     buffer = io.BytesIO()
@@ -2150,6 +2218,11 @@ def generate_pdf(username, user_data, score, inputs, recs):
         style=[("LINEBELOW",(0,0),(-1,-1),1.2,colors.HexColor("#168aad")),
                ("TOPPADDING",(0,0),(-1,-1),0),("BOTTOMPADDING",(0,0),(-1,-1),4)]))
     story.append(Spacer(1,10))
+    profile_img = profile_image_flowable(username)
+    if profile_img is not None:
+        story.append(Paragraph("Profile Picture", subtitle_style))
+        story.append(profile_img)
+        story.append(Spacer(1,10))
     student_name = user_data.get("full_name") or user_data.get("child_name") or username
     story.append(Paragraph("  Student / User Details", head_style))
     story.append(Spacer(1,4))
@@ -2200,10 +2273,39 @@ def generate_pdf(username, user_data, score, inputs, recs):
         ("PADDING",(0,0),(-1,-1),8),
     ]))
     story.append(t_inputs); story.append(Spacer(1,14))
-    scores_list = [r.get("score",0) for r in user_history(username)] + [score]
-    if len(scores_list) > 1:
-        story.append(Paragraph("  Score History Graph", head_style)); story.append(Spacer(1,6))
+    scores_list = [r.get("score",0) for r in user_history(username)]
+    if not scores_list or scores_list[-1] != score:
+        scores_list.append(score)
+
+    story.append(Paragraph("  Complete Performance Graphs", head_style)); story.append(Spacer(1,6))
+    story.append(pdf_radar_graph(inputs)); story.append(Spacer(1,8))
+    story.append(pdf_factor_bar_graph(inputs)); story.append(Spacer(1,8))
+    if scores_list:
         story.append(simple_pdf_graph(scores_list[-10:])); story.append(Spacer(1,14))
+
+    history_records = user_history(username)
+    if history_records:
+        story.append(Paragraph("  Prediction History Summary", head_style)); story.append(Spacer(1,4))
+        hist_rows = [[Paragraph("<b>Date</b>", normal_style), Paragraph("<b>Score</b>", normal_style), Paragraph("<b>Hours</b>", normal_style), Paragraph("<b>Attendance</b>", normal_style)]]
+        for h in history_records[-10:]:
+            hin = h.get("inputs", {})
+            hist_rows.append([
+                Paragraph(str(h.get("date", "N/A")), normal_style),
+                Paragraph(str(h.get("score", "N/A")), normal_style),
+                Paragraph(str(hin.get("Hours_Studied", "N/A")), normal_style),
+                Paragraph(str(hin.get("Attendance", "N/A")), normal_style),
+            ])
+        t_hist = Table(hist_rows, colWidths=[2.3*inch, 1.1*inch, 1.3*inch, 1.9*inch])
+        t_hist.setStyle(TableStyle([
+            ("GRID",(0,0),(-1,-1),.5,colors.HexColor("#ade8f4")),
+            ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#184e77")),
+            ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+            ("FONTNAME",(0,0),(-1,0),"Helvetica-Bold"),
+            ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white,colors.HexColor("#f0faff")]),
+            ("PADDING",(0,0),(-1,-1),6),
+        ]))
+        story.append(t_hist); story.append(Spacer(1,14))
+
     story.append(Paragraph("  Personalized Recommendations", head_style)); story.append(Spacer(1,6))
     if recs:
         for r in recs:
@@ -2770,8 +2872,8 @@ def report_page(user):
     score  = latest["score"]
     inputs = latest["inputs"]
     recs   = latest.get("recommendations", [])
-    pdf    = st.session_state.last_pdf or generate_pdf(
-                 st.session_state.username, user, score, inputs, recs)
+    pdf    = generate_pdf(st.session_state.username, user, score, inputs, recs)
+    st.session_state.last_pdf = pdf
 
     col1, col2, col3 = st.columns([1,1,1])
     with col2:
