@@ -1960,85 +1960,6 @@ def apply_profile_card_top_fix():
 
 apply_profile_card_top_fix()
 
-# =====================================================
-# FINAL ALL PAGES TEXT VISIBILITY FIX — DARK/LIGHT MODE
-# =====================================================
-def apply_all_pages_text_visibility_fix():
-    dark = st.session_state.theme == "dark"
-
-    page_title_color = "#f4f8ff" if dark else "#03045e"
-    page_subtitle_color = "#dceeff" if dark else "#1f3266"
-    normal_text_color = "#edf7ff" if dark else "#03045e"
-    muted_text_color = "#cfeeff" if dark else "#334b78"
-    title_shadow = "0 3px 16px rgba(0,0,0,0.72)" if dark else "0 3px 14px rgba(255,255,255,0.56)"
-    text_shadow = "0 2px 10px rgba(0,0,0,0.42)" if dark else "0 2px 10px rgba(255,255,255,0.35)"
-
-    st.markdown(f"""
-    <style>
-    /* Main page titles for Home, Predict, Report, History, Profile */
-    .dash-page .dash-title,
-    .dash-page .page-title {{
-        color: {page_title_color} !important;
-        text-shadow: {title_shadow} !important;
-        font-family: "Trebuchet MS", "Plus Jakarta Sans", sans-serif !important;
-        font-weight: 900 !important;
-    }}
-
-    /* Subtitle under every page title */
-    .dash-page .dash-subtitle,
-    .dash-page .subtext {{
-        color: {page_subtitle_color} !important;
-        text-shadow: {text_shadow} !important;
-        font-family: "Segoe UI", "Plus Jakarta Sans", sans-serif !important;
-        font-weight: 700 !important;
-    }}
-
-    /* General readable page text in dark mode without changing layout */
-    .dash-page p,
-    .dash-page label,
-    .dash-page .stMarkdown,
-    .dash-page .stMarkdown p,
-    .dash-page .stCaptionContainer,
-    .dash-page .profile-field,
-    .dash-page .pf-value,
-    .dash-page .pf-label,
-    .dash-page .metric-label,
-    .dash-page .metric-value {{
-        color: {normal_text_color} !important;
-        text-shadow: {text_shadow} !important;
-    }}
-
-    /* Muted/secondary text also visible */
-    .dash-page small,
-    .dash-page span,
-    .dash-page .stRadio label,
-    .dash-page .stCheckbox label,
-    .dash-page [data-baseweb="tab"],
-    .dash-page [data-baseweb="tab"] * {{
-        color: {muted_text_color} !important;
-        opacity: 1 !important;
-    }}
-
-    /* Alert text readable */
-    .dash-page .stAlert,
-    .dash-page .stAlert p,
-    .dash-page .stAlert div {{
-        color: {normal_text_color} !important;
-        font-weight: 700 !important;
-    }}
-
-    /* Keep input text dark so user can type/read properly */
-    .dash-page input,
-    .dash-page textarea,
-    .dash-page [data-baseweb="select"] * {{
-        color: #0a0f3c !important;
-        text-shadow: none !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
-apply_all_pages_text_visibility_fix()
-
 
 # =====================================================
 # MODEL AND PREDICTION
@@ -2788,7 +2709,7 @@ def report_page(user):
       <a class='whatsapp-btn' target='_blank' href='{wa_url}'>📱 Open WhatsApp to Share PDF</a>
     </div>
     """, unsafe_allow_html=True)
-   # st.caption("WhatsApp browser link PDF ko automatic attach nahi kar sakta. Pehle PDF download hoga, phir WhatsApp open karke wahi PDF attach karke send karein.")
+    st.caption("WhatsApp browser link PDF ko automatic attach nahi kar sakta. Pehle PDF download hoga, phir WhatsApp open karke wahi PDF attach karke send karein.")
 
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
