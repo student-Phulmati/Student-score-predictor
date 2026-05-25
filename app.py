@@ -2059,6 +2059,81 @@ apply_back_button_arrow_visibility_fix()
 
 
 # =====================================================
+# FINAL FIX — TOP RIGHT USER NAME/ROLE VISIBILITY IN DARK MODE
+# =====================================================
+def apply_top_right_user_text_visibility_fix():
+    dark = st.session_state.theme == "dark"
+
+    if dark:
+        name_color = "#ffffff"
+        role_color = "#bdeeff"
+        shadow = "0 2px 10px rgba(0,0,0,0.75)"
+        box_bg = "rgba(3, 4, 94, 0.18)"
+    else:
+        name_color = "#03045e"
+        role_color = "#0077b6"
+        shadow = "0 1px 8px rgba(255,255,255,0.55)"
+        box_bg = "rgba(255,255,255,0.08)"
+
+    st.markdown(f"""
+    <style>
+    /* Top-right small profile text beside mode button */
+    .corner-user {{
+        background: {box_bg} !important;
+        border-radius: 999px !important;
+        padding: 4px 8px 4px 4px !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+    }}
+
+    .corner-user-text {{
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-width: 0 !important;
+    }}
+
+    .corner-name,
+    .corner-name *,
+    div.corner-name,
+    div.corner-name span {{
+        color: {name_color} !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        text-shadow: {shadow} !important;
+        -webkit-text-fill-color: {name_color} !important;
+    }}
+
+    .corner-role,
+    .corner-role *,
+    div.corner-role,
+    div.corner-role span {{
+        color: {role_color} !important;
+        opacity: 1 !important;
+        font-weight: 900 !important;
+        text-shadow: {shadow} !important;
+        -webkit-text-fill-color: {role_color} !important;
+    }}
+
+    .corner-avatar {{
+        border: 2px solid rgba(255,255,255,0.85) !important;
+        box-shadow: 0 7px 18px rgba(0,0,0,0.24) !important;
+    }}
+
+    .corner-avatar img {{
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        border-radius: 50% !important;
+        display: block !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_top_right_user_text_visibility_fix()
+
+
+# =====================================================
 # MODEL AND PREDICTION
 # =====================================================
 @st.cache_resource
