@@ -1655,7 +1655,21 @@ def profile_page(user):
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
                     unsafe_allow_html=True)
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+
+        uploaded_profile_pic = st.file_uploader(
+            "Upload Profile Picture",
+            type=["jpg", "jpeg", "png"],
+            key=f"profile_pic_upload_{uname}",
+            label_visibility="collapsed"
+        )
+
+        if uploaded_profile_pic is not None:
+            save_profile_pic(uname, uploaded_profile_pic.getvalue())
+            st.success("✅ Profile picture uploaded successfully!")
+            st.rerun()
+
+        st.caption("Upload your photo here")
 
     with col2:
         edit = st.session_state.profile_edit_mode
