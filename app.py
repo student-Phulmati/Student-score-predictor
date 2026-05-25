@@ -104,7 +104,7 @@ def init_state():
 init_state()
 
 # =====================================================
-# CSS
+# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
 # =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
@@ -131,15 +131,6 @@ def apply_css():
         topbar_text   = "#eaf4ff"
         topbar_role   = "#88c0e8"
         shadow        = "0 16px 50px rgba(0,0,0,0.28)"
-        # Glass button colors for dark mode
-        glass_btn_bg     = "rgba(255,255,255,0.12)"
-        glass_btn_border = "rgba(255,255,255,0.28)"
-        glass_btn_color  = "#eaf4ff"
-        glass_btn_hover  = "rgba(255,255,255,0.22)"
-        uploader_text    = "#eaf4ff"
-        uploader_bg      = "rgba(255,255,255,0.10)"
-        uploader_border  = "rgba(144,224,239,0.35)"
-        uploader_shadow  = "0 2px 12px rgba(0,0,0,0.45)"
     else:
         app_bg        = f"linear-gradient(135deg,rgba(240,250,255,0.84) 0%,rgba(220,242,255,0.88) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(245,252,255,0.50) 0%,rgba(210,240,255,0.40) 100%), url('{BG_IMAGE}')"
         card_bg       = "rgba(255,255,255,0.65)"
@@ -159,15 +150,6 @@ def apply_css():
         topbar_text   = "#03045e"
         topbar_role   = "#0077b6"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
-        # Glass button colors for light mode
-        glass_btn_bg     = "rgba(255,255,255,0.55)"
-        glass_btn_border = "rgba(2,62,138,0.22)"
-        glass_btn_color  = "#03045e"
-        glass_btn_hover  = "rgba(255,255,255,0.80)"
-        uploader_text    = "#03045e"
-        uploader_bg      = "rgba(255,255,255,0.85)"
-        uploader_border  = "rgba(0,119,182,0.35)"
-        uploader_shadow  = "0 2px 10px rgba(2,62,138,0.15)"
 
     st.markdown(f"""
     <style>
@@ -207,6 +189,123 @@ def apply_css():
         margin-top: 0 !important;
     }}
 
+    /* ══════════════════════════════════════════
+       TOP NAVIGATION BAR
+    ══════════════════════════════════════════ */
+    .topbar-shell {{
+        width: 100%;
+        background: {topbar_bg};
+        border-bottom: 1px solid {topbar_border};
+        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        padding: 10px 20px 8px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+    }}
+    .top-profile {{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }}
+    .top-avatar {{
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
+        font-size: 1.5rem;
+        box-shadow: 0 4px 14px rgba(0,119,182,0.30);
+        border: 2px solid {accent2};
+        flex-shrink: 0;
+    }}
+    .top-name {{
+        font-size: 1.05rem; font-weight: 900;
+        color: {topbar_text}; line-height: 1.1;
+    }}
+    .top-role {{
+        font-size: 0.75rem; font-weight: 600;
+        color: {topbar_role}; margin-top: 2px;
+    }}
+
+    /* Back icon button and theme button in topbar */
+    .back-icon-btn .stButton > button,
+    .theme-top-btn .stButton > button {{
+        width: 42px !important; min-width: 42px !important;
+        height: 42px !important; border-radius: 12px !important;
+        padding: 0 !important;
+        background: {'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'} !important;
+        color: {topbar_text} !important;
+        border: 1px solid {topbar_border} !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+        font-size: 1.1rem !important;
+        transition: all 0.18s ease !important;
+    }}
+    .back-icon-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover {{
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: white !important;
+        transform: scale(1.06) !important;
+        border-color: #00b4d8 !important;
+    }}
+    .signout-top-btn .stButton > button {{
+        height: 42px !important;
+        border-radius: 999px !important;
+        padding: 0 1.1rem !important;
+        font-size: 0.85rem !important;
+    }}
+
+    /* Segmented control nav */
+    div[data-testid="stSegmentedControl"] {{
+        background: transparent !important;
+    }}
+    div[data-testid="stSegmentedControl"] button {{
+        border-radius: 10px !important;
+        background: transparent !important;
+        color: {topbar_role} !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        padding: 6px 10px !important;
+        transition: all 0.15s ease !important;
+    }}
+    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+        color: {'#52b6e8' if dark else '#0077b6'} !important;
+        background: {'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'} !important;
+        border-bottom: 2px solid {'#52b6e8' if dark else '#0077b6'} !important;
+        border-radius: 10px 10px 0 0 !important;
+    }}
+
+    /* ══════════════════════════════════════════
+       DASHBOARD PAGE AREA
+    ══════════════════════════════════════════ */
+    .dash-page {{
+        width: 100%;
+        min-height: calc(100vh - 72px);
+        padding: 36px 5vw 28px 5vw;
+    }}
+    .dash-title {{
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 900; color: {text_primary};
+        margin: 0 0 4px 0; letter-spacing: -0.6px;
+    }}
+    .dash-subtitle {{
+        font-size: 0.95rem; font-weight: 700;
+        color: {text_secondary}; margin-bottom: 28px;
+    }}
+    .chart-glass {{
+        background: {card_bg};
+        border: 1px solid {border_color};
+        box-shadow: {shadow};
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 24px;
+        padding: 18px 18px 4px 18px;
+        margin-top: 20px;
+    }}
+
     /* ── Glass cards ── */
     .glass {{
         background: {card_bg};
@@ -239,12 +338,12 @@ def apply_css():
 
     /* ── Avatar ── */
     .avatar-circle {{
-        width: 140px; height: 140px; border-radius: 50%;
+        width: 86px; height: 86px; border-radius: 50%;
         display: flex; align-items: center; justify-content: center;
         overflow: hidden; margin: auto;
-        border: 4px solid {accent2};
+        border: 3px solid {accent2};
         background: linear-gradient(135deg,{accent1},{accent3});
-        font-size: 3.2rem;
+        font-size: 2rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.20);
     }}
     .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }}
@@ -335,17 +434,11 @@ def apply_css():
         background: {card_bg};
         border: 1px solid {border_color};
         backdrop-filter: blur(18px);
-        border-radius: 20px;
-        padding: 0 22px 22px 22px;
-        margin-top: 0 !important;
-        overflow: hidden;
+        border-radius: 20px; padding: 22px;
     }}
     .profile-field {{
         display: flex; justify-content: space-between; gap: 14px;
         padding: 10px 0; border-bottom: 1px solid {border_color}; font-size: 0.92rem;
-    }}
-    .profile-field:first-child {{
-        padding-top: 16px;
     }}
     .profile-field:last-child {{ border-bottom: none; }}
     .pf-label {{ color: {text_muted}; font-weight: 800; }}
@@ -445,240 +538,419 @@ def apply_css():
         color: white !important;
     }}
 
-    /* ════════════════════════════════════════════════════════
-       GLASSMORPHISM HEADER BUTTONS — back, nav-pills, theme, logout
-    ════════════════════════════════════════════════════════ */
-
-    /* Back arrow button — glassy */
-    .back-top-btn .stButton > button {{
-        width: 96px !important;
-        min-width: 96px !important;
-        max-width: 96px !important;
-        height: 40px !important;
-        min-height: 40px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border-radius: 12px !important;
-        background: {glass_btn_bg} !important;
-        color: {glass_btn_color} !important;
-        border: 1px solid {glass_btn_border} !important;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.14), inset 0 1px 0 rgba(255,255,255,0.28) !important;
-        backdrop-filter: blur(20px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
-        font-size: 1.05rem !important;
-        font-weight: 900 !important;
-        line-height: 1 !important;
-        transform: none !important;
-        transition: all 0.18s ease !important;
-    }}
-    .back-top-btn .stButton > button:hover {{
-        background: {glass_btn_hover} !important;
-        color: {glass_btn_color} !important;
-        border-color: rgba(0,180,216,0.48) !important;
-        box-shadow: 0 8px 24px rgba(0,119,182,0.22), inset 0 1px 0 rgba(255,255,255,0.38) !important;
-        transform: translateX(-2px) !important;
+    /* ══════════════════════════════════════════
+       WEBSITE STYLE DASHBOARD TOPBAR OVERRIDES
+    ══════════════════════════════════════════ */
+    .topbar-shell {{
+        width: 100% !important;
+        background: rgba(255,255,255,0.98) !important;
+        border-bottom: 1px solid rgba(2,62,138,0.08) !important;
+        box-shadow: 0 8px 28px rgba(3,4,94,0.10) !important;
+        padding: 14px 18px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 9999 !important;
     }}
 
-    /* Nav pill buttons — glassy inactive */
-    .nav-tab .stButton > button {{
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 10px !important;
-        border-radius: 999px !important;
-        font-size: 0.76rem !important;
-        font-weight: 900 !important;
-        white-space: nowrap !important;
-        transform: none !important;
-        background: {glass_btn_bg} !important;
-        color: {glass_btn_color} !important;
-        border: 1px solid {glass_btn_border} !important;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.24) !important;
-        backdrop-filter: blur(18px) saturate(150%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
-        transition: all 0.16s ease !important;
+    .brand-wrap {{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        min-width:230px;
     }}
-    .nav-tab .stButton > button:hover {{
-        background: {glass_btn_hover} !important;
-        color: {'#004aad' if not dark else '#90e0ef'} !important;
-        border-color: rgba(0,180,216,0.40) !important;
-        box-shadow: 0 8px 20px rgba(0,119,182,0.18), inset 0 1px 0 rgba(255,255,255,0.36) !important;
-        transform: translateY(-1px) !important;
+    .brand-logo {{
+        width:54px;
+        height:54px;
+        border-radius:50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        background:linear-gradient(135deg,#004aad,#00b4d8);
+        box-shadow:0 7px 20px rgba(0,119,182,0.25);
+        color:white;
+        font-size:1.55rem;
+        flex-shrink:0;
     }}
-
-    /* Active nav pill — golden gradient (keep same) */
-    .nav-tab-active .stButton > button {{
-        position: relative !important;
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 10px !important;
-        border-radius: 999px !important;
-        font-size: 0.76rem !important;
-        font-weight: 900 !important;
-        white-space: nowrap !important;
-        background: linear-gradient(135deg,#ff8a00,#ffb703,#ffd166) !important;
-        color: #03045e !important;
-        border: 1px solid rgba(255,255,255,0.70) !important;
-        box-shadow: 0 12px 28px rgba(255,183,3,0.34) !important;
-        transform: translateY(-1px) !important;
-        backdrop-filter: none !important;
+    .brand-title {{
+        color:#03045e;
+        font-weight:900;
+        font-size:1.55rem;
+        line-height:1;
+        letter-spacing:-0.5px;
     }}
-    .nav-tab-active .stButton > button::after {{
-        content: "" !important;
-        position: absolute !important;
-        left: 26% !important;
-        right: 26% !important;
-        bottom: -6px !important;
-        height: 4px !important;
-        border-radius: 999px !important;
-        background: linear-gradient(90deg,#ff8a00,#ffb703,#ffd166) !important;
-        box-shadow: 0 6px 14px rgba(255,183,3,0.36) !important;
-    }}
-    .nav-tab-active .stButton > button:hover {{
-        background: linear-gradient(135deg,#ff9f1c,#ffb703,#ffe08a) !important;
-        color: #03045e !important;
-        transform: translateY(-1px) !important;
+    .brand-sub {{
+        color:#023e8a;
+        font-weight:600;
+        font-size:0.72rem;
+        margin-top:5px;
     }}
 
-    /* Theme toggle (circle) — glassy */
-    .circle-tool-btn .stButton > button {{
-        width: 38px !important;
-        min-width: 38px !important;
-        height: 38px !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        background: {glass_btn_bg} !important;
-        color: {glass_btn_color} !important;
-        border: 1px solid {glass_btn_border} !important;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.26) !important;
-        backdrop-filter: blur(18px) saturate(150%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
-        font-size: 1rem !important;
-        transition: all 0.18s ease !important;
+    .back-icon-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:12px !important;
+        background:#ffffff !important;
+        color:#03045e !important;
+        border:1.5px solid rgba(2,62,138,0.14) !important;
+        box-shadow:0 8px 20px rgba(3,4,94,0.08) !important;
+        font-size:1.25rem !important;
+        font-weight:900 !important;
     }}
-    .circle-tool-btn .stButton > button:hover {{
-        background: {glass_btn_hover} !important;
-        transform: scale(1.08) rotate(18deg) !important;
-        border-color: rgba(0,180,216,0.50) !important;
-        box-shadow: 0 8px 20px rgba(0,119,182,0.22), inset 0 1px 0 rgba(255,255,255,0.38) !important;
+    .back-icon-btn .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#004aad !important;
+        transform:translateX(-2px) !important;
+        border-color:rgba(0,119,182,0.25) !important;
     }}
 
-    /* Logout button — glassy (not golden, not blue) */
-    .logout-small-btn .stButton > button {{
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 14px !important;
-        border-radius: 999px !important;
-        background: {glass_btn_bg} !important;
-        color: {glass_btn_color} !important;
-        border: 1px solid {glass_btn_border} !important;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.24) !important;
-        backdrop-filter: blur(18px) saturate(150%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
-        font-size: 0.78rem !important;
-        font-weight: 900 !important;
-        white-space: nowrap !important;
-        transition: all 0.18s ease !important;
+    .nav-pill .stButton > button {{
+        width:100% !important;
+        min-height:52px !important;
+        padding:0 16px !important;
+        border-radius:12px !important;
+        background:transparent !important;
+        color:#1f3266 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:0.98rem !important;
+        font-weight:800 !important;
     }}
-    .logout-small-btn .stButton > button:hover {{
-        background: rgba(220,38,38,0.18) !important;
-        color: {'#ff6b6b' if dark else '#c0392b'} !important;
-        border-color: rgba(220,38,38,0.38) !important;
-        box-shadow: 0 8px 20px rgba(220,38,38,0.16) !important;
-        transform: translateY(-1px) !important;
+    .nav-pill .stButton > button:hover {{
+        background:#eef7ff !important;
+        color:#0057c7 !important;
+        transform:none !important;
+        box-shadow:none !important;
     }}
-
-    /* ═══════════════════════════════════════════
-       FILE UPLOADER FIX — single text, visible in both modes
-    ═══════════════════════════════════════════ */
-
-    /* Hide duplicate uploader text, keep only the default Streamlit upload button */
-    [data-testid="stFileUploader"] > label {{
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    .nav-pill-active .stButton > button {{
+        background:#e8f3ff !important;
+        color:#0057c7 !important;
+        box-shadow:0 6px 18px rgba(0,119,182,0.09) !important;
     }}
 
-    [data-testid="stFileUploaderDropzoneInstructions"] {{
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
+    .signout-top-btn .stButton > button {{
+        height:52px !important;
+        border-radius:18px !important;
+        padding:0 24px !important;
+        background:linear-gradient(135deg,#004aad,#0066d9) !important;
+        color:white !important;
+        font-size:0.95rem !important;
+        font-weight:900 !important;
+        box-shadow:0 10px 22px rgba(0,74,173,0.25) !important;
+        white-space:nowrap !important;
+    }}
+
+    .theme-top-btn .stButton > button {{
+        width:52px !important;
+        min-width:52px !important;
+        height:52px !important;
+        padding:0 !important;
+        border-radius:50% !important;
+        background:#eaf4ff !important;
+        color:#0057c7 !important;
+        border:0 !important;
+        box-shadow:none !important;
+        font-size:1.1rem !important;
+    }}
+
+    .top-profile {{
+        display:flex !important;
+        align-items:center !important;
+        justify-content:flex-start !important;
+        gap:10px !important;
+        min-width:130px !important;
+    }}
+    .top-avatar {{
+        width:52px !important;
+        height:52px !important;
+        border-radius:50% !important;
+        background:linear-gradient(135deg,#0077b6,#90e0ef) !important;
+        color:white !important;
+        border:0 !important;
+        box-shadow:0 7px 20px rgba(0,119,182,0.20) !important;
+        font-size:1.45rem !important;
+    }}
+    .top-name {{
+        color:#03045e !important;
+        font-size:1.02rem !important;
+        font-weight:900 !important;
+        line-height:1.05 !important;
+    }}
+    .top-role {{
+        color:#334b78 !important;
+        font-size:0.72rem !important;
+        font-weight:600 !important;
+        margin-top:4px !important;
+        white-space:nowrap !important;
+    }}
+
+    .dash-page {{
+        padding:54px 3.8vw 34px 3.8vw !important;
+        min-height:calc(100vh - 82px) !important;
+    }}
+    .dash-title {{
+        color:#03045e !important;
+        font-size:clamp(2.0rem,3.1vw,2.8rem) !important;
+        margin-bottom:16px !important;
+    }}
+    .dash-subtitle {{
+        color:#1f3266 !important;
+        font-size:1.02rem !important;
+        margin-bottom:38px !important;
+    }}
+    .metric-card {{
+        min-height:164px !important;
+        border-radius:24px !important;
+        background:rgba(255,255,255,0.78) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        display:flex !important;
+        flex-direction:column !important;
+        align-items:center !important;
+        justify-content:center !important;
+    }}
+    .metric-value {{
+        color:#0066d9 !important;
+        font-size:2.8rem !important;
+        line-height:1 !important;
+    }}
+    .metric-label {{
+        color:#334b78 !important;
+        font-size:0.92rem !important;
+        margin-top:20px !important;
+        letter-spacing:0 !important;
+    }}
+    .metric-accent {{
+        width:64px;
+        height:4px;
+        border-radius:999px;
+        margin:22px auto 0 auto;
+    }}
+    .chart-glass {{
+        background:rgba(255,255,255,0.76) !important;
+        border:1px solid rgba(2,62,138,0.10) !important;
+        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
+        border-radius:24px !important;
+        padding:18px 24px 8px 24px !important;
+        margin-top:34px !important;
+    }}
+
+    @media (max-width: 900px) {{
+        .brand-sub {{ display:none; }}
+        .brand-title {{ font-size:1.15rem; }}
+        .nav-pill .stButton > button {{ font-size:0.78rem !important; padding:0 6px !important; }}
+        .dash-page {{ padding-left:22px !important; padding-right:22px !important; }}
+    }}
+
+
+
+    /* =====================================================
+       FINAL STREAMLIT FIT FIX — compact navbar + no big gap
+       ===================================================== */
+    html, body, .stApp {{
+        overflow-x: hidden !important;
+    }}
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {{
+        padding-top: 0rem !important;
+        padding-left: 0rem !important;
+        padding-right: 0rem !important;
+        max-width: 100% !important;
+    }}
+    .topbar-shell {{
+        width: 100vw !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding: 8px 14px !important;
+        min-height: 66px !important;
+        display: block !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999999 !important;
+    }}
+    .brand-wrap {{
         min-width: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: hidden !important;
+        gap: 9px !important;
     }}
-
-/* Dropzone container */
-    [data-testid="stFileUploaderDropzone"] {{
-        background: {uploader_bg} !important;
-        border: 1.5px dashed {uploader_border} !important;
-        border-radius: 14px !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+    .brand-logo,
+    .top-avatar,
+    .theme-top-btn .stButton > button,
+    .back-icon-btn .stButton > button {{
+        width: 42px !important;
+        min-width: 42px !important;
+        height: 42px !important;
     }}
-
-    [data-testid="stFileUploaderDropzone"] button {{
-        font-size: 0.95rem !important;
-        color: #03045e !important;
-        background: rgba(255,255,255,0.95) !important;
-        border: 1px solid {uploader_border} !important;
-        font-weight: 900 !important;
-        border-radius: 8px !important;
-        padding: 0.45rem 1.05rem !important;
+    .brand-logo {{ font-size: 1.22rem !important; }}
+    .brand-title {{
+        font-size: 1.18rem !important;
         white-space: nowrap !important;
     }}
-
-
-    /* All text inside uploader — visible in both modes */
-    [data-testid="stFileUploaderDropzone"] div,
-    [data-testid="stFileUploaderDropzone"] span,
-    [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] p,
-    [data-testid="stFileUploaderDropzoneInstructions"] div,
-    [data-testid="stFileUploaderDropzoneInstructions"] span,
-    [data-testid="stFileUploaderDropzoneInstructions"] small {{
-        color: {uploader_text} !important;
-        opacity: 1 !important;
-        font-weight: 700 !important;
-        text-shadow: {uploader_shadow} !important;
+    .brand-sub {{
+        font-size: 0.62rem !important;
+        white-space: nowrap !important;
     }}
-
-  
-
-    /* ══ Profile page col-2 top fix ══ */
-    .profile-info-card {{
-        padding-top: 0 !important;
-        margin-top: 0 !important;
+    .nav-pill .stButton > button,
+    .nav-pill-active .stButton > button {{
+        min-height: 42px !important;
+        height: 42px !important;
+        padding: 0 8px !important;
+        border-radius: 11px !important;
+        font-size: 0.80rem !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+    }}
+    .signout-top-btn .stButton > button {{
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 13px !important;
+        padding: 0 12px !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+    }}
+    .top-profile {{ min-width: 0 !important; gap: 7px !important; }}
+    .top-name {{
+        font-size: 0.82rem !important;
+        max-width: 92px !important;
         overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
     }}
-    .profile-info-card .profile-field:first-child {{
-        padding-top: 14px !important;
+    .top-role {{
+        font-size: 0.58rem !important;
+        max-width: 92px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }}
+    .dash-page {{
+        padding: 16px 3.2vw 26px 3.2vw !important;
+        min-height: calc(100vh - 66px) !important;
+    }}
+    .dash-title {{
         margin-top: 0 !important;
+        margin-bottom: 6px !important;
+        font-size: clamp(1.45rem, 2.4vw, 2.1rem) !important;
     }}
-    .profile-info-card > *:first-child:empty,
-    .profile-info-card > div:empty {{
-        display: none !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
+    .dash-subtitle {{
+        margin-bottom: 18px !important;
+        font-size: 0.90rem !important;
     }}
+    .metric-card {{
+        min-height: 118px !important;
+        padding: 14px 8px !important;
+    }}
+    .metric-value {{ font-size: 2.05rem !important; }}
+    .metric-label {{
+        font-size: 0.76rem !important;
+        margin-top: 10px !important;
+    }}
+    .metric-accent {{
+        margin-top: 12px !important;
+        height: 3px !important;
+    }}
+    .chart-glass {{ margin-top: 18px !important; }}
 
-    hr {{ border-color: {border_color} !important; }}
-    .stAlert {{ border-radius: 16px !important; }}
-    .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
+    @media (max-width: 1100px) {{
+        .brand-sub, .top-role {{ display: none !important; }}
+        .brand-title {{ font-size: 1.00rem !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.72rem !important; padding: 0 4px !important; }}
+        .signout-top-btn .stButton > button {{ font-size: 0.70rem !important; padding: 0 8px !important; }}
+        .top-name {{ max-width: 65px !important; font-size: 0.74rem !important; }}
+    }}
+    @media (max-width: 760px) {{
+        .brand-title {{ display: none !important; }}
+        .nav-pill .stButton > button {{ font-size: 0.66rem !important; }}
+        .top-profile {{ display: none !important; }}
+        .dash-page {{ padding: 12px 16px 22px 16px !important; }}
+    }}
     </style>
     """, unsafe_allow_html=True)
 
 apply_css()
 
-def apply_layout_fix():
+def apply_10x_layout_fix():
     st.markdown("""
     <style>
+    .stApp > header,
+    header[data-testid="stHeader"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        visibility: hidden !important;
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        padding-top: 0 !important;
+    }
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+        padding-bottom: 0.8rem !important;
+    }
+    div[data-testid="stVerticalBlock"] { gap: 0.35rem !important; }
+    .topbar-shell {
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        padding: 8px 3.2vw 4px 3.2vw !important;
+        min-height: 54px !important;
+        position: sticky !important;
+        top: 0 !important;
+    }
+    .top-menu-title {
+        font-size: 1.28rem;
+        font-weight: 900;
+        color: #03045e;
+        line-height: 1.05;
+    }
+    .top-menu-sub {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #0077b6;
+    }
+    .top-menu-btn .stButton > button,
+    .top-menu-btn-active .stButton > button {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 12px !important;
+        border-radius: 999px !important;
+        font-size: 0.82rem !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,119,182,0.16) !important;
+        background: rgba(255,255,255,0.56) !important;
+        color: #023e8a !important;
+        white-space: nowrap !important;
+    }
+    .top-menu-btn-active .stButton > button,
+    .top-menu-btn .stButton > button:hover {
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        transform: none !important;
+    }
+    .dash-page {
+        padding: 8px 3.2vw 22px 3.2vw !important;
+        min-height: auto !important;
+    }
+    .page-title, .dash-title { margin-top: 0 !important; }
+    .dash-subtitle, .subtext { margin-bottom: 12px !important; }
+    .glass { margin-top: 0 !important; }
+    @media (max-width: 760px) {
+        .top-menu-title, .top-menu-sub { display:none !important; }
+        .top-menu-btn .stButton > button,
+        .top-menu-btn-active .stButton > button { font-size: 0.68rem !important; padding: 0 6px !important; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_10x_layout_fix()
+
+def apply_professional_header_fix():
+    st.markdown("""
+    <style>
+    /* ===== FINAL PROFESSIONAL HEADER + GAP FIX ===== */
     .stApp > header,
     header[data-testid="stHeader"],
     [data-testid="stToolbar"],
@@ -688,6 +960,266 @@ def apply_layout_fix():
         min-height: 0 !important;
         visibility: hidden !important;
     }
+    [data-testid="stAppViewContainer"] > .main,
+    .main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container {
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-top: 0 !important;
+        max-width: 100% !important;
+    }
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.25rem !important;
+    }
+
+    .topbar-shell {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .pro-header {
+        width: 100vw !important;
+        margin: 0 !important;
+        padding: 8px 2.4vw 7px 2.4vw !important;
+        background: rgba(255,255,255,0.92) !important;
+        border-bottom: 1px solid rgba(2,62,138,0.10) !important;
+        box-shadow: 0 8px 26px rgba(3,4,94,0.08) !important;
+        backdrop-filter: blur(18px) !important;
+        -webkit-backdrop-filter: blur(18px) !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 999999 !important;
+    }
+
+    .header-title-wrap { line-height: 1.05; }
+    .header-app {
+        color: #03045e !important;
+        font-size: 1.05rem !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.3px !important;
+        white-space: nowrap !important;
+    }
+    .active-page-chip {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        margin-top: 4px !important;
+        padding: 4px 10px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        font-size: 0.68rem !important;
+        font-weight: 900 !important;
+        box-shadow: 0 6px 16px rgba(0,119,182,0.18) !important;
+    }
+    .header-sub {
+        color: #46617f !important;
+        font-size: 0.64rem !important;
+        font-weight: 700 !important;
+        margin-top: 3px !important;
+        white-space: nowrap !important;
+    }
+
+    .back-top-btn .stButton > button {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: 14px !important;
+        background: #ffffff !important;
+        color: #023e8a !important;
+        border: 1px solid rgba(2,62,138,0.16) !important;
+        box-shadow: 0 6px 14px rgba(3,4,94,0.08) !important;
+        font-size: 1.15rem !important;
+        font-weight: 900 !important;
+    }
+    .back-top-btn .stButton > button:hover {
+        background: #eaf6ff !important;
+        color: #0077b6 !important;
+        transform: translateX(-2px) !important;
+    }
+
+    .nav-tab .stButton > button,
+    .nav-tab-active .stButton > button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 10px !important;
+        border-radius: 999px !important;
+        font-size: 0.74rem !important;
+        font-weight: 900 !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(0,119,182,0.13) !important;
+        white-space: nowrap !important;
+        transform: none !important;
+    }
+    .nav-tab .stButton > button {
+        background: rgba(255,255,255,0.56) !important;
+        color: #1f3266 !important;
+    }
+    .nav-tab-active .stButton > button,
+    .nav-tab .stButton > button:hover {
+        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+    }
+
+    .corner-user {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+    }
+    .corner-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden !important;
+        background: linear-gradient(135deg,#0077b6,#90e0ef) !important;
+        color: #ffffff !important;
+        font-size: 1.15rem !important;
+        box-shadow: 0 7px 16px rgba(0,119,182,0.18) !important;
+        flex-shrink: 0 !important;
+    }
+    .corner-name {
+        color: #03045e !important;
+        font-size: 0.78rem !important;
+        font-weight: 900 !important;
+        line-height: 1.1 !important;
+        max-width: 100px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        text-align: left !important;
+    }
+    .corner-role {
+        color: #0077b6 !important;
+        font-size: 0.60rem !important;
+        font-weight: 800 !important;
+        margin-top: 2px !important;
+        white-space: nowrap !important;
+    }
+
+    .circle-tool-btn .stButton > button {
+        width: 38px !important;
+        min-width: 38px !important;
+        height: 38px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        background: #eaf6ff !important;
+        color: #0066d9 !important;
+        border: 1px solid rgba(0,119,182,0.10) !important;
+        box-shadow: none !important;
+        font-size: 1rem !important;
+    }
+    .logout-small-btn .stButton > button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 12px !important;
+        border-radius: 999px !important;
+        background: #03045e !important;
+        color: #ffffff !important;
+        border: 0 !important;
+        box-shadow: 0 8px 18px rgba(3,4,94,0.16) !important;
+        font-size: 0.70rem !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+    }
+
+    .dash-page {
+        padding: 14px 5.2vw 24px 5.2vw !important;
+        min-height: auto !important;
+    }
+    .dash-title,
+    .page-title {
+        margin-top: 0 !important;
+        margin-bottom: 4px !important;
+        font-size: clamp(1.45rem, 2.1vw, 2.05rem) !important;
+        line-height: 1.08 !important;
+    }
+    .dash-subtitle,
+    .subtext {
+        margin-top: 0 !important;
+        margin-bottom: 14px !important;
+        font-size: 0.88rem !important;
+    }
+    .metric-card {
+        min-height: 105px !important;
+        padding: 12px 10px !important;
+        border-radius: 18px !important;
+    }
+    .metric-value {
+        font-size: 1.85rem !important;
+    }
+    .metric-label {
+        font-size: 0.70rem !important;
+        margin-top: 8px !important;
+    }
+    .metric-accent {
+        margin-top: 9px !important;
+        height: 3px !important;
+    }
+    .chart-glass {
+        margin-top: 12px !important;
+        padding: 10px 14px 4px 14px !important;
+        border-radius: 18px !important;
+    }
+
+    @media (max-width: 1050px) {
+        .header-sub { display: none !important; }
+        .header-app { font-size: 0.90rem !important; }
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.64rem !important;
+            padding: 0 5px !important;
+        }
+        .corner-role { display: none !important; }
+        .corner-name { max-width: 68px !important; font-size: 0.68rem !important; }
+    }
+    @media (max-width: 760px) {
+        .header-app { display: none !important; }
+        .active-page-chip { font-size: 0.60rem !important; padding: 4px 7px !important; }
+        .corner-user-text { display: none !important; }
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.58rem !important;
+            padding: 0 4px !important;
+        }
+        .dash-page {
+            padding: 10px 18px 20px 18px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_professional_header_fix()
+
+
+def apply_final_no_gap_header_fix():
+    st.markdown("""
+    <style>
+    /* ===== FINAL LAYOUT FIX: remove top gap, remove left/right gap, improve title spacing ===== */
+    .stApp > header,
+    header[data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        visibility: hidden !important;
+    }
+
     html, body, .stApp,
     [data-testid="stAppViewContainer"],
     [data-testid="stAppViewContainer"] > .main,
@@ -696,28 +1228,41 @@ def apply_layout_fix():
         padding: 0 !important;
         overflow-x: hidden !important;
     }
+
     .main .block-container,
     [data-testid="stAppViewContainer"] .main .block-container,
     [data-testid="stMainBlockContainer"],
     [data-testid="stAppViewBlockContainer"] {
         padding-top: 0 !important;
-        padding-left: 18px !important;
-        padding-right: 18px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
         margin-top: 0 !important;
         max-width: 100% !important;
     }
-    div[data-testid="stVerticalBlock"] { gap: 0.08rem !important; }
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.55rem !important;
-        align-items: center !important;
-    }
-    .topbar-shell, .pro-header {
+
+    /* Remove hidden/empty custom header space */
+    .topbar-shell,
+    .pro-header {
         display: none !important;
         height: 0 !important;
         min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
     }
+
+    /* Tight Streamlit row spacing */
+    div[data-testid="stVerticalBlock"] {
+        gap: 0.08rem !important;
+    }
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0.55rem !important;
+        align-items: center !important;
+    }
+
+    /* Pull the first header row to the very top */
     .element-container:empty {
         display: none !important;
         height: 0 !important;
@@ -726,7 +1271,229 @@ def apply_layout_fix():
         padding: 0 !important;
     }
 
-    /* HEADER TITLE */
+    .back-top-btn,
+    .nav-tab,
+    .nav-tab-active,
+    .circle-tool-btn,
+    .logout-small-btn,
+    .header-title-wrap,
+    .corner-user {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .header-title-wrap {
+        line-height: 1.05 !important;
+    }
+
+    .back-top-btn .stButton > button {
+        width: 38px !important;
+        min-width: 38px !important;
+        height: 38px !important;
+        border-radius: 12px !important;
+        margin: 0 !important;
+    }
+
+    .nav-tab .stButton > button,
+    .nav-tab-active .stButton > button {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 10px !important;
+        font-size: 0.76rem !important;
+        margin: 0 !important;
+    }
+
+    .circle-tool-btn .stButton > button {
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        margin: 0 !important;
+    }
+
+    .logout-small-btn .stButton > button {
+        height: 36px !important;
+        min-height: 36px !important;
+        padding: 0 12px !important;
+        margin: 0 !important;
+    }
+
+    .corner-avatar {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    /* Main page spacing: less top gap and less left/right gap */
+    .dash-page {
+        padding: 4px 1.35vw 20px 1.35vw !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+
+    /* Bigger welcome/page title */
+    .dash-title,
+    .page-title {
+        margin-top: 0 !important;
+        margin-bottom: 8px !important;
+        font-size: clamp(1.95rem, 3vw, 2.75rem) !important;
+        line-height: 1.08 !important;
+        font-weight: 900 !important;
+    }
+
+    /* Add clear spacing under Welcome title text */
+    .dash-subtitle,
+    .subtext {
+        display: block !important;
+        margin-top: 8px !important;
+        margin-bottom: 16px !important;
+        line-height: 1.45 !important;
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+    }
+
+    .metric-card {
+        min-height: 100px !important;
+        padding: 10px 8px !important;
+    }
+
+    .chart-glass {
+        margin-top: 8px !important;
+    }
+
+    @media (max-width: 1050px) {
+        .nav-tab .stButton > button,
+        .nav-tab-active .stButton > button {
+            font-size: 0.64rem !important;
+            padding: 0 5px !important;
+        }
+        .corner-name {
+            max-width: 62px !important;
+        }
+        .dash-page {
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_final_no_gap_header_fix()
+
+# =====================================================
+# FINAL USER REQUEST FIX — professional side gap, bigger titles,
+# visible upload text in dark mode, larger profile picture
+# =====================================================
+def apply_profile_margin_title_fix():
+    st.markdown("""
+    <style>
+    /* Small professional side spacing for full app content/header */
+    .main .block-container,
+    [data-testid="stAppViewContainer"] .main .block-container,
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stAppViewBlockContainer"] {
+        padding-left: 18px !important;
+        padding-right: 18px !important;
+        padding-top: 0 !important;
+        max-width: 100% !important;
+    }
+
+    /* Keep page content clean with balanced left/right gap */
+    .dash-page {
+        padding: 8px 3.4vw 24px 3.4vw !important;
+        margin: 0 !important;
+        min-height: auto !important;
+    }
+
+    /* Bigger main title inside every page */
+    .dash-title,
+    .page-title {
+        font-size: clamp(2.35rem, 4.2vw, 3.65rem) !important;
+        line-height: 1.04 !important;
+        font-weight: 900 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        letter-spacing: -1px !important;
+    }
+
+    /* Subtitle: smaller than title and placed slightly lower */
+    .dash-subtitle,
+    .subtext {
+        display: block !important;
+        font-size: clamp(0.95rem, 1.25vw, 1.12rem) !important;
+        line-height: 1.55 !important;
+        font-weight: 800 !important;
+        margin-top: 12px !important;
+        margin-bottom: 18px !important;
+    }
+
+    /* Larger profile picture */
+    .avatar-circle {
+        width: 118px !important;
+        height: 118px !important;
+        font-size: 2.65rem !important;
+        border-width: 4px !important;
+    }
+
+    /* File uploader text visible in dark mode */
+    [data-testid="stFileUploader"] label,
+    [data-testid="stFileUploader"] label p,
+    [data-testid="stFileUploader"] section,
+    [data-testid="stFileUploader"] section div,
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploaderDropzone"] div,
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] span {
+        color: #eaf4ff !important;
+        opacity: 1 !important;
+        font-weight: 800 !important;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.55) !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] {
+        background: rgba(255,255,255,0.12) !important;
+        border: 1.5px solid rgba(144,224,239,0.40) !important;
+        border-radius: 14px !important;
+    }
+
+    [data-testid="stFileUploaderDropzone"] button {
+        color: #03045e !important;
+        background: rgba(255,255,255,0.95) !important;
+        border: 1px solid rgba(144,224,239,0.45) !important;
+        font-weight: 900 !important;
+    }
+
+    @media (max-width: 760px) {
+        .main .block-container,
+        [data-testid="stAppViewContainer"] .main .block-container,
+        [data-testid="stMainBlockContainer"],
+        [data-testid="stAppViewBlockContainer"] {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+        }
+        .dash-page {
+            padding: 8px 14px 22px 14px !important;
+        }
+        .page-title,
+        .dash-title {
+            font-size: 2.15rem !important;
+        }
+        .avatar-circle {
+            width: 104px !important;
+            height: 104px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_profile_margin_title_fix()
+
+# =====================================================
+# FINAL HEADER TITLE + ACTIVE PAGE HIGHLIGHT FIX
+# =====================================================
+def apply_header_title_active_fix():
+    st.markdown("""
+    <style>
+    /* FINAL HEADER UPDATE: brand title large, no separate active chip, active page highlighted in top menu */
     .header-title-wrap {
         display: flex !important;
         flex-direction: column !important;
@@ -735,8 +1502,8 @@ def apply_layout_fix():
         gap: 0 !important;
         padding: 0 !important;
         margin: 0 !important;
-        line-height: 1.05 !important;
     }
+
     .header-app {
         color: #03045e !important;
         font-size: clamp(1.55rem, 2.35vw, 2.35rem) !important;
@@ -746,19 +1513,149 @@ def apply_layout_fix():
         white-space: nowrap !important;
         text-shadow: 0 2px 12px rgba(255,255,255,0.55) !important;
     }
-    .header-sub, .active-page-chip {
+
+    /* Hide old page text/chip under ScoreWise AI */
+    .header-sub,
+    .active-page-chip {
         display: none !important;
         height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        opacity: 0 !important;
         visibility: hidden !important;
     }
 
-    /* DASH PAGE */
-    .dash-page {
-        padding: 4px 3.4vw 24px 3.4vw !important;
-        margin: 0 !important;
-        min-height: auto !important;
+    /* Welcome title made smaller and cleaner */
+    .dash-title,
+    .page-title {
+        font-size: clamp(1.45rem, 2.65vw, 2.35rem) !important;
+        line-height: 1.06 !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.6px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
     }
-    .dash-title, .page-title {
+
+    .dash-subtitle,
+    .subtext {
+        margin-top: 10px !important;
+        margin-bottom: 16px !important;
+        font-size: clamp(0.88rem, 1.04vw, 0.98rem) !important;
+        line-height: 1.45 !important;
+    }
+
+    /* Active page highlight directly on the top menu button */
+    .nav-tab-active .stButton > button {
+        position: relative !important;
+        background: linear-gradient(135deg,#023e8a,#0077b6,#00b4d8) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255,255,255,0.44) !important;
+        box-shadow: 0 12px 26px rgba(0,119,182,0.28) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .nav-tab-active .stButton > button::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 22% !important;
+        right: 22% !important;
+        bottom: -7px !important;
+        height: 4px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;
+        box-shadow: 0 5px 12px rgba(0,119,182,0.30) !important;
+    }
+
+    .nav-tab .stButton > button:hover {
+        background: rgba(255,255,255,0.74) !important;
+        color: #0077b6 !important;
+        border-color: rgba(0,119,182,0.24) !important;
+    }
+
+    @media (max-width: 1050px) {
+        .header-app { font-size: 1.25rem !important; }
+        .dash-title,
+        .page-title { font-size: 1.95rem !important; }
+    }
+
+    @media (max-width: 760px) {
+        .header-app {
+            display: block !important;
+            font-size: 1.05rem !important;
+        }
+        .dash-title,
+        .page-title { font-size: 1.65rem !important; }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_header_title_active_fix()
+
+
+# =====================================================
+# FINAL BACK ARROW DESIGN FIX — match compact dark rectangle style
+# =====================================================
+def apply_back_arrow_second_design_fix():
+    st.markdown("""
+    <style>
+    .back-top-btn .stButton > button {
+        width: 96px !important;
+        min-width: 96px !important;
+        max-width: 96px !important;
+        height: 54px !important;
+        min-height: 54px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 9px !important;
+        background: rgba(80, 92, 132, 0.82) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255,255,255,0.10) !important;
+        box-shadow: none !important;
+        font-size: 1.18rem !important;
+        font-weight: 900 !important;
+        line-height: 1 !important;
+        transform: none !important;
+    }
+
+    .back-top-btn .stButton > button:hover {
+        background: rgba(88, 102, 146, 0.95) !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.18) !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+
+    .back-top-btn .stButton > button:active {
+        background: rgba(65, 76, 112, 0.98) !important;
+        color: #ffffff !important;
+        transform: scale(0.98) !important;
+    }
+
+    @media (max-width: 760px) {
+        .back-top-btn .stButton > button {
+            width: 76px !important;
+            min-width: 76px !important;
+            max-width: 76px !important;
+            height: 46px !important;
+            min-height: 46px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_back_arrow_second_design_fix()
+
+
+# =====================================================
+# FINAL WELCOME TEXT STYLE FIX — smaller welcome title + styled subtitle
+# =====================================================
+def apply_final_welcome_text_style_fix():
+    st.markdown("""
+    <style>
+    /* Welcome heading: smaller than ScoreWise AI title, cleaner premium style */
+    .dash-title,
+    .page-title {
         font-family: "Trebuchet MS", "Plus Jakarta Sans", sans-serif !important;
         font-size: clamp(1.18rem, 2.05vw, 1.82rem) !important;
         line-height: 1.12 !important;
@@ -769,7 +1666,10 @@ def apply_layout_fix():
         color: #03045e !important;
         text-shadow: 0 3px 14px rgba(255,255,255,0.56) !important;
     }
-    .dash-subtitle, .subtext {
+
+    /* Subtitle under Welcome: different text style, clear spacing, professional look */
+    .dash-subtitle,
+    .subtext {
         font-family: "Segoe UI", "Plus Jakarta Sans", sans-serif !important;
         display: block !important;
         max-width: 760px !important;
@@ -778,94 +1678,147 @@ def apply_layout_fix():
         font-size: clamp(0.82rem, 0.95vw, 0.94rem) !important;
         line-height: 1.65 !important;
         font-weight: 700 !important;
+        letter-spacing: 0.15px !important;
         color: #1f3266 !important;
         text-shadow: 0 2px 10px rgba(255,255,255,0.45) !important;
     }
-    .metric-card { min-height: 100px !important; padding: 10px 8px !important; }
-    .metric-value { font-size: 1.85rem !important; }
-    .metric-label { font-size: 0.70rem !important; margin-top: 8px !important; }
-    .metric-accent { margin-top: 9px !important; height: 3px !important; }
-    .chart-glass {
-        margin-top: 8px !important;
-        background: transparent !important;
-        border: 0 !important;
-        box-shadow: none !important;
-        padding-top: 0 !important;
-    }
 
-    /* CORNER USER */
-    .corner-user {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        gap: 8px !important;
-        min-width: 0 !important;
-    }
-    .corner-avatar {
-        width: 40px !important; height: 40px !important;
-        border-radius: 50% !important;
-        display: flex !important; align-items: center !important; justify-content: center !important;
-        overflow: hidden !important;
-        background: linear-gradient(135deg,#0077b6,#90e0ef) !important;
-        color: #ffffff !important; font-size: 1.15rem !important;
-        box-shadow: 0 7px 16px rgba(0,119,182,0.18) !important;
-        flex-shrink: 0 !important;
-    }
-    .corner-name {
-        color: #03045e !important; font-size: 0.78rem !important;
-        font-weight: 900 !important; line-height: 1.1 !important;
-        max-width: 100px !important; overflow: hidden !important;
-        text-overflow: ellipsis !important; white-space: nowrap !important;
-    }
-    .corner-role {
-        color: #0077b6 !important; font-size: 0.60rem !important;
-        font-weight: 800 !important; margin-top: 2px !important; white-space: nowrap !important;
-    }
-
-    /* AVATAR CIRCLE — bigger */
-    .avatar-circle {
-        width: 140px !important; height: 140px !important;
-        font-size: 3.2rem !important;
-        border-width: 4px !important;
+    /* Keep ScoreWise AI brand bigger than Welcome */
+    .header-app {
+        font-size: clamp(1.65rem, 2.55vw, 2.45rem) !important;
+        font-weight: 900 !important;
+        letter-spacing: -0.75px !important;
     }
 
     @media (max-width: 1050px) {
-        .header-sub { display: none !important; }
-        .header-app { font-size: 0.90rem !important; }
-        .nav-tab .stButton > button,
-        .nav-tab-active .stButton > button { font-size: 0.64rem !important; padding: 0 5px !important; }
-        .corner-role { display: none !important; }
-        .corner-name { max-width: 68px !important; font-size: 0.68rem !important; }
-        .main .block-container,
-        [data-testid="stAppViewContainer"] .main .block-container { padding-left: 10px !important; padding-right: 10px !important; }
+        .dash-title,
+        .page-title {
+            font-size: 1.55rem !important;
+        }
+        .dash-subtitle,
+        .subtext {
+            font-size: 0.84rem !important;
+            margin-top: 12px !important;
+        }
     }
+
     @media (max-width: 760px) {
-        .header-app { display: block !important; font-size: 1.05rem !important; }
-        .dash-title, .page-title { font-size: 1.65rem !important; }
-        .avatar-circle { width: 110px !important; height: 110px !important; }
-        .dash-page { padding: 10px 14px 20px 14px !important; }
-        .main .block-container,
-        [data-testid="stAppViewContainer"] .main .block-container { padding-left: 8px !important; padding-right: 8px !important; }
+        .dash-title,
+        .page-title {
+            font-size: 1.35rem !important;
+        }
+        .dash-subtitle,
+        .subtext {
+            font-size: 0.78rem !important;
+            line-height: 1.55 !important;
+        }
     }
     </style>
     """, unsafe_allow_html=True)
 
-apply_layout_fix()
+apply_final_welcome_text_style_fix()
+
+# =====================================================
+# FINAL DARK MODE WELCOME TEXT VISIBILITY FIX
+# =====================================================
+def apply_home_welcome_dark_visibility_fix():
+    dark = st.session_state.theme == "dark"
+    title_color = "#f4fbff" if dark else "#03045e"
+    subtitle_color = "#dff4ff" if dark else "#1f3266"
+    title_shadow = "0 3px 16px rgba(0,0,0,0.72)" if dark else "0 3px 14px rgba(255,255,255,0.56)"
+    subtitle_shadow = "0 2px 12px rgba(0,0,0,0.70)" if dark else "0 2px 10px rgba(255,255,255,0.45)"
+
+    st.markdown(f"""
+    <style>
+    /* Home welcome text visibility fix for dark/light mode */
+    .dash-page > .dash-title {{
+        color: {title_color} !important;
+        text-shadow: {title_shadow} !important;
+    }}
+
+    .dash-page > .dash-subtitle {{
+        color: {subtitle_color} !important;
+        text-shadow: {subtitle_shadow} !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_home_welcome_dark_visibility_fix()
 
 
 # =====================================================
-# AUTH DARK MODE TAB TEXT FIX
+# FINAL ACTIVE NAV COLOR FIX — active page shown by button color only
+# =====================================================
+def apply_active_nav_color_fix():
+    st.markdown("""
+    <style>
+    /* Inactive top navigation buttons: clean glass look */
+    .nav-tab .stButton > button {
+        background: rgba(255,255,255,0.62) !important;
+        color: #023e8a !important;
+        border: 1px solid rgba(0,119,182,0.18) !important;
+        box-shadow: 0 6px 16px rgba(3,4,94,0.08) !important;
+        transform: none !important;
+    }
+
+    .nav-tab .stButton > button:hover {
+        background: rgba(234,246,255,0.92) !important;
+        color: #004aad !important;
+        border-color: rgba(0,119,182,0.32) !important;
+        box-shadow: 0 8px 18px rgba(0,119,182,0.14) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* Active page highlight: changed color so current page is clearly visible */
+    .nav-tab-active .stButton > button {
+        position: relative !important;
+        background: linear-gradient(135deg,#ff8a00,#ffb703,#ffd166) !important;
+        color: #03045e !important;
+        border: 1px solid rgba(255,255,255,0.70) !important;
+        box-shadow: 0 12px 28px rgba(255,183,3,0.34) !important;
+        transform: translateY(-1px) !important;
+        font-weight: 900 !important;
+    }
+
+    /* Remove old blue underline from active button and use soft glow only */
+    .nav-tab-active .stButton > button::after {
+        content: "" !important;
+        position: absolute !important;
+        left: 26% !important;
+        right: 26% !important;
+        bottom: -6px !important;
+        height: 4px !important;
+        border-radius: 999px !important;
+        background: linear-gradient(90deg,#ff8a00,#ffb703,#ffd166) !important;
+        box-shadow: 0 6px 14px rgba(255,183,3,0.36) !important;
+    }
+
+    .nav-tab-active .stButton > button:hover {
+        background: linear-gradient(135deg,#ff9f1c,#ffb703,#ffe08a) !important;
+        color: #03045e !important;
+        transform: translateY(-1px) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_active_nav_color_fix()
+
+# =====================================================
+# FINAL AUTH DARK MODE VISIBILITY FIX — Login / OTP Signup text
 # =====================================================
 def apply_auth_dark_text_visibility_fix():
     dark = st.session_state.theme == "dark"
     tab_text = "#eaf4ff" if dark else "#03045e"
+    tab_muted = "#b8e0f7" if dark else "#023e8a"
     active_tab = "#ffffff" if dark else "#0077b6"
     underline = "#90e0ef" if dark else "#0077b6"
     st.markdown(f"""
     <style>
+    /* Make Login and Sign Up tabs visible in dark mode */
     [data-baseweb="tab-list"] {{
         border-bottom: 1px solid rgba(144,224,239,0.38) !important;
     }}
+
     [data-baseweb="tab"],
     [data-baseweb="tab"] *,
     [data-baseweb="tab"] p,
@@ -875,18 +1828,91 @@ def apply_auth_dark_text_visibility_fix():
         font-weight: 900 !important;
         text-shadow: 0 2px 10px rgba(0,0,0,0.45) !important;
     }}
+
+    [data-baseweb="tab"]:hover,
+    [data-baseweb="tab"]:hover *,
     [data-baseweb="tab"][aria-selected="true"],
-    [data-baseweb="tab"][aria-selected="true"] * {{
+    [data-baseweb="tab"][aria-selected="true"] *,
+    [aria-selected="true"][data-baseweb="tab"] {{
         color: {active_tab} !important;
         opacity: 1 !important;
     }}
+
     [aria-selected="true"][data-baseweb="tab"] {{
         border-bottom: 3px solid {underline} !important;
+    }}
+
+    /* Make subtitle below title readable in dark mode */
+    h2 + .subtext,
+    p.subtext {{
+        color: {tab_muted} !important;
+        opacity: 1 !important;
+        text-shadow: 0 2px 12px rgba(0,0,0,0.45) !important;
     }}
     </style>
     """, unsafe_allow_html=True)
 
 apply_auth_dark_text_visibility_fix()
+
+# =====================================================
+# FINAL MODE BUTTON GLASSY BOX FIX — frosted transparent look
+# =====================================================
+def apply_mode_button_glassy_box_fix():
+    st.markdown("""
+    <style>
+    /* Mode change box/button: glassy transparent look with blur */
+    .auth-theme-btn,
+    .theme-top-btn,
+    .circle-tool-btn {
+        border-radius: 999px !important;
+        background: rgba(255, 255, 255, 0.10) !important;
+        border: 1px solid rgba(255, 255, 255, 0.26) !important;
+        box-shadow: 0 12px 32px rgba(3, 4, 94, 0.18) !important;
+        backdrop-filter: blur(22px) saturate(175%) !important;
+        -webkit-backdrop-filter: blur(22px) saturate(175%) !important;
+    }
+
+    .auth-theme-btn .stButton,
+    .theme-top-btn .stButton,
+    .circle-tool-btn .stButton {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .auth-theme-btn .stButton > button,
+    .theme-top-btn .stButton > button,
+    .circle-tool-btn .stButton > button {
+        background: linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.08)) !important;
+        background-color: rgba(255, 255, 255, 0.14) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.36) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 10px 28px rgba(0, 119, 182, 0.18) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42) !important;
+        transition: all 0.22s ease !important;
+    }
+
+    .auth-theme-btn .stButton > button:hover,
+    .theme-top-btn .stButton > button:hover,
+    .circle-tool-btn .stButton > button:hover {
+        background: linear-gradient(135deg, rgba(0,180,216,0.38), rgba(255,255,255,0.16)) !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.58) !important;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.48), 0 16px 36px rgba(0,119,182,0.30) !important;
+        transform: translateY(-1px) scale(1.04) !important;
+    }
+
+    .auth-theme-btn .stButton > button:focus,
+    .theme-top-btn .stButton > button:focus,
+    .circle-tool-btn .stButton > button:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(144,224,239,0.32), inset 0 1px 0 rgba(255,255,255,0.42) !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_mode_button_glassy_box_fix()
 
 
 # =====================================================
@@ -1086,14 +2112,33 @@ def score_trend_chart(records):
     fig.add_hline(y=85, line_dash="dot", line_color="#7dd8f5",
                   annotation_text="Excellent", annotation_font_color="#7dd8f5")
     fig.update_layout(
-        title=dict(text="📈 Score Trend Over Time", font=dict(color=cc["text"], size=16),
-                   y=0.94, x=0.01, xanchor="left", yanchor="top"),
+        title=dict(
+            text="📈 Score Trend Over Time",
+            font=dict(color=cc["text"], size=16),
+            y=0.94,
+            x=0.01,
+            xanchor="left",
+            yanchor="top",
+        ),
         height=310, margin=dict(l=36, r=18, t=58, b=42),
         paper_bgcolor=cc["paper"], plot_bgcolor=cc["plot"],
-        xaxis=dict(gridcolor=cc["grid"], color=cc["axis"], tickfont=dict(color=cc["axis"], size=12),
-                   title_font=dict(color=cc["axis"]), linecolor=cc["grid"], zerolinecolor=cc["grid"]),
-        yaxis=dict(gridcolor=cc["grid"], color=cc["axis"], tickfont=dict(color=cc["axis"], size=12),
-                   title_font=dict(color=cc["axis"]), linecolor=cc["grid"], zerolinecolor=cc["grid"], range=[0,110]),
+        xaxis=dict(
+            gridcolor=cc["grid"],
+            color=cc["axis"],
+            tickfont=dict(color=cc["axis"], size=12),
+            title_font=dict(color=cc["axis"]),
+            linecolor=cc["grid"],
+            zerolinecolor=cc["grid"],
+        ),
+        yaxis=dict(
+            gridcolor=cc["grid"],
+            color=cc["axis"],
+            tickfont=dict(color=cc["axis"], size=12),
+            title_font=dict(color=cc["axis"]),
+            linecolor=cc["grid"],
+            zerolinecolor=cc["grid"],
+            range=[0,110],
+        ),
         showlegend=False,
     )
     return fig
@@ -1227,13 +2272,14 @@ def welcome_page():
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
 
 # =====================================================
-# AUTH PAGE
+# AUTH PAGE  (Login + Signup)
 # =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
 
+    # Top bar: Back | spacer | Theme
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -1248,6 +2294,7 @@ def auth_page():
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
+    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
@@ -1255,6 +2302,7 @@ def auth_page():
 
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
 
+        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -1269,6 +2317,7 @@ def auth_page():
                 else:
                     st.error("Invalid username or password.")
 
+        # ── SIGNUP WITHOUT OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -1292,6 +2341,7 @@ def auth_page():
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
 
+            # Create account directly without email OTP verification
             if st.button("🚀 Create Account", key="create_account_btn", use_container_width=True):
                 if not username or not email or not full_name or not password or not confirm:
                     st.warning("Please fill all required fields first.")
@@ -1330,21 +2380,39 @@ def auth_page():
                     st.success("🎉 Account created! Opening your dashboard…")
                     st.rerun()
 
+
 # =====================================================
 # TOP NAVIGATION BAR
 # =====================================================
 def go_page(page_name):
+    """Change page and remember previous page for Back button."""
     if st.session_state.active_page != page_name:
         st.session_state.previous_page = st.session_state.active_page
         st.session_state.active_page = page_name
 
 def top_navbar(user):
+    """Professional compact header with Back, active page indicator, menu, and user profile."""
     emoji = "🌙" if st.session_state.theme == "light" else "☀️"
     active = st.session_state.active_page
     name = user.get("full_name", st.session_state.username) or st.session_state.username
     role = user.get("role", st.session_state.role or "student").title()
     icon = "🎓" if user.get("role", "student") == "student" else "👨‍👩‍👧"
     avatar = profile_pic_html(st.session_state.username, icon)
+
+    page_icons = {
+        "Home": "🏠",
+        "Prediction": "📈",
+        "Report & Share": "📄",
+        "History": "📚",
+        "Profile": "👤",
+    }
+    page_subtitles = {
+        "Home": "Dashboard overview",
+        "Prediction": "Enter details and predict score",
+        "Report & Share": "PDF report and sharing",
+        "History": "Previous prediction records",
+        "Profile": "User account details",
+    }
 
     c_back, c_title, c_home, c_pred, c_report, c_hist, c_prof, c_user, c_theme, c_sign = st.columns(
         [0.55, 2.15, 0.72, 0.92, 0.92, 0.82, 0.82, 1.35, 0.48, 0.72],
@@ -1368,6 +2436,7 @@ def top_navbar(user):
         st.markdown(f"""
         <div class="header-title-wrap">
             <div class="header-app">🎓 {APP_NAME_PLAIN}</div>
+            <div class="header-sub">{page_subtitles.get(active, TAGLINE)}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1422,6 +2491,7 @@ def top_navbar(user):
 # INNER PAGES
 # =====================================================
 
+# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
@@ -1460,6 +2530,7 @@ def home_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
@@ -1544,6 +2615,7 @@ def prediction_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
@@ -1618,6 +2690,7 @@ def report_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
@@ -1641,6 +2714,7 @@ def history_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
@@ -1655,26 +2729,19 @@ def profile_page(user):
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
                     unsafe_allow_html=True)
-        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
-
-        uploaded_profile_pic = st.file_uploader(
-            "Upload Profile Picture",
-            type=["jpg", "jpeg", "png"],
-            key=f"profile_pic_upload_{uname}",
-            label_visibility="collapsed"
-        )
-
-        if uploaded_profile_pic is not None:
-            save_profile_pic(uname, uploaded_profile_pic.getvalue())
-            st.success("✅ Profile picture uploaded successfully!")
+        st.markdown("<br>", unsafe_allow_html=True)
+        upload = st.file_uploader("📸 Upload Profile Picture", type=["jpg","jpeg","png"])
+        if upload and st.button("💾 Save Picture", use_container_width=True):
+            save_profile_pic(uname, upload.read())
+            st.success("Profile picture updated!")
             st.rerun()
-
-        st.caption("Upload your photo here")
 
     with col2:
         edit = st.session_state.profile_edit_mode
 
         if not edit:
+            # View mode
+            st.markdown("<div class='profile-info-card'>", unsafe_allow_html=True)
             fields = [
                 ("Username",  uname),
                 ("Full Name", user.get("full_name","N/A")),
@@ -1694,19 +2761,21 @@ def profile_page(user):
                     ("Child Grade", user.get("child_grade","N/A")),
                     ("Relation",    user.get("relation","N/A")),
                 ]
-
-            fields_html = "".join([
-                f"<div class='profile-field'><span class='pf-label'>{label}</span><span class='pf-value'>{val}</span></div>"
-                for label, val in fields
-            ])
-            st.markdown(f"<div class='profile-info-card'>{fields_html}</div>", unsafe_allow_html=True)
-
+            for label, val in fields:
+                st.markdown(f"""
+                <div class='profile-field'>
+                  <span class='pf-label'>{label}</span>
+                  <span class='pf-value'>{val}</span>
+                </div>
+                """, unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("✏️ Edit Profile", use_container_width=True):
                 st.session_state.profile_edit_mode = True
                 st.rerun()
 
         else:
+            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
@@ -1783,7 +2852,7 @@ def profile_page(user):
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =====================================================
-# MAIN APP SHELL
+# MAIN APP SHELL  (Top Navbar + Page Router)
 # =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
@@ -1807,3 +2876,37 @@ elif st.session_state.auth_page == "welcome":
     welcome_page()
 else:
     auth_page()
+
+# =====================================================
+# FINAL HOME CHART DARK MODE FIX — visible title + remove thin top line
+# =====================================================
+def apply_home_chart_dark_fix():
+    st.markdown("""
+    <style>
+    /* Score Trend chart title wrapper: remove the thin white box/line above chart */
+    .chart-glass {
+        border: 0 !important;
+        border-top: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        padding-top: 0 !important;
+        margin-top: 22px !important;
+    }
+
+    /* Keep the chart title and graph labels readable in dark mode */
+    .chart-glass .gtitle {
+        fill: #eaf4ff !important;
+        color: #eaf4ff !important;
+        font-weight: 900 !important;
+    }
+    .chart-glass .xtick text,
+    .chart-glass .ytick text,
+    .chart-glass .annotation-text {
+        fill: #dff6ff !important;
+        color: #dff6ff !important;
+        font-weight: 800 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+apply_home_chart_dark_fix()
