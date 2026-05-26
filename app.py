@@ -16,13 +16,8 @@ from reportlab.lib.units import inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
 from reportlab.graphics.shapes import Drawing, Line, String, Rect, Polygon, Circle
-
 import plotly.graph_objects as go
 import plotly.express as px
-
-# =====================================================
-# CONSTANTS
-# =====================================================
 APP_NAME         = "🎓 ScoreWise AI"
 APP_NAME_PLAIN   = "ScoreWise AI"
 TAGLINE          = "Smart Student Performance Predictor"
@@ -31,19 +26,13 @@ HISTORY_FILE     = "prediction_history.json"
 PROFILE_PICS_DIR = "profile_pics"
 MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
-
 os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
-
 st.set_page_config(
     page_title=APP_NAME_PLAIN,
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
-# =====================================================
-# UTILITY FUNCTIONS
-# =====================================================
 def load_json(path, default):
     if os.path.exists(path):
         try:
@@ -52,25 +41,20 @@ def load_json(path, default):
         except Exception:
             return default
     return default
-
 def save_json(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
-
 def calculate_age(dob):
     today = datetime.now().date()
     if isinstance(dob, str):
         dob = datetime.strptime(dob, "%Y-%m-%d").date()
     return today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-
 def save_profile_pic(username, image_bytes):
     path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
     with open(path, "wb") as f:
         f.write(image_bytes)
-
 def profile_pic_html(username, fallback="🎓"):
     path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
     if os.path.exists(path):
@@ -78,7 +62,6 @@ def profile_pic_html(username, fallback="🎓"):
             b64 = base64.b64encode(f.read()).decode()
         return f'<img src="data:image/jpeg;base64,{b64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />'
     return fallback
-
 def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
     """
     Share generated PDF directly using the browser Web Share API.
@@ -87,7 +70,6 @@ def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
     """
     pdf_b64 = base64.b64encode(pdf_bytes).decode("utf-8")
     safe_caption = str(caption).replace("`", "'").replace("\\", "\\\\")
-
     components.html(f"""
     <div style="text-align:center; margin:16px 0 8px 0;">
       <button id="sharePdfBtn" style="
@@ -105,24 +87,19 @@ def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
       </button>
       <p id="shareStatus" style="font-family:Arial, sans-serif; font-size:13px; color:#475569; margin-top:8px;"></p>
     </div>
-
     <script>
     const btn = document.getElementById('sharePdfBtn');
     const status = document.getElementById('shareStatus');
-
     btn.onclick = async () => {{
       try {{
         const b64 = "{pdf_b64}";
         const byteCharacters = atob(b64);
         const byteNumbers = new Array(byteCharacters.length);
-
         for (let i = 0; i < byteCharacters.length; i++) {{
           byteNumbers[i] = byteCharacters.charCodeAt(i);
         }}
-
         const byteArray = new Uint8Array(byteNumbers);
         const file = new File([byteArray], "{file_name}", {{type: 'application/pdf'}});
-
         if (navigator.canShare && navigator.canShare({{ files: [file] }})) {{
           await navigator.share({{
             title: 'ScoreWise AI PDF Report',
@@ -139,10 +116,6 @@ def build_whatsapp_file_share_button(pdf_bytes, file_name, caption):
     }};
     </script>
     """, height=115)
-
-# =====================================================
-# SESSION STATE INIT
-# =====================================================
 def init_state():
     defaults = {
         "logged_in":         False,
@@ -162,18 +135,11 @@ def init_state():
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
-
 init_state()
-
-# =====================================================
-# CSS — COMBINED (Welcome + Auth + Top Navbar Dashboard)
-# =====================================================
 def apply_css():
     dark       = st.session_state.theme == "dark"
     is_welcome = (not st.session_state.logged_in and st.session_state.auth_page == "welcome")
-
     BG_IMAGE = "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1900&q=85"
-
     if dark:
         app_bg        = f"linear-gradient(135deg,rgba(8,15,60,0.75) 0%,rgba(0,40,90,0.80) 100%), url('{BG_IMAGE}')" if not is_welcome else f"linear-gradient(135deg,rgba(3,4,94,0.55) 0%,rgba(0,119,182,0.30) 100%), url('{BG_IMAGE}')"
         card_bg       = "rgba(255,255,255,0.09)"
@@ -212,1920 +178,64 @@ def apply_css():
         topbar_text   = "#03045e"
         topbar_role   = "#0077b6"
         shadow        = "0 16px 50px rgba(2,62,138,0.18)"
-
-    st.markdown(f"""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
-    * {{ font-family: 'Plus Jakarta Sans', sans-serif !important; box-sizing: border-box; }}
-
-    /* ── Hide Streamlit chrome ── */
-    .stApp > header {{ background: transparent !important; height: 0rem !important; }}
-    [data-testid="stDecoration"] {{ display: none !important; }}
-    #MainMenu, footer {{ visibility: hidden; height: 0; }}
-    [data-testid="stToolbar"] {{ visibility: hidden !important; height: 0px !important; position: fixed !important; }}
-    [data-testid="stSidebar"],
-    [data-testid="stSidebarNav"],
-    [data-testid="stSidebarCollapseButton"],
-    [data-testid="collapsedControl"] {{
-        display: none !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        min-width: 0 !important;
-    }}
-
-    /* ── App background ── */
-    .stApp {{
-        background: {app_bg} !important;
-        background-size: cover !important;
-        background-position: center !important;
-        background-attachment: fixed !important;
-        color: {text_primary};
-        min-height: 100vh;
-    }}
-    .main .block-container {{
-        padding-top: 0 !important;
-        padding-bottom: 1rem !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        max-width: 100% !important;
-        margin-top: 0 !important;
-    }}
-
-    /* ══════════════════════════════════════════
-       TOP NAVIGATION BAR
-    ══════════════════════════════════════════ */
-    .topbar-shell {{
-        width: 100%;
-        background: {topbar_bg};
-        border-bottom: 1px solid {topbar_border};
-        box-shadow: 0 4px 24px rgba(0,0,0,0.14);
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
-        padding: 10px 20px 8px 20px;
-        position: sticky;
-        top: 0;
-        z-index: 9999;
-    }}
-    .top-profile {{
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }}
-    .top-avatar {{
-        width: 52px; height: 52px;
-        border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        overflow: hidden;
-        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);
-        font-size: 1.5rem;
-        box-shadow: 0 4px 14px rgba(0,119,182,0.30);
-        border: 2px solid {accent2};
-        flex-shrink: 0;
-    }}
-    .top-name {{
-        font-size: 1.05rem; font-weight: 900;
-        color: {topbar_text}; line-height: 1.1;
-    }}
-    .top-role {{
-        font-size: 0.75rem; font-weight: 600;
-        color: {topbar_role}; margin-top: 2px;
-    }}
-
-    /* Back icon button and theme button in topbar */
-    .back-icon-btn .stButton > button,
-    .theme-top-btn .stButton > button {{
-        width: 42px !important; min-width: 42px !important;
-        height: 42px !important; border-radius: 12px !important;
-        padding: 0 !important;
-        background: {'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'} !important;
-        color: {topbar_text} !important;
-        border: 1px solid {topbar_border} !important;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
-        font-size: 1.1rem !important;
-        transition: all 0.18s ease !important;
-    }}
-    .back-icon-btn .stButton > button:hover,
-    .theme-top-btn .stButton > button:hover {{
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: white !important;
-        transform: scale(1.06) !important;
-        border-color: #00b4d8 !important;
-    }}
-    .signout-top-btn .stButton > button {{
-        height: 42px !important;
-        border-radius: 999px !important;
-        padding: 0 1.1rem !important;
-        font-size: 0.85rem !important;
-    }}
-
-    /* Segmented control nav */
-    div[data-testid="stSegmentedControl"] {{
-        background: transparent !important;
-    }}
-    div[data-testid="stSegmentedControl"] button {{
-        border-radius: 10px !important;
-        background: transparent !important;
-        color: {topbar_role} !important;
-        box-shadow: none !important;
-        border: 0 !important;
-        font-weight: 700 !important;
-        font-size: 0.82rem !important;
-        padding: 6px 10px !important;
-        transition: all 0.15s ease !important;
-    }}
-    div[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
-        color: {'#52b6e8' if dark else '#0077b6'} !important;
-        background: {'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'} !important;
-        border-bottom: 2px solid {'#52b6e8' if dark else '#0077b6'} !important;
-        border-radius: 10px 10px 0 0 !important;
-    }}
-
-    /* ══════════════════════════════════════════
-       DASHBOARD PAGE AREA
-    ══════════════════════════════════════════ */
-    .dash-page {{
-        width: 100%;
-        min-height: calc(100vh - 72px);
-        padding: 36px 5vw 28px 5vw;
-    }}
-    .dash-title {{
-        font-size: clamp(1.8rem, 3vw, 2.5rem);
-        font-weight: 900; color: {text_primary};
-        margin: 0 0 4px 0; letter-spacing: -0.6px;
-    }}
-    .dash-subtitle {{
-        font-size: 0.95rem; font-weight: 700;
-        color: {text_secondary}; margin-bottom: 28px;
-    }}
-    .chart-glass {{
-        background: {card_bg};
-        border: 1px solid {border_color};
-        box-shadow: {shadow};
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
-        border-radius: 24px;
-        padding: 18px 18px 4px 18px;
-        margin-top: 20px;
-    }}
-
-    /* ── Glass cards ── */
-    .glass {{
-        background: {card_bg};
-        border: 1px solid {border_color};
-        box-shadow: {shadow};
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 24px;
-        padding: 26px;
-    }}
-
-    /* ── Page title ── */
-    .page-title {{
-        font-size: 1.9rem; font-weight: 900; margin-bottom: 2px; margin-top: 0;
-        color: {text_primary}; letter-spacing: -0.5px;
-    }}
-    .subtext {{ color: {text_secondary}; font-size: 0.90rem; margin-bottom: 12px; font-weight: 600; }}
-
-    /* ── Metric cards ── */
-    .metric-card {{
-        background: {card_bg};
-        border: 1px solid {border_color};
-        box-shadow: {shadow};
-        backdrop-filter: blur(18px);
-        border-radius: 20px; padding: 20px 12px; text-align: center; transition: 0.22s ease;
-    }}
-    .metric-card:hover {{ transform: translateY(-3px); background: {soft_card_bg}; }}
-    .metric-value {{ font-size: 2.1rem; font-weight: 900; color: {accent1}; }}
-    .metric-label {{ font-size: 0.72rem; color: {text_muted}; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; font-weight: 800; }}
-
-    /* ── Avatar ── */
-    .avatar-circle {{
-        width: 86px; height: 86px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        overflow: hidden; margin: auto;
-        border: 3px solid {accent2};
-        background: linear-gradient(135deg,{accent1},{accent3});
-        font-size: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.20);
-    }}
-    .avatar-circle img {{ width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }}
-
-    /* ── All buttons default ── */
-    .stButton > button,
-    [data-testid="stDownloadButton"] button,
-    .stFormSubmitButton > button {{
-        border-radius: 999px !important; border: 0 !important;
-        font-weight: 800 !important; cursor: pointer !important;
-        padding: 0.60rem 1.4rem !important;
-        background: linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8) !important;
-        color: white !important;
-        box-shadow: 0 8px 22px rgba(0,119,182,0.28) !important;
-        transition: all 0.20s ease !important;
-    }}
-    .stButton > button:hover,
-    [data-testid="stDownloadButton"] button:hover,
-    .stFormSubmitButton > button:hover {{
-        transform: translateY(-2px) scale(1.01) !important;
-        box-shadow: 0 14px 32px rgba(0,180,216,0.36) !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8,#7dd8f5) !important;
-        color: white !important;
-    }}
-
-    /* ── Inputs ── */
-    .stTextInput input,
-    .stNumberInput input,
-    .stDateInput input,
-    .stPasswordInput input,
-    textarea {{
-        background: {input_bg} !important;
-        color: {input_text} !important;
-        border: 1.5px solid {input_border} !important;
-        border-radius: 12px !important;
-        font-weight: 600 !important;
-        caret-color: {input_text} !important;
-    }}
-    .stTextInput input::placeholder,
-    .stPasswordInput input::placeholder {{
-        color: rgba(10,15,60,0.45) !important;
-    }}
-    .stSelectbox [data-baseweb="select"] > div {{
-        background: {input_bg} !important;
-        color: {input_text} !important;
-        border: 1.5px solid {input_border} !important;
-        border-radius: 12px !important;
-    }}
-    .stSelectbox [data-baseweb="select"] span,
-    .stSelectbox [data-baseweb="select"] div,
-    .stSelectbox [data-baseweb="select"] input {{
-        color: {input_text} !important;
-    }}
-    [data-baseweb="menu"] {{ background: {input_bg} !important; }}
-    [data-baseweb="menu"] li {{ color: {input_text} !important; font-weight: 600 !important; }}
-    [data-baseweb="menu"] li:hover {{ background: rgba(0,150,220,0.14) !important; }}
-    [data-testid="stNumberInputField"] input {{
-        color: {input_text} !important;
-        background: {input_bg} !important;
-    }}
-
-    /* Labels */
-    label, p {{ color: {text_primary} !important; }}
-    .stTextInput label, .stNumberInput label, .stSelectbox label,
-    .stDateInput label, .stRadio label, .stCheckbox label,
-    [data-baseweb="form-control"] label, .stSlider label {{
-        color: {text_primary} !important;
-        font-weight: 700 !important;
-        font-size: 0.87rem !important;
-    }}
-
-    /* ── Tabs ── */
-    [data-baseweb="tab-list"] {{ background: transparent !important; border-bottom: 1px solid {border_color} !important; }}
-    [data-baseweb="tab"] {{ color: {text_muted} !important; font-weight: 800 !important; }}
-    [aria-selected="true"][data-baseweb="tab"] {{ color: {accent1} !important; border-bottom: 3px solid {accent1} !important; }}
-
-    /* ── WhatsApp button ── */
-    .whatsapp-btn {{
-        display: inline-block; border-radius: 999px; padding: 11px 22px;
-        color: white !important; text-decoration: none; font-weight: 900;
-        margin: 6px 4px; font-size: 0.92rem;
-        box-shadow: 0 8px 22px rgba(0,0,0,0.18);
-        background: linear-gradient(135deg,#25D366,#128C7E);
-    }}
-
-    /* ── Profile card — FIX: top empty box removed ── */
-    .profile-info-card {{
-        background: {card_bg};
-        border: 1px solid {border_color};
-        backdrop-filter: blur(18px);
-        border-radius: 20px;
-        padding: 0 22px 22px 22px;
-        margin-top: 0 !important;
-        overflow: hidden;
-    }}
-    .profile-field {{
-        display: flex; justify-content: space-between; gap: 14px;
-        padding: 10px 0; border-bottom: 1px solid {border_color}; font-size: 0.92rem;
-    }}
-    .profile-field:first-child {{
-        padding-top: 16px;
-    }}
-    .profile-field:last-child {{ border-bottom: none; }}
-    .pf-label {{ color: {text_muted}; font-weight: 800; }}
-    .pf-value {{ color: {text_primary}; font-weight: 900; }}
-
-    /* ── Score badge ── */
-    .score-badge {{
-        display: inline-block; font-size: 3.4rem; font-weight: 900;
-        color: {accent1}; padding: 16px 32px; border-radius: 22px; text-align: center;
-        background: {card_bg};
-        border: 1px solid {border_color};
-        backdrop-filter: blur(16px);
-    }}
-
-    hr {{ border-color: {border_color} !important; }}
-    .stAlert {{ border-radius: 16px !important; }}
-    .stDataFrame {{ border-radius: 16px; overflow: hidden; }}
-
-    /* ══════════════════════════════════════════
-       WELCOME PAGE
-    ══════════════════════════════════════════ */
-    .hero-title {{
-        font-size: clamp(2.2rem,4.5vw,3.4rem); font-weight: 900;
-        color: {'white' if dark else '#03045e'}; margin: 0;
-        letter-spacing: -1px; text-shadow: 0 3px 18px rgba(0,0,0,0.25); line-height: 1.05;
-    }}
-    .hero-tagline {{
-        font-size: 1.02rem; color: {'#b8e0f7' if dark else '#0077b6'};
-        font-weight: 600; margin: 6px 0 0 0;
-    }}
-    .welcome-divider {{
-        border: 0; height: 1px;
-        background: {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};
-        margin: 10px auto 14px auto; max-width: 600px;
-    }}
-    .feature-cards-row {{ display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 0 0 18px 0; }}
-    .feat-card {{
-        flex: 1 1 200px; max-width: 250px;
-        background: {'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};
-        border: 1px solid {'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};
-        border-radius: 18px; padding: 20px 16px 16px 16px;
-        text-align: center; backdrop-filter: blur(16px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.14); transition: transform 0.20s ease;
-    }}
-    .feat-card:hover {{ transform: translateY(-4px); }}
-    .feat-icon {{ font-size: 2rem; display:block; margin-bottom:7px; }}
-    .feat-title {{ font-size: 1rem; font-weight: 900; color: {'white' if dark else '#03045e'}; margin: 0 0 4px 0; }}
-    .feat-sep {{ width: 32px; height: 3px; background: linear-gradient(90deg,#00b4d8,#7dd8f5); border-radius: 99px; margin: 0 auto 8px auto; }}
-    .feat-desc {{ font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; font-weight: 600; line-height: 1.55; }}
-    .used-for-row {{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin: 0 0 6px 0; }}
-    .used-item {{ text-align: center; padding: 4px 8px; }}
-    .used-icon {{ font-size: 1.4rem; display:block; margin-bottom:2px; }}
-    .used-label {{ font-size: 0.67rem; font-weight: 800; color: {'#b8e0f7' if dark else '#023e8a'}; text-transform: uppercase; letter-spacing: 0.6px; }}
-    .stats-strip {{
-        display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-        padding: 12px 10px;
-        border-top: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
-        border-bottom: 1px solid {'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};
-        margin: 12px 0 16px 0;
-    }}
-    .stat-chip {{
-        display: flex; align-items: center; gap: 6px; padding: 6px 12px;
-        border-radius: 999px; background: rgba(0,180,216,0.12);
-        border: 1px solid rgba(0,180,216,0.22);
-    }}
-    .stat-chip-num {{ font-size: 1.08rem; font-weight:900; color:{'white' if dark else '#03045e'}; }}
-    .stat-chip-lbl {{ font-size: 0.70rem; font-weight:700; color:{'#b8e0f7' if dark else '#0096c7'}; text-transform:uppercase; letter-spacing:0.7px; }}
-    .welcome-footer {{ text-align: center; font-size: 0.78rem; color: {'#b8e0f7' if dark else '#0077b6'}; padding: 6px 0 10px 0; font-weight: 600; }}
-
-    /* ── Auth page back button ── */
-    .back-btn-wrap .stButton > button {{
-        background: {card_bg} !important;
-        border: 1.5px solid {border_color} !important;
-        color: {text_primary} !important;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important;
-        padding: 0.38rem 1.1rem !important;
-        font-size: 0.88rem !important;
-        border-radius: 999px !important;
-    }}
-    .back-btn-wrap .stButton > button:hover {{
-        background: {soft_card_bg} !important;
-        transform: translateX(-2px) !important;
-    }}
-    .auth-theme-btn .stButton > button {{
-        width: 46px !important; height: 40px !important;
-        min-width: 46px !important; border-radius: 12px !important;
-        padding: 0 !important; font-size: 1.1rem !important;
-        background: {'rgba(8,15,60,0.85)' if dark else 'rgba(255,255,255,0.85)'} !important;
-        border: 1.4px solid {border_color} !important;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.18) !important;
-        color: {text_primary} !important;
-    }}
-    .auth-theme-btn .stButton > button:hover {{
-        transform: scale(1.06) !important;
-        border-color: #00b4d8 !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: white !important;
-    }}
-
-    /* ══════════════════════════════════════════
-       WEBSITE STYLE DASHBOARD TOPBAR OVERRIDES
-    ══════════════════════════════════════════ */
-    .topbar-shell {{
-        width: 100% !important;
-        background: rgba(255,255,255,0.98) !important;
-        border-bottom: 1px solid rgba(2,62,138,0.08) !important;
-        box-shadow: 0 8px 28px rgba(3,4,94,0.10) !important;
-        padding: 14px 18px !important;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 9999 !important;
-    }}
-
-    .brand-wrap {{
-        display:flex;
-        align-items:center;
-        gap:12px;
-        min-width:230px;
-    }}
-    .brand-logo {{
-        width:54px;
-        height:54px;
-        border-radius:50%;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        background:linear-gradient(135deg,#004aad,#00b4d8);
-        box-shadow:0 7px 20px rgba(0,119,182,0.25);
-        color:white;
-        font-size:1.55rem;
-        flex-shrink:0;
-    }}
-    .brand-title {{
-        color:#03045e;
-        font-weight:900;
-        font-size:1.55rem;
-        line-height:1;
-        letter-spacing:-0.5px;
-    }}
-    .brand-sub {{
-        color:#023e8a;
-        font-weight:600;
-        font-size:0.72rem;
-        margin-top:5px;
-    }}
-
-    .back-icon-btn .stButton > button {{
-        width:52px !important;
-        min-width:52px !important;
-        height:52px !important;
-        padding:0 !important;
-        border-radius:12px !important;
-        background:#ffffff !important;
-        color:#03045e !important;
-        border:1.5px solid rgba(2,62,138,0.14) !important;
-        box-shadow:0 8px 20px rgba(3,4,94,0.08) !important;
-        font-size:1.25rem !important;
-        font-weight:900 !important;
-    }}
-    .back-icon-btn .stButton > button:hover {{
-        background:#eef7ff !important;
-        color:#004aad !important;
-        transform:translateX(-2px) !important;
-        border-color:rgba(0,119,182,0.25) !important;
-    }}
-
-    .nav-pill .stButton > button {{
-        width:100% !important;
-        min-height:52px !important;
-        padding:0 16px !important;
-        border-radius:12px !important;
-        background:transparent !important;
-        color:#1f3266 !important;
-        border:0 !important;
-        box-shadow:none !important;
-        font-size:0.98rem !important;
-        font-weight:800 !important;
-    }}
-    .nav-pill .stButton > button:hover {{
-        background:#eef7ff !important;
-        color:#0057c7 !important;
-        transform:none !important;
-        box-shadow:none !important;
-    }}
-    .nav-pill-active .stButton > button {{
-        background:#e8f3ff !important;
-        color:#0057c7 !important;
-        box-shadow:0 6px 18px rgba(0,119,182,0.09) !important;
-    }}
-
-    .signout-top-btn .stButton > button {{
-        height:52px !important;
-        border-radius:18px !important;
-        padding:0 24px !important;
-        background:linear-gradient(135deg,#004aad,#0066d9) !important;
-        color:white !important;
-        font-size:0.95rem !important;
-        font-weight:900 !important;
-        box-shadow:0 10px 22px rgba(0,74,173,0.25) !important;
-        white-space:nowrap !important;
-    }}
-
-    .theme-top-btn .stButton > button {{
-        width:52px !important;
-        min-width:52px !important;
-        height:52px !important;
-        padding:0 !important;
-        border-radius:50% !important;
-        background:#eaf4ff !important;
-        color:#0057c7 !important;
-        border:0 !important;
-        box-shadow:none !important;
-        font-size:1.1rem !important;
-    }}
-
-    .top-profile {{
-        display:flex !important;
-        align-items:center !important;
-        justify-content:flex-start !important;
-        gap:10px !important;
-        min-width:130px !important;
-    }}
-    .top-avatar {{
-        width:52px !important;
-        height:52px !important;
-        border-radius:50% !important;
-        background:linear-gradient(135deg,#0077b6,#90e0ef) !important;
-        color:white !important;
-        border:0 !important;
-        box-shadow:0 7px 20px rgba(0,119,182,0.20) !important;
-        font-size:1.45rem !important;
-    }}
-    .top-name {{
-        color:#03045e !important;
-        font-size:1.02rem !important;
-        font-weight:900 !important;
-        line-height:1.05 !important;
-    }}
-    .top-role {{
-        color:#334b78 !important;
-        font-size:0.72rem !important;
-        font-weight:600 !important;
-        margin-top:4px !important;
-        white-space:nowrap !important;
-    }}
-
-    .dash-page {{
-        padding:54px 3.8vw 34px 3.8vw !important;
-        min-height:calc(100vh - 82px) !important;
-    }}
-    .dash-title {{
-        color:#03045e !important;
-        font-size:clamp(2.0rem,3.1vw,2.8rem) !important;
-        margin-bottom:16px !important;
-    }}
-    .dash-subtitle {{
-        color:#1f3266 !important;
-        font-size:1.02rem !important;
-        margin-bottom:38px !important;
-    }}
-    .metric-card {{
-        min-height:164px !important;
-        border-radius:24px !important;
-        background:rgba(255,255,255,0.78) !important;
-        border:1px solid rgba(2,62,138,0.10) !important;
-        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
-        display:flex !important;
-        flex-direction:column !important;
-        align-items:center !important;
-        justify-content:center !important;
-    }}
-    .metric-value {{
-        color:#0066d9 !important;
-        font-size:2.8rem !important;
-        line-height:1 !important;
-    }}
-    .metric-label {{
-        color:#334b78 !important;
-        font-size:0.92rem !important;
-        margin-top:20px !important;
-        letter-spacing:0 !important;
-    }}
-    .metric-accent {{
-        width:64px;
-        height:4px;
-        border-radius:999px;
-        margin:22px auto 0 auto;
-    }}
-    .chart-glass {{
-        background:rgba(255,255,255,0.76) !important;
-        border:1px solid rgba(2,62,138,0.10) !important;
-        box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;
-        border-radius:24px !important;
-        padding:18px 24px 8px 24px !important;
-        margin-top:34px !important;
-    }}
-
-    @media (max-width: 900px) {{
-        .brand-sub {{ display:none; }}
-        .brand-title {{ font-size:1.15rem; }}
-        .nav-pill .stButton > button {{ font-size:0.78rem !important; padding:0 6px !important; }}
-        .dash-page {{ padding-left:22px !important; padding-right:22px !important; }}
-    }}
-
-
-
-    /* =====================================================
-       FINAL STREAMLIT FIT FIX — compact navbar + no big gap
-       ===================================================== */
-    html, body, .stApp {{
-        overflow-x: hidden !important;
-    }}
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container {{
-        padding-top: 0rem !important;
-        padding-left: 0rem !important;
-        padding-right: 0rem !important;
-        max-width: 100% !important;
-    }}
-    .topbar-shell {{
-        width: 100vw !important;
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        padding: 8px 14px !important;
-        min-height: 66px !important;
-        display: block !important;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 999999 !important;
-    }}
-    .brand-wrap {{
-        min-width: 0 !important;
-        gap: 9px !important;
-    }}
-    .brand-logo,
-    .top-avatar,
-    .theme-top-btn .stButton > button,
-    .back-icon-btn .stButton > button {{
-        width: 42px !important;
-        min-width: 42px !important;
-        height: 42px !important;
-    }}
-    .brand-logo {{ font-size: 1.22rem !important; }}
-    .brand-title {{
-        font-size: 1.18rem !important;
-        white-space: nowrap !important;
-    }}
-    .brand-sub {{
-        font-size: 0.62rem !important;
-        white-space: nowrap !important;
-    }}
-    .nav-pill .stButton > button,
-    .nav-pill-active .stButton > button {{
-        min-height: 42px !important;
-        height: 42px !important;
-        padding: 0 8px !important;
-        border-radius: 11px !important;
-        font-size: 0.80rem !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-    }}
-    .signout-top-btn .stButton > button {{
-        height: 42px !important;
-        min-height: 42px !important;
-        border-radius: 13px !important;
-        padding: 0 12px !important;
-        font-size: 0.78rem !important;
-        white-space: nowrap !important;
-    }}
-    .top-profile {{ min-width: 0 !important; gap: 7px !important; }}
-    .top-name {{
-        font-size: 0.82rem !important;
-        max-width: 92px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }}
-    .top-role {{
-        font-size: 0.58rem !important;
-        max-width: 92px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-    }}
-    .dash-page {{
-        padding: 16px 3.2vw 26px 3.2vw !important;
-        min-height: calc(100vh - 66px) !important;
-    }}
-    .dash-title {{
-        margin-top: 0 !important;
-        margin-bottom: 6px !important;
-        font-size: clamp(1.45rem, 2.4vw, 2.1rem) !important;
-    }}
-    .dash-subtitle {{
-        margin-bottom: 18px !important;
-        font-size: 0.90rem !important;
-    }}
-    .metric-card {{
-        min-height: 118px !important;
-        padding: 14px 8px !important;
-    }}
-    .metric-value {{ font-size: 2.05rem !important; }}
-    .metric-label {{
-        font-size: 0.76rem !important;
-        margin-top: 10px !important;
-    }}
-    .metric-accent {{
-        margin-top: 12px !important;
-        height: 3px !important;
-    }}
-    .chart-glass {{ margin-top: 18px !important; }}
-
-    @media (max-width: 1100px) {{
-        .brand-sub, .top-role {{ display: none !important; }}
-        .brand-title {{ font-size: 1.00rem !important; }}
-        .nav-pill .stButton > button {{ font-size: 0.72rem !important; padding: 0 4px !important; }}
-        .signout-top-btn .stButton > button {{ font-size: 0.70rem !important; padding: 0 8px !important; }}
-        .top-name {{ max-width: 65px !important; font-size: 0.74rem !important; }}
-    }}
-    @media (max-width: 760px) {{
-        .brand-title {{ display: none !important; }}
-        .nav-pill .stButton > button {{ font-size: 0.66rem !important; }}
-        .top-profile {{ display: none !important; }}
-        .dash-page {{ padding: 12px 16px 22px 16px !important; }}
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<style>@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');*{{font-family:'Plus Jakarta Sans',sans-serif !important;box-sizing:border-box;}}.stApp>header{{background:transparent !important;height:0rem !important;}}[data-testid="stDecoration"]{{display:none !important;}}#MainMenu,footer{{visibility:hidden;height:0;}}[data-testid="stToolbar"]{{visibility:hidden !important;height:0px !important;position:fixed !important;}}[data-testid="stSidebar"],[data-testid="stSidebarNav"],[data-testid="stSidebarCollapseButton"],[data-testid="collapsedControl"]{{display:none !important;visibility:hidden !important;width:0 !important;min-width:0 !important;}}.stApp{{background:{app_bg}!important;background-size:cover !important;background-position:center !important;background-attachment:fixed !important;color:{text_primary};min-height:100vh;}}.main .block-container{{padding-top:0 !important;padding-bottom:1rem !important;padding-left:0 !important;padding-right:0 !important;max-width:100% !important;margin-top:0 !important;}}.topbar-shell{{width:100%;background:{topbar_bg};border-bottom:1px solid{topbar_border};box-shadow:0 4px 24px rgba(0,0,0,0.14);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);padding:10px 20px 8px 20px;position:sticky;top:0;z-index:9999;}}.top-profile{{display:flex;align-items:center;gap:10px;}}.top-avatar{{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8);font-size:1.5rem;box-shadow:0 4px 14px rgba(0,119,182,0.30);border:2px solid{accent2};flex-shrink:0;}}.top-name{{font-size:1.05rem;font-weight:900;color:{topbar_text};line-height:1.1;}}.top-role{{font-size:0.75rem;font-weight:600;color:{topbar_role};margin-top:2px;}}.back-icon-btn .stButton>button,.theme-top-btn .stButton>button{{width:42px !important;min-width:42px !important;height:42px !important;border-radius:12px !important;padding:0 !important;background:{'rgba(255,255,255,0.10)' if dark else 'rgba(2,62,138,0.08)'}!important;color:{topbar_text}!important;border:1px solid{topbar_border}!important;box-shadow:0 2px 8px rgba(0,0,0,0.10) !important;font-size:1.1rem !important;transition:all 0.18s ease !important;}}.back-icon-btn .stButton>button:hover,.theme-top-btn .stButton>button:hover{{background:linear-gradient(135deg,#0077b6,#00b4d8) !important;color:white !important;transform:scale(1.06) !important;border-color:#00b4d8 !important;}}.signout-top-btn .stButton>button{{height:42px !important;border-radius:999px !important;padding:0 1.1rem !important;font-size:0.85rem !important;}}div[data-testid="stSegmentedControl"]{{background:transparent !important;}}div[data-testid="stSegmentedControl"] button{{border-radius:10px !important;background:transparent !important;color:{topbar_role}!important;box-shadow:none !important;border:0 !important;font-weight:700 !important;font-size:0.82rem !important;padding:6px 10px !important;transition:all 0.15s ease !important;}}div[data-testid="stSegmentedControl"] button[aria-pressed="true"]{{color:{'#52b6e8' if dark else '#0077b6'}!important;background:{'rgba(82,182,232,0.14)' if dark else 'rgba(0,119,182,0.10)'}!important;border-bottom:2px solid{'#52b6e8' if dark else '#0077b6'}!important;border-radius:10px 10px 0 0 !important;}}.dash-page{{width:100%;min-height:calc(100vh - 72px);padding:36px 5vw 28px 5vw;}}.dash-title{{font-size:clamp(1.8rem,3vw,2.5rem);font-weight:900;color:{text_primary};margin:0 0 4px 0;letter-spacing:-0.6px;}}.dash-subtitle{{font-size:0.95rem;font-weight:700;color:{text_secondary};margin-bottom:28px;}}.chart-glass{{background:{card_bg};border:1px solid{border_color};box-shadow:{shadow};backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-radius:24px;padding:18px 18px 4px 18px;margin-top:20px;}}.glass{{background:{card_bg};border:1px solid{border_color};box-shadow:{shadow};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:24px;padding:26px;}}.page-title{{font-size:1.9rem;font-weight:900;margin-bottom:2px;margin-top:0;color:{text_primary};letter-spacing:-0.5px;}}.subtext{{color:{text_secondary};font-size:0.90rem;margin-bottom:12px;font-weight:600;}}.metric-card{{background:{card_bg};border:1px solid{border_color};box-shadow:{shadow};backdrop-filter:blur(18px);border-radius:20px;padding:20px 12px;text-align:center;transition:0.22s ease;}}.metric-card:hover{{transform:translateY(-3px);background:{soft_card_bg};}}.metric-value{{font-size:2.1rem;font-weight:900;color:{accent1};}}.metric-label{{font-size:0.72rem;color:{text_muted};text-transform:uppercase;letter-spacing:1px;margin-top:4px;font-weight:800;}}.avatar-circle{{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:auto;border:3px solid{accent2};background:linear-gradient(135deg,{accent1},{accent3});font-size:2rem;box-shadow:0 10px 30px rgba(0,0,0,0.20);}}.avatar-circle img{{width:100%;height:100%;object-fit:cover;border-radius:50%;}}.stButton>button,[data-testid="stDownloadButton"] button,.stFormSubmitButton>button{{border-radius:999px !important;border:0 !important;font-weight:800 !important;cursor:pointer !important;padding:0.60rem 1.4rem !important;background:linear-gradient(135deg,#0a1f6e,#0077b6,#00b4d8) !important;color:white !important;box-shadow:0 8px 22px rgba(0,119,182,0.28) !important;transition:all 0.20s ease !important;}}.stButton>button:hover,[data-testid="stDownloadButton"] button:hover,.stFormSubmitButton>button:hover{{transform:translateY(-2px) scale(1.01) !important;box-shadow:0 14px 32px rgba(0,180,216,0.36) !important;background:linear-gradient(135deg,#0077b6,#00b4d8,#7dd8f5) !important;color:white !important;}}.stTextInput input,.stNumberInput input,.stDateInput input,.stPasswordInput input,textarea{{background:{input_bg}!important;color:{input_text}!important;border:1.5px solid{input_border}!important;border-radius:12px !important;font-weight:600 !important;caret-color:{input_text}!important;}}.stTextInput input::placeholder,.stPasswordInput input::placeholder{{color:rgba(10,15,60,0.45) !important;}}.stSelectbox [data-baseweb="select"]>div{{background:{input_bg}!important;color:{input_text}!important;border:1.5px solid{input_border}!important;border-radius:12px !important;}}.stSelectbox [data-baseweb="select"] span,.stSelectbox [data-baseweb="select"] div,.stSelectbox [data-baseweb="select"] input{{color:{input_text}!important;}}[data-baseweb="menu"]{{background:{input_bg}!important;}}[data-baseweb="menu"] li{{color:{input_text}!important;font-weight:600 !important;}}[data-baseweb="menu"] li:hover{{background:rgba(0,150,220,0.14) !important;}}[data-testid="stNumberInputField"] input{{color:{input_text}!important;background:{input_bg}!important;}}label,p{{color:{text_primary}!important;}}.stTextInput label,.stNumberInput label,.stSelectbox label,.stDateInput label,.stRadio label,.stCheckbox label,[data-baseweb="form-control"] label,.stSlider label{{color:{text_primary}!important;font-weight:700 !important;font-size:0.87rem !important;}}[data-baseweb="tab-list"]{{background:transparent !important;border-bottom:1px solid{border_color}!important;}}[data-baseweb="tab"]{{color:{text_muted}!important;font-weight:800 !important;}}[aria-selected="true"][data-baseweb="tab"]{{color:{accent1}!important;border-bottom:3px solid{accent1}!important;}}.whatsapp-btn{{display:inline-block;border-radius:999px;padding:11px 22px;color:white !important;text-decoration:none;font-weight:900;margin:6px 4px;font-size:0.92rem;box-shadow:0 8px 22px rgba(0,0,0,0.18);background:linear-gradient(135deg,#25D366,#128C7E);}}.profile-info-card{{background:{card_bg};border:1px solid{border_color};backdrop-filter:blur(18px);border-radius:20px;padding:0 22px 22px 22px;margin-top:0 !important;overflow:hidden;}}.profile-field{{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid{border_color};font-size:0.92rem;}}.profile-field:first-child{{padding-top:16px;}}.profile-field:last-child{{border-bottom:none;}}.pf-label{{color:{text_muted};font-weight:800;}}.pf-value{{color:{text_primary};font-weight:900;}}.score-badge{{display:inline-block;font-size:3.4rem;font-weight:900;color:{accent1};padding:16px 32px;border-radius:22px;text-align:center;background:{card_bg};border:1px solid{border_color};backdrop-filter:blur(16px);}}hr{{border-color:{border_color}!important;}}.stAlert{{border-radius:16px !important;}}.stDataFrame{{border-radius:16px;overflow:hidden;}}.hero-title{{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:900;color:{'white' if dark else '#03045e'};margin:0;letter-spacing:-1px;text-shadow:0 3px 18px rgba(0,0,0,0.25);line-height:1.05;}}.hero-tagline{{font-size:1.02rem;color:{'#b8e0f7' if dark else '#0077b6'};font-weight:600;margin:6px 0 0 0;}}.welcome-divider{{border:0;height:1px;background:{'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.14)'};margin:10px auto 14px auto;max-width:600px;}}.feature-cards-row{{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:0 0 18px 0;}}.feat-card{{flex:1 1 200px;max-width:250px;background:{'rgba(255,255,255,0.11)' if dark else 'rgba(255,255,255,0.75)'};border:1px solid{'rgba(255,255,255,0.22)' if dark else 'rgba(2,62,138,0.16)'};border-radius:18px;padding:20px 16px 16px 16px;text-align:center;backdrop-filter:blur(16px);box-shadow:0 10px 30px rgba(0,0,0,0.14);transition:transform 0.20s ease;}}.feat-card:hover{{transform:translateY(-4px);}}.feat-icon{{font-size:2rem;display:block;margin-bottom:7px;}}.feat-title{{font-size:1rem;font-weight:900;color:{'white' if dark else '#03045e'};margin:0 0 4px 0;}}.feat-sep{{width:32px;height:3px;background:linear-gradient(90deg,#00b4d8,#7dd8f5);border-radius:99px;margin:0 auto 8px auto;}}.feat-desc{{font-size:0.78rem;color:{'#b8e0f7' if dark else '#0077b6'};font-weight:600;line-height:1.55;}}.used-for-row{{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:0 0 6px 0;}}.used-item{{text-align:center;padding:4px 8px;}}.used-icon{{font-size:1.4rem;display:block;margin-bottom:2px;}}.used-label{{font-size:0.67rem;font-weight:800;color:{'#b8e0f7' if dark else '#023e8a'};text-transform:uppercase;letter-spacing:0.6px;}}.stats-strip{{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:12px 10px;border-top:1px solid{'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};border-bottom:1px solid{'rgba(255,255,255,0.20)' if dark else 'rgba(2,62,138,0.12)'};margin:12px 0 16px 0;}}.stat-chip{{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(0,180,216,0.12);border:1px solid rgba(0,180,216,0.22);}}.stat-chip-num{{font-size:1.08rem;font-weight:900;color:{'white' if dark else '#03045e'};}}.stat-chip-lbl{{font-size:0.70rem;font-weight:700;color:{'#b8e0f7' if dark else '#0096c7'};text-transform:uppercase;letter-spacing:0.7px;}}.welcome-footer{{text-align:center;font-size:0.78rem;color:{'#b8e0f7' if dark else '#0077b6'};padding:6px 0 10px 0;font-weight:600;}}.back-btn-wrap .stButton>button{{background:{card_bg}!important;border:1.5px solid{border_color}!important;color:{text_primary}!important;box-shadow:0 2px 10px rgba(0,0,0,0.12) !important;padding:0.38rem 1.1rem !important;font-size:0.88rem !important;border-radius:999px !important;}}.back-btn-wrap .stButton>button:hover{{background:{soft_card_bg}!important;transform:translateX(-2px) !important;}}.auth-theme-btn .stButton>button{{width:46px !important;height:40px !important;min-width:46px !important;border-radius:12px !important;padding:0 !important;font-size:1.1rem !important;background:{'rgba(8,15,60,0.85)' if dark else 'rgba(255,255,255,0.85)'}!important;border:1.4px solid{border_color}!important;box-shadow:0 4px 14px rgba(0,0,0,0.18) !important;color:{text_primary}!important;}}.auth-theme-btn .stButton>button:hover{{transform:scale(1.06) !important;border-color:#00b4d8 !important;background:linear-gradient(135deg,#0077b6,#00b4d8) !important;color:white !important;}}.topbar-shell{{width:100% !important;background:rgba(255,255,255,0.98) !important;border-bottom:1px solid rgba(2,62,138,0.08) !important;box-shadow:0 8px 28px rgba(3,4,94,0.10) !important;padding:14px 18px !important;position:sticky !important;top:0 !important;z-index:9999 !important;}}.brand-wrap{{display:flex;align-items:center;gap:12px;min-width:230px;}}.brand-logo{{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#004aad,#00b4d8);box-shadow:0 7px 20px rgba(0,119,182,0.25);color:white;font-size:1.55rem;flex-shrink:0;}}.brand-title{{color:#03045e;font-weight:900;font-size:1.55rem;line-height:1;letter-spacing:-0.5px;}}.brand-sub{{color:#023e8a;font-weight:600;font-size:0.72rem;margin-top:5px;}}.back-icon-btn .stButton>button{{width:52px !important;min-width:52px !important;height:52px !important;padding:0 !important;border-radius:12px !important;background:#ffffff !important;color:#03045e !important;border:1.5px solid rgba(2,62,138,0.14) !important;box-shadow:0 8px 20px rgba(3,4,94,0.08) !important;font-size:1.25rem !important;font-weight:900 !important;}}.back-icon-btn .stButton>button:hover{{background:#eef7ff !important;color:#004aad !important;transform:translateX(-2px) !important;border-color:rgba(0,119,182,0.25) !important;}}.nav-pill .stButton>button{{width:100% !important;min-height:52px !important;padding:0 16px !important;border-radius:12px !important;background:transparent !important;color:#1f3266 !important;border:0 !important;box-shadow:none !important;font-size:0.98rem !important;font-weight:800 !important;}}.nav-pill .stButton>button:hover{{background:#eef7ff !important;color:#0057c7 !important;transform:none !important;box-shadow:none !important;}}.nav-pill-active .stButton>button{{background:#e8f3ff !important;color:#0057c7 !important;box-shadow:0 6px 18px rgba(0,119,182,0.09) !important;}}.signout-top-btn .stButton>button{{height:52px !important;border-radius:18px !important;padding:0 24px !important;background:linear-gradient(135deg,#004aad,#0066d9) !important;color:white !important;font-size:0.95rem !important;font-weight:900 !important;box-shadow:0 10px 22px rgba(0,74,173,0.25) !important;white-space:nowrap !important;}}.theme-top-btn .stButton>button{{width:52px !important;min-width:52px !important;height:52px !important;padding:0 !important;border-radius:50% !important;background:#eaf4ff !important;color:#0057c7 !important;border:0 !important;box-shadow:none !important;font-size:1.1rem !important;}}.top-profile{{display:flex !important;align-items:center !important;justify-content:flex-start !important;gap:10px !important;min-width:130px !important;}}.top-avatar{{width:52px !important;height:52px !important;border-radius:50% !important;background:linear-gradient(135deg,#0077b6,#90e0ef) !important;color:white !important;border:0 !important;box-shadow:0 7px 20px rgba(0,119,182,0.20) !important;font-size:1.45rem !important;}}.top-name{{color:#03045e !important;font-size:1.02rem !important;font-weight:900 !important;line-height:1.05 !important;}}.top-role{{color:#334b78 !important;font-size:0.72rem !important;font-weight:600 !important;margin-top:4px !important;white-space:nowrap !important;}}.dash-page{{padding:54px 3.8vw 34px 3.8vw !important;min-height:calc(100vh - 82px) !important;}}.dash-title{{color:#03045e !important;font-size:clamp(2.0rem,3.1vw,2.8rem) !important;margin-bottom:16px !important;}}.dash-subtitle{{color:#1f3266 !important;font-size:1.02rem !important;margin-bottom:38px !important;}}.metric-card{{min-height:164px !important;border-radius:24px !important;background:rgba(255,255,255,0.78) !important;border:1px solid rgba(2,62,138,0.10) !important;box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;display:flex !important;flex-direction:column !important;align-items:center !important;justify-content:center !important;}}.metric-value{{color:#0066d9 !important;font-size:2.8rem !important;line-height:1 !important;}}.metric-label{{color:#334b78 !important;font-size:0.92rem !important;margin-top:20px !important;letter-spacing:0 !important;}}.metric-accent{{width:64px;height:4px;border-radius:999px;margin:22px auto 0 auto;}}.chart-glass{{background:rgba(255,255,255,0.76) !important;border:1px solid rgba(2,62,138,0.10) !important;box-shadow:0 12px 28px rgba(3,4,94,0.10) !important;border-radius:24px !important;padding:18px 24px 8px 24px !important;margin-top:34px !important;}}@media (max-width:900px){{.brand-sub{{display:none;}}.brand-title{{font-size:1.15rem;}}.nav-pill .stButton>button{{font-size:0.78rem !important;padding:0 6px !important;}}.dash-page{{padding-left:22px !important;padding-right:22px !important;}}}}html,body,.stApp{{overflow-x:hidden !important;}}.main .block-container,[data-testid="stAppViewContainer"] .main .block-container{{padding-top:0rem !important;padding-left:0rem !important;padding-right:0rem !important;max-width:100% !important;}}.topbar-shell{{width:100vw !important;margin-left:0 !important;margin-right:0 !important;padding:8px 14px !important;min-height:66px !important;display:block !important;position:sticky !important;top:0 !important;z-index:999999 !important;}}.brand-wrap{{min-width:0 !important;gap:9px !important;}}.brand-logo,.top-avatar,.theme-top-btn .stButton>button,.back-icon-btn .stButton>button{{width:42px !important;min-width:42px !important;height:42px !important;}}.brand-logo{{font-size:1.22rem !important;}}.brand-title{{font-size:1.18rem !important;white-space:nowrap !important;}}.brand-sub{{font-size:0.62rem !important;white-space:nowrap !important;}}.nav-pill .stButton>button,.nav-pill-active .stButton>button{{min-height:42px !important;height:42px !important;padding:0 8px !important;border-radius:11px !important;font-size:0.80rem !important;line-height:1 !important;white-space:nowrap !important;}}.signout-top-btn .stButton>button{{height:42px !important;min-height:42px !important;border-radius:13px !important;padding:0 12px !important;font-size:0.78rem !important;white-space:nowrap !important;}}.top-profile{{min-width:0 !important;gap:7px !important;}}.top-name{{font-size:0.82rem !important;max-width:92px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;}}.top-role{{font-size:0.58rem !important;max-width:92px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;}}.dash-page{{padding:16px 3.2vw 26px 3.2vw !important;min-height:calc(100vh - 66px) !important;}}.dash-title{{margin-top:0 !important;margin-bottom:6px !important;font-size:clamp(1.45rem,2.4vw,2.1rem) !important;}}.dash-subtitle{{margin-bottom:18px !important;font-size:0.90rem !important;}}.metric-card{{min-height:118px !important;padding:14px 8px !important;}}.metric-value{{font-size:2.05rem !important;}}.metric-label{{font-size:0.76rem !important;margin-top:10px !important;}}.metric-accent{{margin-top:12px !important;height:3px !important;}}.chart-glass{{margin-top:18px !important;}}@media (max-width:1100px){{.brand-sub,.top-role{{display:none !important;}}.brand-title{{font-size:1.00rem !important;}}.nav-pill .stButton>button{{font-size:0.72rem !important;padding:0 4px !important;}}.signout-top-btn .stButton>button{{font-size:0.70rem !important;padding:0 8px !important;}}.top-name{{max-width:65px !important;font-size:0.74rem !important;}}}}@media (max-width:760px){{.brand-title{{display:none !important;}}.nav-pill .stButton>button{{font-size:0.66rem !important;}}.top-profile{{display:none !important;}}.dash-page{{padding:12px 16px 22px 16px !important;}}}}</style>""", unsafe_allow_html=True)
 apply_css()
-
 def apply_10x_layout_fix():
-    st.markdown("""
-    <style>
-    .stApp > header,
-    header[data-testid="stHeader"] {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        visibility: hidden !important;
-    }
-    [data-testid="stAppViewContainer"] > .main {
-        padding-top: 0 !important;
-    }
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-        padding-bottom: 0.8rem !important;
-    }
-    div[data-testid="stVerticalBlock"] { gap: 0.35rem !important; }
-    .topbar-shell {
-        background: transparent !important;
-        border: 0 !important;
-        box-shadow: none !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        padding: 8px 3.2vw 4px 3.2vw !important;
-        min-height: 54px !important;
-        position: sticky !important;
-        top: 0 !important;
-    }
-    .top-menu-title {
-        font-size: 1.28rem;
-        font-weight: 900;
-        color: #03045e;
-        line-height: 1.05;
-    }
-    .top-menu-sub {
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #0077b6;
-    }
-    .top-menu-btn .stButton > button,
-    .top-menu-btn-active .stButton > button {
-        min-height: 38px !important;
-        height: 38px !important;
-        padding: 0 12px !important;
-        border-radius: 999px !important;
-        font-size: 0.82rem !important;
-        box-shadow: none !important;
-        border: 1px solid rgba(0,119,182,0.16) !important;
-        background: rgba(255,255,255,0.56) !important;
-        color: #023e8a !important;
-        white-space: nowrap !important;
-    }
-    .top-menu-btn-active .stButton > button,
-    .top-menu-btn .stButton > button:hover {
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: #ffffff !important;
-        transform: none !important;
-    }
-    .dash-page {
-        padding: 8px 3.2vw 22px 3.2vw !important;
-        min-height: auto !important;
-    }
-    .page-title, .dash-title { margin-top: 0 !important; }
-    .dash-subtitle, .subtext { margin-bottom: 12px !important; }
-    .glass { margin-top: 0 !important; }
-    @media (max-width: 760px) {
-        .top-menu-title, .top-menu-sub { display:none !important; }
-        .top-menu-btn .stButton > button,
-        .top-menu-btn-active .stButton > button { font-size: 0.68rem !important; padding: 0 6px !important; }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.stApp>header,header[data-testid="stHeader"]{display:none !important;height:0 !important;min-height:0 !important;visibility:hidden !important;}[data-testid="stAppViewContainer"]>.main{padding-top:0 !important;}.main .block-container,[data-testid="stAppViewContainer"] .main .block-container{padding-top:0 !important;margin-top:0 !important;padding-bottom:0.8rem !important;}div[data-testid="stVerticalBlock"]{gap:0.35rem !important;}.topbar-shell{background:transparent !important;border:0 !important;box-shadow:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;padding:8px 3.2vw 4px 3.2vw !important;min-height:54px !important;position:sticky !important;top:0 !important;}.top-menu-title{font-size:1.28rem;font-weight:900;color:#03045e;line-height:1.05;}.top-menu-sub{font-size:0.72rem;font-weight:700;color:#0077b6;}.top-menu-btn .stButton>button,.top-menu-btn-active .stButton>button{min-height:38px !important;height:38px !important;padding:0 12px !important;border-radius:999px !important;font-size:0.82rem !important;box-shadow:none !important;border:1px solid rgba(0,119,182,0.16) !important;background:rgba(255,255,255,0.56) !important;color:#023e8a !important;white-space:nowrap !important;}.top-menu-btn-active .stButton>button,.top-menu-btn .stButton>button:hover{background:linear-gradient(135deg,#0077b6,#00b4d8) !important;color:#ffffff !important;transform:none !important;}.dash-page{padding:8px 3.2vw 22px 3.2vw !important;min-height:auto !important;}.page-title,.dash-title{margin-top:0 !important;}.dash-subtitle,.subtext{margin-bottom:12px !important;}.glass{margin-top:0 !important;}@media (max-width:760px){.top-menu-title,.top-menu-sub{display:none !important;}.top-menu-btn .stButton>button,.top-menu-btn-active .stButton>button{font-size:0.68rem !important;padding:0 6px !important;}}</style>""", unsafe_allow_html=True)
 apply_10x_layout_fix()
-
 def apply_professional_header_fix():
-    st.markdown("""
-    <style>
-    /* ===== FINAL PROFESSIONAL HEADER + GAP FIX ===== */
-    .stApp > header,
-    header[data-testid="stHeader"],
-    [data-testid="stToolbar"],
-    [data-testid="stDecoration"] {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        visibility: hidden !important;
-    }
-    [data-testid="stAppViewContainer"] > .main,
-    .main {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-    }
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container {
-        padding-top: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-top: 0 !important;
-        max-width: 100% !important;
-    }
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.25rem !important;
-    }
-
-    .topbar-shell {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .pro-header {
-        width: 100vw !important;
-        margin: 0 !important;
-        padding: 8px 2.4vw 7px 2.4vw !important;
-        background: rgba(255,255,255,0.92) !important;
-        border-bottom: 1px solid rgba(2,62,138,0.10) !important;
-        box-shadow: 0 8px 26px rgba(3,4,94,0.08) !important;
-        backdrop-filter: blur(18px) !important;
-        -webkit-backdrop-filter: blur(18px) !important;
-        position: sticky !important;
-        top: 0 !important;
-        z-index: 999999 !important;
-    }
-
-    .header-title-wrap { line-height: 1.05; }
-    .header-app {
-        color: #03045e !important;
-        font-size: 1.05rem !important;
-        font-weight: 900 !important;
-        letter-spacing: -0.3px !important;
-        white-space: nowrap !important;
-    }
-    .active-page-chip {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        margin-top: 4px !important;
-        padding: 4px 10px !important;
-        border-radius: 999px !important;
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: #ffffff !important;
-        font-size: 0.68rem !important;
-        font-weight: 900 !important;
-        box-shadow: 0 6px 16px rgba(0,119,182,0.18) !important;
-    }
-    .header-sub {
-        color: #46617f !important;
-        font-size: 0.64rem !important;
-        font-weight: 700 !important;
-        margin-top: 3px !important;
-        white-space: nowrap !important;
-    }
-
-    .back-top-btn .stButton > button {
-        width: 40px !important;
-        min-width: 40px !important;
-        height: 40px !important;
-        padding: 0 !important;
-        border-radius: 14px !important;
-        background: #ffffff !important;
-        color: #023e8a !important;
-        border: 1px solid rgba(2,62,138,0.16) !important;
-        box-shadow: 0 6px 14px rgba(3,4,94,0.08) !important;
-        font-size: 1.15rem !important;
-        font-weight: 900 !important;
-    }
-    .back-top-btn .stButton > button:hover {
-        background: #eaf6ff !important;
-        color: #0077b6 !important;
-        transform: translateX(-2px) !important;
-    }
-
-    .nav-tab .stButton > button,
-    .nav-tab-active .stButton > button {
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 10px !important;
-        border-radius: 999px !important;
-        font-size: 0.74rem !important;
-        font-weight: 900 !important;
-        box-shadow: none !important;
-        border: 1px solid rgba(0,119,182,0.13) !important;
-        white-space: nowrap !important;
-        transform: none !important;
-    }
-    .nav-tab .stButton > button {
-        background: rgba(255,255,255,0.56) !important;
-        color: #1f3266 !important;
-    }
-    .nav-tab-active .stButton > button,
-    .nav-tab .stButton > button:hover {
-        background: linear-gradient(135deg,#0077b6,#00b4d8) !important;
-        color: #ffffff !important;
-        border-color: transparent !important;
-    }
-
-    .corner-user {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        gap: 8px !important;
-        min-width: 0 !important;
-    }
-    .corner-avatar {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 50% !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        overflow: hidden !important;
-        background: linear-gradient(135deg,#0077b6,#90e0ef) !important;
-        color: #ffffff !important;
-        font-size: 1.15rem !important;
-        box-shadow: 0 7px 16px rgba(0,119,182,0.18) !important;
-        flex-shrink: 0 !important;
-    }
-    .corner-name {
-        color: #03045e !important;
-        font-size: 0.78rem !important;
-        font-weight: 900 !important;
-        line-height: 1.1 !important;
-        max-width: 100px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        text-align: left !important;
-    }
-    .corner-role {
-        color: #0077b6 !important;
-        font-size: 0.60rem !important;
-        font-weight: 800 !important;
-        margin-top: 2px !important;
-        white-space: nowrap !important;
-    }
-
-    .circle-tool-btn .stButton > button {
-        width: 38px !important;
-        min-width: 38px !important;
-        height: 38px !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-        background: #eaf6ff !important;
-        color: #0066d9 !important;
-        border: 1px solid rgba(0,119,182,0.10) !important;
-        box-shadow: none !important;
-        font-size: 1rem !important;
-    }
-    .logout-small-btn .stButton > button {
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 12px !important;
-        border-radius: 999px !important;
-        background: #03045e !important;
-        color: #ffffff !important;
-        border: 0 !important;
-        box-shadow: 0 8px 18px rgba(3,4,94,0.16) !important;
-        font-size: 0.70rem !important;
-        font-weight: 900 !important;
-        white-space: nowrap !important;
-    }
-
-    .dash-page {
-        padding: 14px 5.2vw 24px 5.2vw !important;
-        min-height: auto !important;
-    }
-    .dash-title,
-    .page-title {
-        margin-top: 0 !important;
-        margin-bottom: 4px !important;
-        font-size: clamp(1.45rem, 2.1vw, 2.05rem) !important;
-        line-height: 1.08 !important;
-    }
-    .dash-subtitle,
-    .subtext {
-        margin-top: 0 !important;
-        margin-bottom: 14px !important;
-        font-size: 0.88rem !important;
-    }
-    .metric-card {
-        min-height: 105px !important;
-        padding: 12px 10px !important;
-        border-radius: 18px !important;
-    }
-    .metric-value {
-        font-size: 1.85rem !important;
-    }
-    .metric-label {
-        font-size: 0.70rem !important;
-        margin-top: 8px !important;
-    }
-    .metric-accent {
-        margin-top: 9px !important;
-        height: 3px !important;
-    }
-    .chart-glass {
-        margin-top: 12px !important;
-        padding: 10px 14px 4px 14px !important;
-        border-radius: 18px !important;
-    }
-
-    @media (max-width: 1050px) {
-        .header-sub { display: none !important; }
-        .header-app { font-size: 0.90rem !important; }
-        .nav-tab .stButton > button,
-        .nav-tab-active .stButton > button {
-            font-size: 0.64rem !important;
-            padding: 0 5px !important;
-        }
-        .corner-role { display: none !important; }
-        .corner-name { max-width: 68px !important; font-size: 0.68rem !important; }
-    }
-    @media (max-width: 760px) {
-        .header-app { display: none !important; }
-        .active-page-chip { font-size: 0.60rem !important; padding: 4px 7px !important; }
-        .corner-user-text { display: none !important; }
-        .nav-tab .stButton > button,
-        .nav-tab-active .stButton > button {
-            font-size: 0.58rem !important;
-            padding: 0 4px !important;
-        }
-        .dash-page {
-            padding: 10px 18px 20px 18px !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.stApp>header,header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{display:none !important;height:0 !important;min-height:0 !important;visibility:hidden !important;}[data-testid="stAppViewContainer"]>.main,.main{padding-top:0 !important;margin-top:0 !important;}.main .block-container,[data-testid="stAppViewContainer"] .main .block-container{padding-top:0 !important;padding-left:0 !important;padding-right:0 !important;margin-top:0 !important;max-width:100% !important;}div[data-testid="stVerticalBlock"]{gap:0.25rem !important;}.topbar-shell{display:none !important;height:0 !important;min-height:0 !important;padding:0 !important;margin:0 !important;}.pro-header{width:100vw !important;margin:0 !important;padding:8px 2.4vw 7px 2.4vw !important;background:rgba(255,255,255,0.92) !important;border-bottom:1px solid rgba(2,62,138,0.10) !important;box-shadow:0 8px 26px rgba(3,4,94,0.08) !important;backdrop-filter:blur(18px) !important;-webkit-backdrop-filter:blur(18px) !important;position:sticky !important;top:0 !important;z-index:999999 !important;}.header-title-wrap{line-height:1.05;}.header-app{color:#03045e !important;font-size:1.05rem !important;font-weight:900 !important;letter-spacing:-0.3px !important;white-space:nowrap !important;}.active-page-chip{display:inline-flex !important;align-items:center !important;gap:5px !important;margin-top:4px !important;padding:4px 10px !important;border-radius:999px !important;background:linear-gradient(135deg,#0077b6,#00b4d8) !important;color:#ffffff !important;font-size:0.68rem !important;font-weight:900 !important;box-shadow:0 6px 16px rgba(0,119,182,0.18) !important;}.header-sub{color:#46617f !important;font-size:0.64rem !important;font-weight:700 !important;margin-top:3px !important;white-space:nowrap !important;}.back-top-btn .stButton>button{width:40px !important;min-width:40px !important;height:40px !important;padding:0 !important;border-radius:14px !important;background:#ffffff !important;color:#023e8a !important;border:1px solid rgba(2,62,138,0.16) !important;box-shadow:0 6px 14px rgba(3,4,94,0.08) !important;font-size:1.15rem !important;font-weight:900 !important;}.back-top-btn .stButton>button:hover{background:#eaf6ff !important;color:#0077b6 !important;transform:translateX(-2px) !important;}.nav-tab .stButton>button,.nav-tab-active .stButton>button{height:38px !important;min-height:38px !important;padding:0 10px !important;border-radius:999px !important;font-size:0.74rem !important;font-weight:900 !important;box-shadow:none !important;border:1px solid rgba(0,119,182,0.13) !important;white-space:nowrap !important;transform:none !important;}.nav-tab .stButton>button{background:rgba(255,255,255,0.56) !important;color:#1f3266 !important;}.nav-tab-active .stButton>button,.nav-tab .stButton>button:hover{background:linear-gradient(135deg,#0077b6,#00b4d8) !important;color:#ffffff !important;border-color:transparent !important;}.corner-user{display:flex !important;align-items:center !important;justify-content:flex-end !important;gap:8px !important;min-width:0 !important;}.corner-avatar{width:40px !important;height:40px !important;border-radius:50% !important;display:flex !important;align-items:center !important;justify-content:center !important;overflow:hidden !important;background:linear-gradient(135deg,#0077b6,#90e0ef) !important;color:#ffffff !important;font-size:1.15rem !important;box-shadow:0 7px 16px rgba(0,119,182,0.18) !important;flex-shrink:0 !important;}.corner-name{color:#03045e !important;font-size:0.78rem !important;font-weight:900 !important;line-height:1.1 !important;max-width:100px !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;text-align:left !important;}.corner-role{color:#0077b6 !important;font-size:0.60rem !important;font-weight:800 !important;margin-top:2px !important;white-space:nowrap !important;}.circle-tool-btn .stButton>button{width:38px !important;min-width:38px !important;height:38px !important;padding:0 !important;border-radius:50% !important;background:#eaf6ff !important;color:#0066d9 !important;border:1px solid rgba(0,119,182,0.10) !important;box-shadow:none !important;font-size:1rem !important;}.logout-small-btn .stButton>button{height:38px !important;min-height:38px !important;padding:0 12px !important;border-radius:999px !important;background:#03045e !important;color:#ffffff !important;border:0 !important;box-shadow:0 8px 18px rgba(3,4,94,0.16) !important;font-size:0.70rem !important;font-weight:900 !important;white-space:nowrap !important;}.dash-page{padding:14px 5.2vw 24px 5.2vw !important;min-height:auto !important;}.dash-title,.page-title{margin-top:0 !important;margin-bottom:4px !important;font-size:clamp(1.45rem,2.1vw,2.05rem) !important;line-height:1.08 !important;}.dash-subtitle,.subtext{margin-top:0 !important;margin-bottom:14px !important;font-size:0.88rem !important;}.metric-card{min-height:105px !important;padding:12px 10px !important;border-radius:18px !important;}.metric-value{font-size:1.85rem !important;}.metric-label{font-size:0.70rem !important;margin-top:8px !important;}.metric-accent{margin-top:9px !important;height:3px !important;}.chart-glass{margin-top:12px !important;padding:10px 14px 4px 14px !important;border-radius:18px !important;}@media (max-width:1050px){.header-sub{display:none !important;}.header-app{font-size:0.90rem !important;}.nav-tab .stButton>button,.nav-tab-active .stButton>button{font-size:0.64rem !important;padding:0 5px !important;}.corner-role{display:none !important;}.corner-name{max-width:68px !important;font-size:0.68rem !important;}}@media (max-width:760px){.header-app{display:none !important;}.active-page-chip{font-size:0.60rem !important;padding:4px 7px !important;}.corner-user-text{display:none !important;}.nav-tab .stButton>button,.nav-tab-active .stButton>button{font-size:0.58rem !important;padding:0 4px !important;}.dash-page{padding:10px 18px 20px 18px !important;}}</style>""", unsafe_allow_html=True)
 apply_professional_header_fix()
-
-
 def apply_final_no_gap_header_fix():
-    st.markdown("""
-    <style>
-    /* ===== FINAL LAYOUT FIX: remove top gap, remove left/right gap, improve title spacing ===== */
-    .stApp > header,
-    header[data-testid="stHeader"],
-    [data-testid="stToolbar"],
-    [data-testid="stDecoration"] {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        visibility: hidden !important;
-    }
-
-    html, body, .stApp,
-    [data-testid="stAppViewContainer"],
-    [data-testid="stAppViewContainer"] > .main,
-    .main {
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow-x: hidden !important;
-    }
-
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container,
-    [data-testid="stMainBlockContainer"],
-    [data-testid="stAppViewBlockContainer"] {
-        padding-top: 0 !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-        margin-top: 0 !important;
-        max-width: 100% !important;
-    }
-
-    /* Remove hidden/empty custom header space */
-    .topbar-shell,
-    .pro-header {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        border: 0 !important;
-        box-shadow: none !important;
-        background: transparent !important;
-    }
-
-    /* Tight Streamlit row spacing */
-    div[data-testid="stVerticalBlock"] {
-        gap: 0.08rem !important;
-    }
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0.55rem !important;
-        align-items: center !important;
-    }
-
-    /* Pull the first header row to the very top */
-    .element-container:empty {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .back-top-btn,
-    .nav-tab,
-    .nav-tab-active,
-    .circle-tool-btn,
-    .logout-small-btn,
-    .header-title-wrap,
-    .corner-user {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .header-title-wrap {
-        line-height: 1.05 !important;
-    }
-
-    .back-top-btn .stButton > button {
-        width: 38px !important;
-        min-width: 38px !important;
-        height: 38px !important;
-        border-radius: 12px !important;
-        margin: 0 !important;
-    }
-
-    .nav-tab .stButton > button,
-    .nav-tab-active .stButton > button {
-        height: 36px !important;
-        min-height: 36px !important;
-        padding: 0 10px !important;
-        font-size: 0.76rem !important;
-        margin: 0 !important;
-    }
-
-    .circle-tool-btn .stButton > button {
-        width: 36px !important;
-        min-width: 36px !important;
-        height: 36px !important;
-        margin: 0 !important;
-    }
-
-    .logout-small-btn .stButton > button {
-        height: 36px !important;
-        min-height: 36px !important;
-        padding: 0 12px !important;
-        margin: 0 !important;
-    }
-
-    .corner-avatar {
-        width: 36px !important;
-        height: 36px !important;
-    }
-
-    /* Main page spacing: less top gap and less left/right gap */
-    .dash-page {
-        padding: 4px 1.35vw 20px 1.35vw !important;
-        margin: 0 !important;
-        min-height: auto !important;
-    }
-
-    /* Bigger welcome/page title */
-    .dash-title,
-    .page-title {
-        margin-top: 0 !important;
-        margin-bottom: 8px !important;
-        font-size: clamp(1.95rem, 3vw, 2.75rem) !important;
-        line-height: 1.08 !important;
-        font-weight: 900 !important;
-    }
-
-    /* Add clear spacing under Welcome title text */
-    .dash-subtitle,
-    .subtext {
-        display: block !important;
-        margin-top: 8px !important;
-        margin-bottom: 16px !important;
-        line-height: 1.45 !important;
-        font-size: 0.95rem !important;
-        font-weight: 800 !important;
-    }
-
-    .metric-card {
-        min-height: 100px !important;
-        padding: 10px 8px !important;
-    }
-
-    .chart-glass {
-        margin-top: 8px !important;
-    }
-
-    @media (max-width: 1050px) {
-        .nav-tab .stButton > button,
-        .nav-tab-active .stButton > button {
-            font-size: 0.64rem !important;
-            padding: 0 5px !important;
-        }
-        .corner-name {
-            max-width: 62px !important;
-        }
-        .dash-page {
-            padding-left: 12px !important;
-            padding-right: 12px !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.stApp>header,header[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stDecoration"]{display:none !important;height:0 !important;min-height:0 !important;visibility:hidden !important;}html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stAppViewContainer"]>.main,.main{margin:0 !important;padding:0 !important;overflow-x:hidden !important;}.main .block-container,[data-testid="stAppViewContainer"] .main .block-container,[data-testid="stMainBlockContainer"],[data-testid="stAppViewBlockContainer"]{padding-top:0 !important;padding-left:0 !important;padding-right:0 !important;margin-top:0 !important;max-width:100% !important;}.topbar-shell,.pro-header{display:none !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;border:0 !important;box-shadow:none !important;background:transparent !important;}div[data-testid="stVerticalBlock"]{gap:0.08rem !important;}div[data-testid="stHorizontalBlock"]{gap:0.55rem !important;align-items:center !important;}.element-container:empty{display:none !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;}.back-top-btn,.nav-tab,.nav-tab-active,.circle-tool-btn,.logout-small-btn,.header-title-wrap,.corner-user{margin:0 !important;padding:0 !important;}.header-title-wrap{line-height:1.05 !important;}.back-top-btn .stButton>button{width:38px !important;min-width:38px !important;height:38px !important;border-radius:12px !important;margin:0 !important;}.nav-tab .stButton>button,.nav-tab-active .stButton>button{height:36px !important;min-height:36px !important;padding:0 10px !important;font-size:0.76rem !important;margin:0 !important;}.circle-tool-btn .stButton>button{width:36px !important;min-width:36px !important;height:36px !important;margin:0 !important;}.logout-small-btn .stButton>button{height:36px !important;min-height:36px !important;padding:0 12px !important;margin:0 !important;}.corner-avatar{width:36px !important;height:36px !important;}.dash-page{padding:4px 1.35vw 20px 1.35vw !important;margin:0 !important;min-height:auto !important;}.dash-title,.page-title{margin-top:0 !important;margin-bottom:8px !important;font-size:clamp(1.95rem,3vw,2.75rem) !important;line-height:1.08 !important;font-weight:900 !important;}.dash-subtitle,.subtext{display:block !important;margin-top:8px !important;margin-bottom:16px !important;line-height:1.45 !important;font-size:0.95rem !important;font-weight:800 !important;}.metric-card{min-height:100px !important;padding:10px 8px !important;}.chart-glass{margin-top:8px !important;}@media (max-width:1050px){.nav-tab .stButton>button,.nav-tab-active .stButton>button{font-size:0.64rem !important;padding:0 5px !important;}.corner-name{max-width:62px !important;}.dash-page{padding-left:12px !important;padding-right:12px !important;}}</style>""", unsafe_allow_html=True)
 apply_final_no_gap_header_fix()
-
-# =====================================================
-# FINAL USER REQUEST FIX — professional side gap, bigger titles,
-# visible upload text in dark mode, larger profile picture
-# =====================================================
 def apply_profile_margin_title_fix():
-    st.markdown("""
-    <style>
-    /* Small professional side spacing for full app content/header */
-    .main .block-container,
-    [data-testid="stAppViewContainer"] .main .block-container,
-    [data-testid="stMainBlockContainer"],
-    [data-testid="stAppViewBlockContainer"] {
-        padding-left: 18px !important;
-        padding-right: 18px !important;
-        padding-top: 0 !important;
-        max-width: 100% !important;
-    }
-
-    /* Keep page content clean with balanced left/right gap */
-    .dash-page {
-        padding: 8px 3.4vw 24px 3.4vw !important;
-        margin: 0 !important;
-        min-height: auto !important;
-    }
-
-    /* Bigger main title inside every page */
-    .dash-title,
-    .page-title {
-        font-size: clamp(2.35rem, 4.2vw, 3.65rem) !important;
-        line-height: 1.04 !important;
-        font-weight: 900 !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-        letter-spacing: -1px !important;
-    }
-
-    /* Subtitle: smaller than title and placed slightly lower */
-    .dash-subtitle,
-    .subtext {
-        display: block !important;
-        font-size: clamp(0.95rem, 1.25vw, 1.12rem) !important;
-        line-height: 1.55 !important;
-        font-weight: 800 !important;
-        margin-top: 12px !important;
-        margin-bottom: 18px !important;
-    }
-
-    /* Larger profile picture */
-    .avatar-circle {
-        width: 118px !important;
-        height: 118px !important;
-        font-size: 2.65rem !important;
-        border-width: 4px !important;
-    }
-
-    /* File uploader text visible in dark mode */
-    [data-testid="stFileUploader"] label,
-    [data-testid="stFileUploader"] label p,
-    [data-testid="stFileUploader"] section,
-    [data-testid="stFileUploader"] section div,
-    [data-testid="stFileUploader"] small,
-    [data-testid="stFileUploader"] span,
-    [data-testid="stFileUploaderDropzone"] div,
-    [data-testid="stFileUploaderDropzone"] small,
-    [data-testid="stFileUploaderDropzone"] span {
-        color: #eaf4ff !important;
-        opacity: 1 !important;
-        font-weight: 800 !important;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.55) !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] {
-        background: rgba(255,255,255,0.12) !important;
-        border: 1.5px solid rgba(144,224,239,0.40) !important;
-        border-radius: 14px !important;
-    }
-
-    [data-testid="stFileUploaderDropzone"] button {
-        color: #03045e !important;
-        background: rgba(255,255,255,0.95) !important;
-        border: 1px solid rgba(144,224,239,0.45) !important;
-        font-weight: 900 !important;
-    }
-
-    @media (max-width: 760px) {
-        .main .block-container,
-        [data-testid="stAppViewContainer"] .main .block-container,
-        [data-testid="stMainBlockContainer"],
-        [data-testid="stAppViewBlockContainer"] {
-            padding-left: 10px !important;
-            padding-right: 10px !important;
-        }
-        .dash-page {
-            padding: 8px 14px 22px 14px !important;
-        }
-        .page-title,
-        .dash-title {
-            font-size: 2.15rem !important;
-        }
-        .avatar-circle {
-            width: 104px !important;
-            height: 104px !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.main .block-container,[data-testid="stAppViewContainer"] .main .block-container,[data-testid="stMainBlockContainer"],[data-testid="stAppViewBlockContainer"]{padding-left:18px !important;padding-right:18px !important;padding-top:0 !important;max-width:100% !important;}.dash-page{padding:8px 3.4vw 24px 3.4vw !important;margin:0 !important;min-height:auto !important;}.dash-title,.page-title{font-size:clamp(2.35rem,4.2vw,3.65rem) !important;line-height:1.04 !important;font-weight:900 !important;margin-top:0 !important;margin-bottom:0 !important;letter-spacing:-1px !important;}.dash-subtitle,.subtext{display:block !important;font-size:clamp(0.95rem,1.25vw,1.12rem) !important;line-height:1.55 !important;font-weight:800 !important;margin-top:12px !important;margin-bottom:18px !important;}.avatar-circle{width:118px !important;height:118px !important;font-size:2.65rem !important;border-width:4px !important;}[data-testid="stFileUploader"] label,[data-testid="stFileUploader"] label p,[data-testid="stFileUploader"] section,[data-testid="stFileUploader"] section div,[data-testid="stFileUploader"] small,[data-testid="stFileUploader"] span,[data-testid="stFileUploaderDropzone"] div,[data-testid="stFileUploaderDropzone"] small,[data-testid="stFileUploaderDropzone"] span{color:#eaf4ff !important;opacity:1 !important;font-weight:800 !important;text-shadow:0 2px 10px rgba(0,0,0,0.55) !important;}[data-testid="stFileUploaderDropzone"]{background:rgba(255,255,255,0.12) !important;border:1.5px solid rgba(144,224,239,0.40) !important;border-radius:14px !important;}[data-testid="stFileUploaderDropzone"] button{color:#03045e !important;background:rgba(255,255,255,0.95) !important;border:1px solid rgba(144,224,239,0.45) !important;font-weight:900 !important;}@media (max-width:760px){.main .block-container,[data-testid="stAppViewContainer"] .main .block-container,[data-testid="stMainBlockContainer"],[data-testid="stAppViewBlockContainer"]{padding-left:10px !important;padding-right:10px !important;}.dash-page{padding:8px 14px 22px 14px !important;}.page-title,.dash-title{font-size:2.15rem !important;}.avatar-circle{width:104px !important;height:104px !important;}}</style>""", unsafe_allow_html=True)
 apply_profile_margin_title_fix()
-
-# =====================================================
-# FINAL HEADER TITLE + ACTIVE PAGE HIGHLIGHT FIX
-# =====================================================
 def apply_header_title_active_fix():
-    st.markdown("""
-    <style>
-    /* FINAL HEADER UPDATE: brand title large, no separate active chip, active page highlighted in top menu */
-    .header-title-wrap {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        justify-content: center !important;
-        gap: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-
-    .header-app {
-        color: #03045e !important;
-        font-size: clamp(1.55rem, 2.35vw, 2.35rem) !important;
-        font-weight: 900 !important;
-        line-height: 1 !important;
-        letter-spacing: -0.8px !important;
-        white-space: nowrap !important;
-        text-shadow: 0 2px 12px rgba(255,255,255,0.55) !important;
-    }
-
-    /* Hide old page text/chip under ScoreWise AI */
-    .header-sub,
-    .active-page-chip {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-
-    /* Welcome title made smaller and cleaner */
-    .dash-title,
-    .page-title {
-        font-size: clamp(1.45rem, 2.65vw, 2.35rem) !important;
-        line-height: 1.06 !important;
-        font-weight: 900 !important;
-        letter-spacing: -0.6px !important;
-        margin-top: 0 !important;
-        margin-bottom: 0 !important;
-    }
-
-    .dash-subtitle,
-    .subtext {
-        margin-top: 10px !important;
-        margin-bottom: 16px !important;
-        font-size: clamp(0.88rem, 1.04vw, 0.98rem) !important;
-        line-height: 1.45 !important;
-    }
-
-    /* Active page highlight directly on the top menu button */
-    .nav-tab-active .stButton > button {
-        position: relative !important;
-        background: linear-gradient(135deg,#023e8a,#0077b6,#00b4d8) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255,255,255,0.44) !important;
-        box-shadow: 0 12px 26px rgba(0,119,182,0.28) !important;
-        transform: translateY(-1px) !important;
-    }
-
-    .nav-tab-active .stButton > button::after {
-        content: "" !important;
-        position: absolute !important;
-        left: 22% !important;
-        right: 22% !important;
-        bottom: -7px !important;
-        height: 4px !important;
-        border-radius: 999px !important;
-        background: linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;
-        box-shadow: 0 5px 12px rgba(0,119,182,0.30) !important;
-    }
-
-    .nav-tab .stButton > button:hover {
-        background: rgba(255,255,255,0.74) !important;
-        color: #0077b6 !important;
-        border-color: rgba(0,119,182,0.24) !important;
-    }
-
-    @media (max-width: 1050px) {
-        .header-app { font-size: 1.25rem !important; }
-        .dash-title,
-        .page-title { font-size: 1.95rem !important; }
-    }
-
-    @media (max-width: 760px) {
-        .header-app {
-            display: block !important;
-            font-size: 1.05rem !important;
-        }
-        .dash-title,
-        .page-title { font-size: 1.65rem !important; }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.header-title-wrap{display:flex !important;flex-direction:column !important;align-items:flex-start !important;justify-content:center !important;gap:0 !important;padding:0 !important;margin:0 !important;}.header-app{color:#03045e !important;font-size:clamp(1.55rem,2.35vw,2.35rem) !important;font-weight:900 !important;line-height:1 !important;letter-spacing:-0.8px !important;white-space:nowrap !important;text-shadow:0 2px 12px rgba(255,255,255,0.55) !important;}.header-sub,.active-page-chip{display:none !important;height:0 !important;min-height:0 !important;margin:0 !important;padding:0 !important;opacity:0 !important;visibility:hidden !important;}.dash-title,.page-title{font-size:clamp(1.45rem,2.65vw,2.35rem) !important;line-height:1.06 !important;font-weight:900 !important;letter-spacing:-0.6px !important;margin-top:0 !important;margin-bottom:0 !important;}.dash-subtitle,.subtext{margin-top:10px !important;margin-bottom:16px !important;font-size:clamp(0.88rem,1.04vw,0.98rem) !important;line-height:1.45 !important;}.nav-tab-active .stButton>button{position:relative !important;background:linear-gradient(135deg,#023e8a,#0077b6,#00b4d8) !important;color:#ffffff !important;border:1px solid rgba(255,255,255,0.44) !important;box-shadow:0 12px 26px rgba(0,119,182,0.28) !important;transform:translateY(-1px) !important;}.nav-tab-active .stButton>button::after{content:"" !important;position:absolute !important;left:22% !important;right:22% !important;bottom:-7px !important;height:4px !important;border-radius:999px !important;background:linear-gradient(90deg,#03045e,#0077b6,#00b4d8) !important;box-shadow:0 5px 12px rgba(0,119,182,0.30) !important;}.nav-tab .stButton>button:hover{background:rgba(255,255,255,0.74) !important;color:#0077b6 !important;border-color:rgba(0,119,182,0.24) !important;}@media (max-width:1050px){.header-app{font-size:1.25rem !important;}.dash-title,.page-title{font-size:1.95rem !important;}}@media (max-width:760px){.header-app{display:block !important;font-size:1.05rem !important;}.dash-title,.page-title{font-size:1.65rem !important;}}</style>""", unsafe_allow_html=True)
 apply_header_title_active_fix()
-
-
-# =====================================================
-# FINAL BACK ARROW DESIGN FIX — match compact dark rectangle style
-# =====================================================
 def apply_back_arrow_second_design_fix():
-    st.markdown("""
-    <style>
-    .back-top-btn .stButton > button {
-        width: 96px !important;
-        min-width: 96px !important;
-        max-width: 96px !important;
-        height: 54px !important;
-        min-height: 54px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border-radius: 9px !important;
-        background: rgba(80, 92, 132, 0.82) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255,255,255,0.10) !important;
-        box-shadow: none !important;
-        font-size: 1.18rem !important;
-        font-weight: 900 !important;
-        line-height: 1 !important;
-        transform: none !important;
-    }
-
-    .back-top-btn .stButton > button:hover {
-        background: rgba(88, 102, 146, 0.95) !important;
-        color: #ffffff !important;
-        border-color: rgba(255,255,255,0.18) !important;
-        box-shadow: none !important;
-        transform: none !important;
-    }
-
-    .back-top-btn .stButton > button:active {
-        background: rgba(65, 76, 112, 0.98) !important;
-        color: #ffffff !important;
-        transform: scale(0.98) !important;
-    }
-
-    @media (max-width: 760px) {
-        .back-top-btn .stButton > button {
-            width: 76px !important;
-            min-width: 76px !important;
-            max-width: 76px !important;
-            height: 46px !important;
-            min-height: 46px !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.back-top-btn .stButton>button{width:96px !important;min-width:96px !important;max-width:96px !important;height:54px !important;min-height:54px !important;padding:0 !important;margin:0 !important;border-radius:9px !important;background:rgba(80,92,132,0.82) !important;color:#ffffff !important;border:1px solid rgba(255,255,255,0.10) !important;box-shadow:none !important;font-size:1.18rem !important;font-weight:900 !important;line-height:1 !important;transform:none !important;}.back-top-btn .stButton>button:hover{background:rgba(88,102,146,0.95) !important;color:#ffffff !important;border-color:rgba(255,255,255,0.18) !important;box-shadow:none !important;transform:none !important;}.back-top-btn .stButton>button:active{background:rgba(65,76,112,0.98) !important;color:#ffffff !important;transform:scale(0.98) !important;}@media (max-width:760px){.back-top-btn .stButton>button{width:76px !important;min-width:76px !important;max-width:76px !important;height:46px !important;min-height:46px !important;}}</style>""", unsafe_allow_html=True)
 apply_back_arrow_second_design_fix()
-
-
-# =====================================================
-# FINAL WELCOME TEXT STYLE FIX — smaller welcome title + styled subtitle
-# =====================================================
 def apply_final_welcome_text_style_fix():
-    st.markdown("""
-    <style>
-    /* Welcome heading: smaller than ScoreWise AI title, cleaner premium style */
-    .dash-title,
-    .page-title {
-        font-family: "Trebuchet MS", "Plus Jakarta Sans", sans-serif !important;
-        font-size: clamp(1.18rem, 2.05vw, 1.82rem) !important;
-        line-height: 1.12 !important;
-        font-weight: 900 !important;
-        letter-spacing: -0.35px !important;
-        margin-top: 4px !important;
-        margin-bottom: 0 !important;
-        color: #03045e !important;
-        text-shadow: 0 3px 14px rgba(255,255,255,0.56) !important;
-    }
-
-    /* Subtitle under Welcome: different text style, clear spacing, professional look */
-    .dash-subtitle,
-    .subtext {
-        font-family: "Segoe UI", "Plus Jakarta Sans", sans-serif !important;
-        display: block !important;
-        max-width: 760px !important;
-        margin-top: 14px !important;
-        margin-bottom: 18px !important;
-        font-size: clamp(0.82rem, 0.95vw, 0.94rem) !important;
-        line-height: 1.65 !important;
-        font-weight: 700 !important;
-        letter-spacing: 0.15px !important;
-        color: #1f3266 !important;
-        text-shadow: 0 2px 10px rgba(255,255,255,0.45) !important;
-    }
-
-    /* Keep ScoreWise AI brand bigger than Welcome */
-    .header-app {
-        font-size: clamp(1.65rem, 2.55vw, 2.45rem) !important;
-        font-weight: 900 !important;
-        letter-spacing: -0.75px !important;
-    }
-
-    @media (max-width: 1050px) {
-        .dash-title,
-        .page-title {
-            font-size: 1.55rem !important;
-        }
-        .dash-subtitle,
-        .subtext {
-            font-size: 0.84rem !important;
-            margin-top: 12px !important;
-        }
-    }
-
-    @media (max-width: 760px) {
-        .dash-title,
-        .page-title {
-            font-size: 1.35rem !important;
-        }
-        .dash-subtitle,
-        .subtext {
-            font-size: 0.78rem !important;
-            line-height: 1.55 !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.dash-title,.page-title{font-family:"Trebuchet MS","Plus Jakarta Sans",sans-serif !important;font-size:clamp(1.18rem,2.05vw,1.82rem) !important;line-height:1.12 !important;font-weight:900 !important;letter-spacing:-0.35px !important;margin-top:4px !important;margin-bottom:0 !important;color:#03045e !important;text-shadow:0 3px 14px rgba(255,255,255,0.56) !important;}.dash-subtitle,.subtext{font-family:"Segoe UI","Plus Jakarta Sans",sans-serif !important;display:block !important;max-width:760px !important;margin-top:14px !important;margin-bottom:18px !important;font-size:clamp(0.82rem,0.95vw,0.94rem) !important;line-height:1.65 !important;font-weight:700 !important;letter-spacing:0.15px !important;color:#1f3266 !important;text-shadow:0 2px 10px rgba(255,255,255,0.45) !important;}.header-app{font-size:clamp(1.65rem,2.55vw,2.45rem) !important;font-weight:900 !important;letter-spacing:-0.75px !important;}@media (max-width:1050px){.dash-title,.page-title{font-size:1.55rem !important;}.dash-subtitle,.subtext{font-size:0.84rem !important;margin-top:12px !important;}}@media (max-width:760px){.dash-title,.page-title{font-size:1.35rem !important;}.dash-subtitle,.subtext{font-size:0.78rem !important;line-height:1.55 !important;}}</style>""", unsafe_allow_html=True)
 apply_final_welcome_text_style_fix()
-
-# =====================================================
-# FINAL DARK MODE WELCOME TEXT VISIBILITY FIX
-# =====================================================
 def apply_home_welcome_dark_visibility_fix():
     dark = st.session_state.theme == "dark"
     title_color = "#f4fbff" if dark else "#03045e"
     subtitle_color = "#dff4ff" if dark else "#1f3266"
     title_shadow = "0 3px 16px rgba(0,0,0,0.72)" if dark else "0 3px 14px rgba(255,255,255,0.56)"
     subtitle_shadow = "0 2px 12px rgba(0,0,0,0.70)" if dark else "0 2px 10px rgba(255,255,255,0.45)"
-
-    st.markdown(f"""
-    <style>
-    /* Home welcome text visibility fix for dark/light mode */
-    .dash-page > .dash-title {{
-        color: {title_color} !important;
-        text-shadow: {title_shadow} !important;
-    }}
-
-    .dash-page > .dash-subtitle {{
-        color: {subtitle_color} !important;
-        text-shadow: {subtitle_shadow} !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<style>.dash-page>.dash-title{{color:{title_color}!important;text-shadow:{title_shadow}!important;}}.dash-page>.dash-subtitle{{color:{subtitle_color}!important;text-shadow:{subtitle_shadow}!important;}}</style>""", unsafe_allow_html=True)
 apply_home_welcome_dark_visibility_fix()
-
-
-# =====================================================
-# FINAL ACTIVE NAV COLOR FIX — active page shown by button color only
-# =====================================================
 def apply_active_nav_color_fix():
-    st.markdown("""
-    <style>
-    /* Inactive top navigation buttons: clean glass look */
-    .nav-tab .stButton > button {
-        background: rgba(255,255,255,0.62) !important;
-        color: #023e8a !important;
-        border: 1px solid rgba(0,119,182,0.18) !important;
-        box-shadow: 0 6px 16px rgba(3,4,94,0.08) !important;
-        transform: none !important;
-    }
-
-    .nav-tab .stButton > button:hover {
-        background: rgba(234,246,255,0.92) !important;
-        color: #004aad !important;
-        border-color: rgba(0,119,182,0.32) !important;
-        box-shadow: 0 8px 18px rgba(0,119,182,0.14) !important;
-        transform: translateY(-1px) !important;
-    }
-
-    /* Active page highlight: changed color so current page is clearly visible */
-    .nav-tab-active .stButton > button {
-        position: relative !important;
-        background: linear-gradient(135deg,#ff8a00,#ffb703,#ffd166) !important;
-        color: #03045e !important;
-        border: 1px solid rgba(255,255,255,0.70) !important;
-        box-shadow: 0 12px 28px rgba(255,183,3,0.34) !important;
-        transform: translateY(-1px) !important;
-        font-weight: 900 !important;
-    }
-
-    /* Remove old blue underline from active button and use soft glow only */
-    .nav-tab-active .stButton > button::after {
-        content: "" !important;
-        position: absolute !important;
-        left: 26% !important;
-        right: 26% !important;
-        bottom: -6px !important;
-        height: 4px !important;
-        border-radius: 999px !important;
-        background: linear-gradient(90deg,#ff8a00,#ffb703,#ffd166) !important;
-        box-shadow: 0 6px 14px rgba(255,183,3,0.36) !important;
-    }
-
-    .nav-tab-active .stButton > button:hover {
-        background: linear-gradient(135deg,#ff9f1c,#ffb703,#ffe08a) !important;
-        color: #03045e !important;
-        transform: translateY(-1px) !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.nav-tab .stButton>button{background:rgba(255,255,255,0.62) !important;color:#023e8a !important;border:1px solid rgba(0,119,182,0.18) !important;box-shadow:0 6px 16px rgba(3,4,94,0.08) !important;transform:none !important;}.nav-tab .stButton>button:hover{background:rgba(234,246,255,0.92) !important;color:#004aad !important;border-color:rgba(0,119,182,0.32) !important;box-shadow:0 8px 18px rgba(0,119,182,0.14) !important;transform:translateY(-1px) !important;}.nav-tab-active .stButton>button{position:relative !important;background:linear-gradient(135deg,#ff8a00,#ffb703,#ffd166) !important;color:#03045e !important;border:1px solid rgba(255,255,255,0.70) !important;box-shadow:0 12px 28px rgba(255,183,3,0.34) !important;transform:translateY(-1px) !important;font-weight:900 !important;}.nav-tab-active .stButton>button::after{content:"" !important;position:absolute !important;left:26% !important;right:26% !important;bottom:-6px !important;height:4px !important;border-radius:999px !important;background:linear-gradient(90deg,#ff8a00,#ffb703,#ffd166) !important;box-shadow:0 6px 14px rgba(255,183,3,0.36) !important;}.nav-tab-active .stButton>button:hover{background:linear-gradient(135deg,#ff9f1c,#ffb703,#ffe08a) !important;color:#03045e !important;transform:translateY(-1px) !important;}</style>""", unsafe_allow_html=True)
 apply_active_nav_color_fix()
-
-# =====================================================
-# FINAL AUTH DARK MODE VISIBILITY FIX — Login / OTP Signup text
-# =====================================================
 def apply_auth_dark_text_visibility_fix():
     dark = st.session_state.theme == "dark"
     tab_text = "#eaf4ff" if dark else "#03045e"
     tab_muted = "#b8e0f7" if dark else "#023e8a"
     active_tab = "#ffffff" if dark else "#0077b6"
     underline = "#90e0ef" if dark else "#0077b6"
-    st.markdown(f"""
-    <style>
-    /* Make Login and Sign Up tabs visible in dark mode */
-    [data-baseweb="tab-list"] {{
-        border-bottom: 1px solid rgba(144,224,239,0.38) !important;
-    }}
-
-    [data-baseweb="tab"],
-    [data-baseweb="tab"] *,
-    [data-baseweb="tab"] p,
-    [data-baseweb="tab"] span {{
-        color: {tab_text} !important;
-        opacity: 1 !important;
-        font-weight: 900 !important;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.45) !important;
-    }}
-
-    [data-baseweb="tab"]:hover,
-    [data-baseweb="tab"]:hover *,
-    [data-baseweb="tab"][aria-selected="true"],
-    [data-baseweb="tab"][aria-selected="true"] *,
-    [aria-selected="true"][data-baseweb="tab"] {{
-        color: {active_tab} !important;
-        opacity: 1 !important;
-    }}
-
-    [aria-selected="true"][data-baseweb="tab"] {{
-        border-bottom: 3px solid {underline} !important;
-    }}
-
-    /* Make subtitle below title readable in dark mode */
-    h2 + .subtext,
-    p.subtext {{
-        color: {tab_muted} !important;
-        opacity: 1 !important;
-        text-shadow: 0 2px 12px rgba(0,0,0,0.45) !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<style>[data-baseweb="tab-list"]{{border-bottom:1px solid rgba(144,224,239,0.38) !important;}}[data-baseweb="tab"],[data-baseweb="tab"] *,[data-baseweb="tab"] p,[data-baseweb="tab"] span{{color:{tab_text}!important;opacity:1 !important;font-weight:900 !important;text-shadow:0 2px 10px rgba(0,0,0,0.45) !important;}}[data-baseweb="tab"]:hover,[data-baseweb="tab"]:hover *,[data-baseweb="tab"][aria-selected="true"],[data-baseweb="tab"][aria-selected="true"] *,[aria-selected="true"][data-baseweb="tab"]{{color:{active_tab}!important;opacity:1 !important;}}[aria-selected="true"][data-baseweb="tab"]{{border-bottom:3px solid{underline}!important;}}h2 + .subtext,p.subtext{{color:{tab_muted}!important;opacity:1 !important;text-shadow:0 2px 12px rgba(0,0,0,0.45) !important;}}</style>""", unsafe_allow_html=True)
 apply_auth_dark_text_visibility_fix()
-
-# =====================================================
-# FINAL MODE BUTTON GLASSY BOX FIX — frosted transparent look
-# =====================================================
 def apply_mode_button_glassy_box_fix():
-    st.markdown("""
-    <style>
-    /* Mode change box/button: glassy transparent look with blur */
-    .auth-theme-btn,
-    .theme-top-btn,
-    .circle-tool-btn {
-        border-radius: 999px !important;
-        background: rgba(255, 255, 255, 0.10) !important;
-        border: 1px solid rgba(255, 255, 255, 0.26) !important;
-        box-shadow: 0 12px 32px rgba(3, 4, 94, 0.18) !important;
-        backdrop-filter: blur(22px) saturate(175%) !important;
-        -webkit-backdrop-filter: blur(22px) saturate(175%) !important;
-    }
-
-    .auth-theme-btn .stButton,
-    .theme-top-btn .stButton,
-    .circle-tool-btn .stButton {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .auth-theme-btn .stButton > button,
-    .theme-top-btn .stButton > button,
-    .circle-tool-btn .stButton > button {
-        background: linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.08)) !important;
-        background-color: rgba(255, 255, 255, 0.14) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.36) !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.38), 0 10px 28px rgba(0, 119, 182, 0.18) !important;
-        backdrop-filter: blur(24px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.42) !important;
-        transition: all 0.22s ease !important;
-    }
-
-    .auth-theme-btn .stButton > button:hover,
-    .theme-top-btn .stButton > button:hover,
-    .circle-tool-btn .stButton > button:hover {
-        background: linear-gradient(135deg, rgba(0,180,216,0.38), rgba(255,255,255,0.16)) !important;
-        color: #ffffff !important;
-        border-color: rgba(255,255,255,0.58) !important;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.48), 0 16px 36px rgba(0,119,182,0.30) !important;
-        transform: translateY(-1px) scale(1.04) !important;
-    }
-
-    .auth-theme-btn .stButton > button:focus,
-    .theme-top-btn .stButton > button:focus,
-    .circle-tool-btn .stButton > button:focus {
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(144,224,239,0.32), inset 0 1px 0 rgba(255,255,255,0.42) !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.auth-theme-btn,.theme-top-btn,.circle-tool-btn{border-radius:999px !important;background:rgba(255,255,255,0.10) !important;border:1px solid rgba(255,255,255,0.26) !important;box-shadow:0 12px 32px rgba(3,4,94,0.18) !important;backdrop-filter:blur(22px) saturate(175%) !important;-webkit-backdrop-filter:blur(22px) saturate(175%) !important;}.auth-theme-btn .stButton,.theme-top-btn .stButton,.circle-tool-btn .stButton{margin:0 !important;padding:0 !important;}.auth-theme-btn .stButton>button,.theme-top-btn .stButton>button,.circle-tool-btn .stButton>button{background:linear-gradient(135deg,rgba(255,255,255,0.30),rgba(255,255,255,0.08)) !important;background-color:rgba(255,255,255,0.14) !important;color:#ffffff !important;border:1px solid rgba(255,255,255,0.36) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.38),0 10px 28px rgba(0,119,182,0.18) !important;backdrop-filter:blur(24px) saturate(180%) !important;-webkit-backdrop-filter:blur(24px) saturate(180%) !important;text-shadow:0 2px 10px rgba(0,0,0,0.42) !important;transition:all 0.22s ease !important;}.auth-theme-btn .stButton>button:hover,.theme-top-btn .stButton>button:hover,.circle-tool-btn .stButton>button:hover{background:linear-gradient(135deg,rgba(0,180,216,0.38),rgba(255,255,255,0.16)) !important;color:#ffffff !important;border-color:rgba(255,255,255,0.58) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.48),0 16px 36px rgba(0,119,182,0.30) !important;transform:translateY(-1px) scale(1.04) !important;}.auth-theme-btn .stButton>button:focus,.theme-top-btn .stButton>button:focus,.circle-tool-btn .stButton>button:focus{outline:none !important;box-shadow:0 0 0 3px rgba(144,224,239,0.32),inset 0 1px 0 rgba(255,255,255,0.42) !important;}</style>""", unsafe_allow_html=True)
 apply_mode_button_glassy_box_fix()
-
-# =====================================================
-# PROFILE INFO CARD TOP BOX FIX
-# Yeh fix specifically profile page ke upar wale
-# khali box ko hatata hai
-# =====================================================
 def apply_profile_card_top_fix():
-    st.markdown("""
-    <style>
-    /* Remove the empty box/gap appearing above Username in profile card */
-    .profile-info-card {
-        padding-top: 0 !important;
-        margin-top: 0 !important;
-        overflow: hidden !important;
-    }
-
-    /* First profile field should start right from top with proper padding */
-    .profile-info-card .profile-field:first-child {
-        padding-top: 14px !important;
-        margin-top: 0 !important;
-    }
-
-    /* Remove any stray empty element inside the card that creates the box */
-    .profile-info-card > *:first-child:empty,
-    .profile-info-card > div:empty {
-        display: none !important;
-        height: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* Ensure col2 (right column on profile page) has no extra top margin */
-    .dash-page .stColumns > div:nth-child(2) {
-        margin-top: 0 !important;
-        padding-top: 0 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.profile-info-card{padding-top:0 !important;margin-top:0 !important;overflow:hidden !important;}.profile-info-card .profile-field:first-child{padding-top:14px !important;margin-top:0 !important;}.profile-info-card>*:first-child:empty,.profile-info-card>div:empty{display:none !important;height:0 !important;margin:0 !important;padding:0 !important;}.dash-page .stColumns>div:nth-child(2){margin-top:0 !important;padding-top:0 !important;}</style>""", unsafe_allow_html=True)
 apply_profile_card_top_fix()
-
-# =====================================================
-# FINAL BACK BUTTON VISIBILITY FIX — arrow visible in dark mode
-# Paste/keep this AFTER all other CSS fixes so it overrides previous styles
-# =====================================================
 def apply_back_button_arrow_visibility_fix():
     dark = st.session_state.theme == "dark"
-
-    # Dark mode: white glass button + dark arrow (clearly visible)
-    # Light mode: same clean button so design remains consistent
     btn_bg = "rgba(255,255,255,0.96)"
     btn_hover = "rgba(234,246,255,1)"
     arrow_color = "#03045e"
     border = "rgba(144,224,239,0.55)" if dark else "rgba(2,62,138,0.18)"
-
-    st.markdown(f"""
-    <style>
-    /* Strong override for the top back button */
-    .back-top-btn .stButton > button,
-    .back-top-btn button,
-    div.back-top-btn button {{
-        width: 96px !important;
-        min-width: 96px !important;
-        max-width: 96px !important;
-        height: 54px !important;
-        min-height: 54px !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border-radius: 9px !important;
-        background: {btn_bg} !important;
-        background-color: {btn_bg} !important;
-        color: {arrow_color} !important;
-        border: 1.8px solid {border} !important;
-        box-shadow: 0 8px 22px rgba(0,0,0,0.18) !important;
-        font-size: 1.45rem !important;
-        font-weight: 900 !important;
-        line-height: 1 !important;
-        text-shadow: none !important;
-        opacity: 1 !important;
-        transform: none !important;
-    }}
-
-    /* Streamlit puts button text inside p/span sometimes — force arrow color there too */
-    .back-top-btn .stButton > button *,
-    .back-top-btn button *,
-    div.back-top-btn button *,
-    .back-top-btn .stButton > button p,
-    .back-top-btn .stButton > button span {{
-        color: {arrow_color} !important;
-        fill: {arrow_color} !important;
-        stroke: {arrow_color} !important;
-        opacity: 1 !important;
-        font-weight: 900 !important;
-        text-shadow: none !important;
-    }}
-
-    .back-top-btn .stButton > button:hover,
-    .back-top-btn button:hover,
-    div.back-top-btn button:hover {{
-        background: {btn_hover} !important;
-        background-color: {btn_hover} !important;
-        color: {arrow_color} !important;
-        border-color: rgba(0,119,182,0.45) !important;
-        box-shadow: 0 10px 26px rgba(0,119,182,0.24) !important;
-        transform: none !important;
-    }}
-
-    .back-top-btn .stButton > button:hover *,
-    .back-top-btn button:hover * {{
-        color: {arrow_color} !important;
-        fill: {arrow_color} !important;
-        stroke: {arrow_color} !important;
-        opacity: 1 !important;
-    }}
-
-    .back-top-btn .stButton > button:active,
-    .back-top-btn button:active {{
-        transform: scale(0.98) !important;
-        color: {arrow_color} !important;
-    }}
-
-    @media (max-width: 760px) {{
-        .back-top-btn .stButton > button,
-        .back-top-btn button,
-        div.back-top-btn button {{
-            width: 76px !important;
-            min-width: 76px !important;
-            max-width: 76px !important;
-            height: 46px !important;
-            min-height: 46px !important;
-            font-size: 1.30rem !important;
-        }}
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<style>.back-top-btn .stButton>button,.back-top-btn button,div.back-top-btn button{{width:96px !important;min-width:96px !important;max-width:96px !important;height:54px !important;min-height:54px !important;padding:0 !important;margin:0 !important;border-radius:9px !important;background:{btn_bg}!important;background-color:{btn_bg}!important;color:{arrow_color}!important;border:1.8px solid{border}!important;box-shadow:0 8px 22px rgba(0,0,0,0.18) !important;font-size:1.45rem !important;font-weight:900 !important;line-height:1 !important;text-shadow:none !important;opacity:1 !important;transform:none !important;}}.back-top-btn .stButton>button *,.back-top-btn button *,div.back-top-btn button *,.back-top-btn .stButton>button p,.back-top-btn .stButton>button span{{color:{arrow_color}!important;fill:{arrow_color}!important;stroke:{arrow_color}!important;opacity:1 !important;font-weight:900 !important;text-shadow:none !important;}}.back-top-btn .stButton>button:hover,.back-top-btn button:hover,div.back-top-btn button:hover{{background:{btn_hover}!important;background-color:{btn_hover}!important;color:{arrow_color}!important;border-color:rgba(0,119,182,0.45) !important;box-shadow:0 10px 26px rgba(0,119,182,0.24) !important;transform:none !important;}}.back-top-btn .stButton>button:hover *,.back-top-btn button:hover *{{color:{arrow_color}!important;fill:{arrow_color}!important;stroke:{arrow_color}!important;opacity:1 !important;}}.back-top-btn .stButton>button:active,.back-top-btn button:active{{transform:scale(0.98) !important;color:{arrow_color}!important;}}@media (max-width:760px){{.back-top-btn .stButton>button,.back-top-btn button,div.back-top-btn button{{width:76px !important;min-width:76px !important;max-width:76px !important;height:46px !important;min-height:46px !important;font-size:1.30rem !important;}}}}</style>""", unsafe_allow_html=True)
 apply_back_button_arrow_visibility_fix()
-
-
-# =====================================================
-# FINAL FIX — TOP RIGHT USER NAME/ROLE VISIBILITY IN DARK MODE
-# =====================================================
 def apply_top_right_user_text_visibility_fix():
     dark = st.session_state.theme == "dark"
-
     if dark:
         name_color = "#ffffff"
         role_color = "#bdeeff"
@@ -2136,74 +246,13 @@ def apply_top_right_user_text_visibility_fix():
         role_color = "#0077b6"
         shadow = "0 1px 8px rgba(255,255,255,0.55)"
         box_bg = "rgba(255,255,255,0.08)"
-
-    st.markdown(f"""
-    <style>
-    /* Top-right small profile text beside mode button */
-    .corner-user {{
-        background: {box_bg} !important;
-        border-radius: 999px !important;
-        padding: 4px 8px 4px 4px !important;
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-    }}
-
-    .corner-user-text {{
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        min-width: 0 !important;
-    }}
-
-    .corner-name,
-    .corner-name *,
-    div.corner-name,
-    div.corner-name span {{
-        color: {name_color} !important;
-        opacity: 1 !important;
-        font-weight: 900 !important;
-        text-shadow: {shadow} !important;
-        -webkit-text-fill-color: {name_color} !important;
-    }}
-
-    .corner-role,
-    .corner-role *,
-    div.corner-role,
-    div.corner-role span {{
-        color: {role_color} !important;
-        opacity: 1 !important;
-        font-weight: 900 !important;
-        text-shadow: {shadow} !important;
-        -webkit-text-fill-color: {role_color} !important;
-    }}
-
-    .corner-avatar {{
-        border: 2px solid rgba(255,255,255,0.85) !important;
-        box-shadow: 0 7px 18px rgba(0,0,0,0.24) !important;
-    }}
-
-    .corner-avatar img {{
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        border-radius: 50% !important;
-        display: block !important;
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"""<style>.corner-user{{background:{box_bg}!important;border-radius:999px !important;padding:4px 8px 4px 4px !important;backdrop-filter:blur(8px) !important;-webkit-backdrop-filter:blur(8px) !important;}}.corner-user-text{{display:flex !important;flex-direction:column !important;justify-content:center !important;min-width:0 !important;}}.corner-name,.corner-name *,div.corner-name,div.corner-name span{{color:{name_color}!important;opacity:1 !important;font-weight:900 !important;text-shadow:{shadow}!important;-webkit-text-fill-color:{name_color}!important;}}.corner-role,.corner-role *,div.corner-role,div.corner-role span{{color:{role_color}!important;opacity:1 !important;font-weight:900 !important;text-shadow:{shadow}!important;-webkit-text-fill-color:{role_color}!important;}}.corner-avatar{{border:2px solid rgba(255,255,255,0.85) !important;box-shadow:0 7px 18px rgba(0,0,0,0.24) !important;}}.corner-avatar img{{width:100% !important;height:100% !important;object-fit:cover !important;border-radius:50% !important;display:block !important;}}</style>""", unsafe_allow_html=True)
 apply_top_right_user_text_visibility_fix()
-
-
-# =====================================================
-# MODEL AND PREDICTION
-# =====================================================
 @st.cache_resource
 def load_model_files():
     if os.path.exists(MODEL_FILE) and os.path.exists(COLUMNS_FILE):
         return joblib.load(MODEL_FILE), joblib.load(COLUMNS_FILE)
     return None, None
-
 def predict_score(data):
     model, columns = load_model_files()
     if model is not None and columns is not None:
@@ -2219,7 +268,6 @@ def predict_score(data):
         bonus = {"Low": -4, "Medium": 2, "High": 6}.get(data["Motivation_Level"], 0)
         pred += bonus
     return int(max(0, min(100, round(pred))))
-
 def get_recommendations(d):
     recs = []
     if d["Hours_Studied"] < 6:           recs.append("📚 Improve daily study hours to 6–8 hours.")
@@ -2230,21 +278,15 @@ def get_recommendations(d):
     if d["Learning_Resources"] == "Low": recs.append("💡 Use free learning resources such as lectures, notes, and PDFs.")
     if d["Peer_Influence"] == "Negative":recs.append("🤝 Build a positive peer group to improve academic consistency.")
     return recs
-
-# =====================================================
-# HISTORY AND PDF
-# =====================================================
 def user_history(username):
     all_h = load_json(HISTORY_FILE, {})
     return all_h.get(username, [])
-
 def save_prediction(username, record):
     all_h = load_json(HISTORY_FILE, {})
     all_h.setdefault(username, [])
     all_h[username].append(record)
     all_h[username] = all_h[username][-20:]
     save_json(HISTORY_FILE, all_h)
-
 def simple_pdf_graph(scores):
     drawing = Drawing(430, 170)
     drawing.add(String(10, 155, "Score History / Trend Graph", fontSize=12, fillColor=colors.HexColor("#184e77")))
@@ -2263,7 +305,6 @@ def simple_pdf_graph(scores):
             drawing.add(Circle(x, y, 3.2, fillColor=colors.HexColor("#00b4d8"), strokeColor=colors.HexColor("#03045e")))
             drawing.add(String(x-5, y+8, str(scores[i]), fontSize=7, fillColor=colors.HexColor("#184e77")))
     return drawing
-
 def pdf_factor_bar_graph(inputs):
     factors = [
         ("Previous", float(inputs.get("Previous_Scores", 0)), 100),
@@ -2286,7 +327,6 @@ def pdf_factor_bar_graph(inputs):
         drawing.add(String(x + 8, 22, label, fontSize=7, fillColor=colors.HexColor("#184e77")))
         drawing.add(String(x + 14, 42 + h, str(round(value, 1)), fontSize=7, fillColor=colors.HexColor("#03045e")))
     return drawing
-
 def pdf_radar_graph(inputs):
     items = [
         ("Previous", float(inputs.get("Previous_Scores", 0)), 100),
@@ -2319,7 +359,6 @@ def pdf_radar_graph(inputs):
         data_pts.extend([cx + max_r * pct * np.cos(angle), cy + max_r * pct * np.sin(angle)])
     drawing.add(Polygon(data_pts, fillColor=colors.HexColor("#caf0f8"), strokeColor=colors.HexColor("#0077b6"), strokeWidth=1.5))
     return drawing
-
 def profile_image_flowable(username):
     """
     PDF report profile picture fix:
@@ -2328,59 +367,42 @@ def profile_image_flowable(username):
     circular mask aur blue border ke saath PNG buffer me convert kiya gaya hai.
     """
     pic_path = os.path.join(PROFILE_PICS_DIR, f"{username}.jpg")
-
     if not os.path.exists(pic_path):
         return None
-
     try:
         from PIL import Image as PILImage, ImageOps, ImageDraw
-
         pdf_size = 1.45 * inch
         canvas_size = 300
-
-        # Open uploaded profile picture
         img = PILImage.open(pic_path).convert("RGB")
-
-        # Same as app avatar: zoom/cover + center crop
         try:
             resample_filter = PILImage.Resampling.LANCZOS
         except AttributeError:
             resample_filter = PILImage.LANCZOS
-
         img = ImageOps.fit(
             img,
             (canvas_size, canvas_size),
             method=resample_filter,
             centering=(0.5, 0.5)
         )
-
-        # Circular mask
         mask = PILImage.new("L", (canvas_size, canvas_size), 0)
         mask_draw = ImageDraw.Draw(mask)
         mask_draw.ellipse((0, 0, canvas_size - 1, canvas_size - 1), fill=255)
-
         circular_img = PILImage.new("RGBA", (canvas_size, canvas_size), (255, 255, 255, 0))
         circular_img.paste(img, (0, 0), mask)
-
-        # App-like border
         border_draw = ImageDraw.Draw(circular_img)
         border_draw.ellipse(
             (8, 8, canvas_size - 9, canvas_size - 9),
             outline=(0, 150, 199, 255),
             width=12
         )
-
         img_buffer = io.BytesIO()
         circular_img.save(img_buffer, format="PNG")
         img_buffer.seek(0)
-
         pdf_img = Image(img_buffer, width=pdf_size, height=pdf_size)
         pdf_img.hAlign = "CENTER"
         return pdf_img
-
     except Exception:
         return None
-
 def generate_pdf(username, user_data, score, inputs, recs):
     buffer = io.BytesIO()
     doc    = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.6*inch, bottomMargin=0.6*inch,
@@ -2463,13 +485,11 @@ def generate_pdf(username, user_data, score, inputs, recs):
     scores_list = [r.get("score",0) for r in user_history(username)]
     if not scores_list or scores_list[-1] != score:
         scores_list.append(score)
-
     story.append(Paragraph("  Complete Performance Graphs", head_style)); story.append(Spacer(1,6))
     story.append(pdf_radar_graph(inputs)); story.append(Spacer(1,8))
     story.append(pdf_factor_bar_graph(inputs)); story.append(Spacer(1,8))
     if scores_list:
         story.append(simple_pdf_graph(scores_list[-10:])); story.append(Spacer(1,14))
-
     history_records = user_history(username)
     if history_records:
         story.append(Paragraph("  Prediction History Summary", head_style)); story.append(Spacer(1,4))
@@ -2492,7 +512,6 @@ def generate_pdf(username, user_data, score, inputs, recs):
             ("PADDING",(0,0),(-1,-1),6),
         ]))
         story.append(t_hist); story.append(Spacer(1,14))
-
     story.append(Paragraph("  Personalized Recommendations", head_style)); story.append(Spacer(1,6))
     if recs:
         for r in recs:
@@ -2511,10 +530,6 @@ def generate_pdf(username, user_data, score, inputs, recs):
     doc.build(story)
     buffer.seek(0)
     return buffer.read()
-
-# =====================================================
-# CHART HELPERS
-# =====================================================
 def get_chart_colors():
     dark = st.session_state.theme == "dark"
     return {
@@ -2526,7 +541,6 @@ def get_chart_colors():
         "axis":   "#dff6ff" if dark else "#3b4f68",
         "grid":   "rgba(234,244,255,0.18)" if dark else "rgba(26,117,159,0.12)",
     }
-
 def score_trend_chart(records):
     cc = get_chart_colors()
     scores = [r["score"] for r in records]
@@ -2574,7 +588,6 @@ def score_trend_chart(records):
         showlegend=False,
     )
     return fig
-
 def radar_chart(inputs):
     cc = get_chart_colors()
     cats = ["Study Hours","Attendance","Sleep","Motivation","Resources","Peer Influence"]
@@ -2603,7 +616,6 @@ def radar_chart(inputs):
         paper_bgcolor=cc["paper"], showlegend=False,
     )
     return fig
-
 def factor_bar_chart(inputs):
     cc = get_chart_colors()
     factors = {
@@ -2633,15 +645,10 @@ def factor_bar_chart(inputs):
         showlegend=False,
     )
     return fig
-
-# =====================================================
-# WELCOME PAGE
-# =====================================================
 def welcome_page():
     dark = st.session_state.theme == "dark"
     card_desc = "#b8e0f7" if dark else "#0077b6"
     emoji = "☀️" if dark else "🌙"
-
     title_col, icon_col = st.columns([14, 1])
     with title_col:
         st.markdown(f"""
@@ -2656,7 +663,6 @@ def welcome_page():
             st.session_state.theme = "light" if dark else "dark"
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
-
     st.markdown(f"""
     <hr class='welcome-divider'/>
     <div class='feature-cards-row'>
@@ -2694,24 +700,16 @@ def welcome_page():
       <div class='stat-chip'><span class='stat-chip-num'>99%</span><span class='stat-chip-lbl'>Accuracy Rate</span></div>
     </div>
     """, unsafe_allow_html=True)
-
     col1, col2, col3 = st.columns([1.8, 1, 1.8])
     with col2:
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
-
     st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
-
-# =====================================================
-# AUTH PAGE  (Login + Signup)
-# =====================================================
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
     emoji = "☀️" if dark else "🌙"
-
-    # Top bar: Back | spacer | Theme
     left_col, spacer_col, right_col = st.columns([2, 8, 1])
     with left_col:
         st.markdown('<div class="back-btn-wrap">', unsafe_allow_html=True)
@@ -2725,16 +723,11 @@ def auth_page():
             st.session_state.theme = "light" if dark else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
-    # Login / Signup card
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown(f"<h2 style='text-align:center;margin-bottom:2px'>{APP_NAME}</h2>", unsafe_allow_html=True)
         st.markdown("<p class='subtext' style='text-align:center;margin-bottom:16px'>Secure Login & Signup</p>", unsafe_allow_html=True)
-
         tab_login, tab_signup = st.tabs(["🔑 Login", "✍️ Sign Up"])
-
-        # ── LOGIN ──
         with tab_login:
             username = st.text_input("Username", key="login_user", placeholder="Enter username")
             password = st.text_input("Password", type="password", key="login_pass", placeholder="Enter password")
@@ -2748,8 +741,6 @@ def auth_page():
                     st.rerun()
                 else:
                     st.error("Invalid username or password.")
-
-        # ── SIGNUP WITHOUT OTP ──
         with tab_signup:
             role      = st.selectbox("Account Type", ["student","parent"], format_func=lambda x: x.title(), key="su_role")
             username  = st.text_input("Create Username",  key="su_user")
@@ -2757,7 +748,6 @@ def auth_page():
             full_name = st.text_input("Full Name",         key="su_name")
             password  = st.text_input("Password",          type="password", key="su_pass")
             confirm   = st.text_input("Confirm Password",  type="password", key="su_confirm")
-
             if role == "student":
                 dob    = st.date_input("Date of Birth", key="su_dob",
                                        min_value=datetime(1990,1,1).date(),
@@ -2772,7 +762,6 @@ def auth_page():
                                           ["LKG", "UKG", "Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "College"],
                                           key="su_cgrade")
                 relation   = st.selectbox("Relation", ["Father","Mother","Guardian"], key="su_relation")
-
             if st.button("🚀 Create Account", key="create_account_btn", use_container_width=True):
                 if not username or not email or not full_name or not password or not confirm:
                     st.warning("Please fill all required fields first.")
@@ -2810,17 +799,11 @@ def auth_page():
                     st.session_state.auth_page   = "welcome"
                     st.success("🎉 Account created! Opening your dashboard…")
                     st.rerun()
-
-
-# =====================================================
-# TOP NAVIGATION BAR
-# =====================================================
 def go_page(page_name):
     """Change page and remember previous page for Back button."""
     if st.session_state.active_page != page_name:
         st.session_state.previous_page = st.session_state.active_page
         st.session_state.active_page = page_name
-
 def top_navbar(user):
     """Professional compact header with Back, active page indicator, menu, and user profile."""
     emoji = "🌙" if st.session_state.theme == "light" else "☀️"
@@ -2829,7 +812,6 @@ def top_navbar(user):
     role = user.get("role", st.session_state.role or "student").title()
     icon = "🎓" if user.get("role", "student") == "student" else "👨‍👩‍👧"
     avatar = profile_pic_html(st.session_state.username, icon)
-
     page_subtitles = {
         "Home": "Dashboard overview",
         "Prediction": "Enter details and predict score",
@@ -2837,13 +819,11 @@ def top_navbar(user):
         "History": "Previous prediction records",
         "Profile": "User account details",
     }
-
     c_back, c_title, c_home, c_pred, c_report, c_hist, c_prof, c_user, c_theme, c_sign = st.columns(
         [0.55, 2.15, 0.72, 0.92, 0.92, 0.82, 0.82, 1.35, 0.48, 0.72],
         gap="small",
         vertical_alignment="center"
     )
-
     with c_back:
         st.markdown('<div class="back-top-btn">', unsafe_allow_html=True)
         if st.button("←", key="header_back", help="Back", use_container_width=True):
@@ -2855,7 +835,6 @@ def top_navbar(user):
                 st.session_state.active_page = prev if prev != active else "Home"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
     with c_title:
         st.markdown(f"""
         <div class="header-title-wrap">
@@ -2863,7 +842,6 @@ def top_navbar(user):
             <div class="header-sub">{page_subtitles.get(active, TAGLINE)}</div>
         </div>
         """, unsafe_allow_html=True)
-
     menu_items = [
         (c_home, "Home", "Home"),
         (c_pred, "Prediction", "Predict"),
@@ -2879,7 +857,6 @@ def top_navbar(user):
                 go_page(page_name)
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
     with c_user:
         st.markdown(f"""
         <div class="corner-user">
@@ -2890,14 +867,12 @@ def top_navbar(user):
             </div>
         </div>
         """, unsafe_allow_html=True)
-
     with c_theme:
         st.markdown('<div class="circle-tool-btn">', unsafe_allow_html=True)
         if st.button(emoji, key="pro_theme", help="Toggle Theme", use_container_width=True):
             st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
     with c_sign:
         st.markdown('<div class="logout-small-btn">', unsafe_allow_html=True)
         if st.button("Logout", key="pro_logout", use_container_width=True):
@@ -2909,21 +884,12 @@ def top_navbar(user):
             st.session_state.previous_page = "Home"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-
-
-# =====================================================
-# INNER PAGES
-# =====================================================
-
-# ── HOME ──
 def home_page(user):
     records = user_history(st.session_state.username)
     name    = user.get("full_name", st.session_state.username)
-
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown(f"<div class='dash-title'>👋 Welcome, {name}!</div>", unsafe_allow_html=True)
     st.markdown("<p class='dash-subtitle'>Your academic performance dashboard — all insights in one place.</p>", unsafe_allow_html=True)
-
     scores = [r["score"] for r in records]
     c1,c2,c3,c4 = st.columns(4)
     metrics = [
@@ -2943,29 +909,21 @@ def home_page(user):
               <div class='metric-accent' style='background:{accent}'></div>
             </div>
             """, unsafe_allow_html=True)
-
     if records:
         st.markdown("<div class='chart-glass'>", unsafe_allow_html=True)
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
     else:
         st.info("🚀 Go to the **Prediction** page and generate your first score!")
-
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ── PREDICTION ──
 def prediction_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>🔮 Score Prediction</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Enter academic details. Save keeps values; Predict opens the full report page.</p>", unsafe_allow_html=True)
-
     saved = st.session_state.last_inputs if isinstance(st.session_state.last_inputs, dict) else {}
-
     def saved_index(options, key, default):
         value = saved.get(key, default)
         return options.index(value) if value in options else options.index(default)
-
     with st.form("prediction_form", clear_on_submit=False):
         col1, col2 = st.columns(2)
         with col1:
@@ -2984,14 +942,12 @@ def prediction_page(user):
             peer = st.selectbox("🤝 Peer Influence", ["Negative","Neutral","Positive"], index=saved_index(["Negative","Neutral","Positive"], "Peer_Influence", "Neutral"))
             resources = st.selectbox("📚 Learning Resources", ["Low","Medium","High"], index=saved_index(["Low","Medium","High"], "Learning_Resources", "Medium"))
             activities = st.selectbox("⚽ Extracurricular", ["Yes","No"], index=saved_index(["Yes","No"], "Extracurricular_Activities", "Yes"))
-
         st.markdown("<br>", unsafe_allow_html=True)
         save_col, predict_col = st.columns(2)
         with save_col:
             save_clicked = st.form_submit_button("💾 Save Values", use_container_width=True)
         with predict_col:
             predict_clicked = st.form_submit_button("🚀 Predict & Open Report", use_container_width=True)
-
     data = {
         "Hours_Studied": int(hours),
         "Attendance": int(attendance),
@@ -3008,17 +964,14 @@ def prediction_page(user):
         "Learning_Resources": resources,
         "Extracurricular_Activities": activities,
     }
-
     total_hours = hours + sleep
     if (save_clicked or predict_clicked) and total_hours > 24:
         st.error("Study Hours + Sleep Hours cannot exceed 24 hours per day.")
         st.markdown("</div>", unsafe_allow_html=True)
         return
-
     if save_clicked:
         st.session_state.last_inputs = data
         st.success("✅ Values saved. Now click Predict & Open Report when you want the full report.")
-
     if predict_clicked:
         score = predict_score(data)
         recs = get_recommendations(data)
@@ -3035,22 +988,16 @@ def prediction_page(user):
         st.session_state.last_pdf = generate_pdf(st.session_state.username, user, score, data, recs)
         go_page("Report & Share")
         st.rerun()
-
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ── REPORT & SHARE ──
 def report_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📄 Report & Share</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Download the PDF report and share it through WhatsApp.</p>", unsafe_allow_html=True)
-
     records = user_history(st.session_state.username)
     if not records and st.session_state.last_score is None:
         st.info("Please generate a score from the Prediction page first.")
         st.markdown("</div>", unsafe_allow_html=True)
         return
-
     latest = records[-1] if records else {
         "score":           st.session_state.last_score,
         "inputs":          st.session_state.last_inputs,
@@ -3061,7 +1008,6 @@ def report_page(user):
     recs   = latest.get("recommendations", [])
     pdf    = generate_pdf(st.session_state.username, user, score, inputs, recs)
     st.session_state.last_pdf = pdf
-
     col1, col2, col3 = st.columns([1,1,1])
     with col2:
         st.markdown(f"""
@@ -3070,10 +1016,8 @@ def report_page(user):
           <div class='metric-value'>{score}/100</div>
         </div>
         """, unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("### 📥 Download Complete Report")
-
     download_col1, download_col2, download_col3 = st.columns([1, 1, 1])
     with download_col2:
         st.download_button(
@@ -3083,7 +1027,6 @@ def report_page(user):
             mime="application/pdf",
             use_container_width=True
         )
-
     share_message = (
         f"🎓 {APP_NAME_PLAIN} PDF Report\n"
         f"Predicted Score: {score}/100\n"
@@ -3094,7 +1037,6 @@ def report_page(user):
         f"ScoreWise_Report_{st.session_state.username}.pdf",
         share_message
     )
-    
     st.markdown("### 📊 Performance Graphs")
     col_g1, col_g2 = st.columns(2)
     with col_g1:
@@ -3103,27 +1045,20 @@ def report_page(user):
         st.plotly_chart(factor_bar_chart(inputs), use_container_width=True)
     if records:
         st.plotly_chart(score_trend_chart(records), use_container_width=True)
-
     if recs:
         st.markdown("### 💬 Recommendations")
         for r in recs:
             st.info(r)
-
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ── HISTORY ──
 def history_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>📚 Prediction History</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>View all your predictions in one place.</p>", unsafe_allow_html=True)
-
     records = user_history(st.session_state.username)
     if not records:
         st.info("No prediction history yet. Go to Prediction page to get started!")
         st.markdown("</div>", unsafe_allow_html=True)
         return
-
     df = pd.DataFrame([{
         "Date":       r["date"],
         "Score":      r["score"],
@@ -3134,19 +1069,13 @@ def history_page(user):
     st.dataframe(df, use_container_width=True)
     st.plotly_chart(score_trend_chart(records), use_container_width=True)
     st.markdown("</div>", unsafe_allow_html=True)
-
-
-# ── PROFILE ──
 def profile_page(user):
     st.markdown("<div class='dash-page'>", unsafe_allow_html=True)
     st.markdown("<div class='page-title'>👤 My Profile</div>", unsafe_allow_html=True)
     st.markdown("<p class='subtext'>Edit your profile details and update your profile picture.</p>", unsafe_allow_html=True)
-
     users = load_json(USER_DB_FILE, {})
     uname = st.session_state.username
-
     col1, col2 = st.columns([1, 2])
-
     with col1:
         icon = "🎓" if user.get("role") == "student" else "👨‍👩‍👧"
         st.markdown(f"<div class='avatar-circle'>{profile_pic_html(uname, icon)}</div>",
@@ -3157,12 +1086,9 @@ def profile_page(user):
             save_profile_pic(uname, upload.read())
             st.success("Profile picture updated!")
             st.rerun()
-
     with col2:
         edit = st.session_state.profile_edit_mode
-
         if not edit:
-            # View mode — NO extra markdown before fields, card starts directly
             fields = [
                 ("Username",  uname),
                 ("Full Name", user.get("full_name","N/A")),
@@ -3182,26 +1108,20 @@ def profile_page(user):
                     ("Child Grade", user.get("child_grade","N/A")),
                     ("Relation",    user.get("relation","N/A")),
                 ]
-
-            # Build all field HTML in one string — no empty box before first field
             fields_html = "".join([
                 f"<div class='profile-field'><span class='pf-label'>{label}</span><span class='pf-value'>{val}</span></div>"
                 for label, val in fields
             ])
             st.markdown(f"<div class='profile-info-card'>{fields_html}</div>", unsafe_allow_html=True)
-
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("✏️ Edit Profile", use_container_width=True):
                 st.session_state.profile_edit_mode = True
                 st.rerun()
-
         else:
-            # Edit mode
             with st.form("edit_profile_form"):
                 st.markdown("##### ✏️ Edit Your Details")
                 new_name  = st.text_input("Full Name", value=user.get("full_name",""))
                 new_email = st.text_input("Email",     value=user.get("email",""))
-
                 if user.get("role") == "student":
                     dob_val  = user.get("dob","2000-01-01")
                     try:    dob_date = datetime.strptime(dob_val,"%Y-%m-%d").date()
@@ -3223,20 +1143,16 @@ def profile_page(user):
                     cur_rel    = user.get("relation","Father")
                     r_idx      = rel_opts.index(cur_rel) if cur_rel in rel_opts else 0
                     new_rel    = st.selectbox("Relation", rel_opts, index=r_idx)
-
                 st.markdown("##### 🔒 Change Password (optional)")
                 old_pass = st.text_input("Current Password",      type="password")
                 new_pass = st.text_input("New Password",          type="password")
                 cnf_pass = st.text_input("Confirm New Password",  type="password")
-
                 col_s1, col_s2 = st.columns(2)
                 with col_s1: save_clicked   = st.form_submit_button("💾 Save Changes", use_container_width=True)
                 with col_s2: cancel_clicked = st.form_submit_button("❌ Cancel",        use_container_width=True)
-
             if cancel_clicked:
                 st.session_state.profile_edit_mode = False
                 st.rerun()
-
             if save_clicked:
                 updated = users[uname].copy()
                 updated["full_name"] = new_name
@@ -3250,7 +1166,6 @@ def profile_page(user):
                     updated["child_name"]  = new_child
                     updated["child_grade"] = new_cgrade
                     updated["relation"]    = new_rel
-
                 if old_pass or new_pass or cnf_pass:
                     if users[uname]["password"] != hash_password(old_pass):
                         st.error("Current password is incorrect.")
@@ -3263,71 +1178,28 @@ def profile_page(user):
                         st.stop()
                     else:
                         updated["password"] = hash_password(new_pass)
-
                 users[uname] = updated
                 save_json(USER_DB_FILE, users)
                 st.session_state.profile_edit_mode = False
                 st.success("✅ Profile updated successfully!")
                 st.rerun()
-
     st.markdown("</div>", unsafe_allow_html=True)
-
-# =====================================================
-# MAIN APP SHELL  (Top Navbar + Page Router)
-# =====================================================
 def main_app():
     users = load_json(USER_DB_FILE, {})
     user  = users.get(st.session_state.username, {})
-
     top_navbar(user)
-
     page = st.session_state.active_page
     if   page == "Home":           home_page(user)
     elif page == "Prediction":     prediction_page(user)
     elif page == "Report & Share": report_page(user)
     elif page == "History":        history_page(user)
     elif page == "Profile":        profile_page(user)
-
-# =====================================================
-# ROUTER
-# =====================================================
 if st.session_state.logged_in:
     main_app()
 elif st.session_state.auth_page == "welcome":
     welcome_page()
 else:
     auth_page()
-
-# =====================================================
-# FINAL HOME CHART DARK MODE FIX — visible title + remove thin top line
-# =====================================================
 def apply_home_chart_dark_fix():
-    st.markdown("""
-    <style>
-    /* Score Trend chart title wrapper: remove the thin white box/line above chart */
-    .chart-glass {
-        border: 0 !important;
-        border-top: 0 !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        padding-top: 0 !important;
-        margin-top: 22px !important;
-    }
-
-    /* Keep the chart title and graph labels readable in dark mode */
-    .chart-glass .gtitle {
-        fill: #eaf4ff !important;
-        color: #eaf4ff !important;
-        font-weight: 900 !important;
-    }
-    .chart-glass .xtick text,
-    .chart-glass .ytick text,
-    .chart-glass .annotation-text {
-        fill: #dff6ff !important;
-        color: #dff6ff !important;
-        font-weight: 800 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
+    st.markdown("""<style>.chart-glass{border:0 !important;border-top:0 !important;box-shadow:none !important;background:transparent !important;padding-top:0 !important;margin-top:22px !important;}.chart-glass .gtitle{fill:#eaf4ff !important;color:#eaf4ff !important;font-weight:900 !important;}.chart-glass .xtick text,.chart-glass .ytick text,.chart-glass .annotation-text{fill:#dff6ff !important;color:#dff6ff !important;font-weight:800 !important;}</style>""", unsafe_allow_html=True)
 apply_home_chart_dark_fix()
