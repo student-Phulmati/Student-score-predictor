@@ -705,7 +705,7 @@ def welcome_page():
         if st.button("🚀 Get Started", use_container_width=True):
             st.session_state.auth_page = "login"
             st.rerun()
-    st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education with AI</div>", unsafe_allow_html=True)
+    st.markdown("<div class='welcome-footer'>❤️ Made with love for Students &nbsp;|&nbsp; Empowering Education </div>", unsafe_allow_html=True)
 def auth_page():
     users = load_json(USER_DB_FILE, {})
     dark  = st.session_state.theme == "dark"
