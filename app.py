@@ -29,7 +29,7 @@ MODEL_FILE       = "student_model.pkl"
 COLUMNS_FILE     = "model_columns.pkl"
 os.makedirs(PROFILE_PICS_DIR, exist_ok=True)
 
-# ✅ India timezone helper: use this everywhere instead of get_india_time()
+
 INDIA_TZ = ZoneInfo("Asia/Kolkata")
 
 def get_india_time():
